@@ -3,6 +3,7 @@
 import os
 import re
 import argparse
+import gate
 from gate import GateAnnotation
 
 
@@ -25,7 +26,6 @@ source1 = GateAnnotation(sources[0])
 source2 = GateAnnotation(sources[1])
 
 
-print(len(source1.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
-print(len(source2.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
-
-print(source1.get_annotation_sets())
+#print(source1.get_annotation_set_names())
+#print(source1.get_annotations(args.annotation_type))
+print(gate.annotation_kappa(source1.get_annotations(args.annotation_type), source2.get_annotations(args.annotation_type)))
