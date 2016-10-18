@@ -24,5 +24,8 @@ sources = [os.path.abspath(re.sub(""""|'""",'', source)) for source in sources]
 source1 = GateAnnotation(sources[0])
 source2 = GateAnnotation(sources[1])
 
+
 print(len(source1.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
 print(len(source2.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
+
+print(source1.get_annotation_sets())
