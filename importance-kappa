@@ -19,7 +19,7 @@ args = parser.parse_args()
 sources = [args.source1, args.source2]
 sources = [os.path.abspath(re.sub(""""|'""",'', source)) for source in sources]
 
-class gate_annotation:
+class GateAnnotation:
     def __init__(self, filename):
         self.filename = filename
 
@@ -35,10 +35,14 @@ class gate_annotation:
                 print("'{}' is not a valid annotation set".format(annotation_set))
                 quit()
         return re.findall(r'<Annotation\s+?.*?Type="{}".*?>.*?</Annotation>'.format(annotation_type), text, re.DOTALL)
+    
+    def get_annotation_sets(self):
+        text = open(self.filename).read()
+        
 
 
-source1 = gate_annotation(sources[0])
-source2 = gate_annotation(sources[1])
+source1 = GateAnnotation(sources[0])
+source2 = GateAnnotation(sources[1])
 
 print(len(source1.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
 print(len(source2.get_annotations(args.annotation_type, annotation_set=args.annotation_set)))
