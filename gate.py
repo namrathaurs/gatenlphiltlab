@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import namedtuple
 import re
 import xml.etree.ElementTree as ET
 
@@ -27,14 +28,10 @@ class GateAnnotation:
     def get_annotations(self, annotation_type, *, annotation_set=None):
         if annotation_set:
             return self.root.iterfind(".//AnnotationSet[@Name='{}']/Annotation[@Type='{}']".format(annotation_set, annotation_type))
-        return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
+        else:
+            return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
 
-def annotation_kappa(annotations1, annotations2, *, schema=None):
-    annotations1_dict = {annotation.get('Id'): annotation for annotation in annotations1}
-    annotations2_dict = {annotation.get('Id'): annotation for annotation in annotations2}
-    annotations = {}
-    for annotation1 in annotations1_dict.keys():
-        for annotation2 in annotations2_dict.keys():
-            if annotations1 == annotations2:
-                annotations.update(annotations1_dict.pop(annotation1), annotations2_dict.pop(annotation2))
-    return annotations
+def kappa(annotations1, annotations2, *, schema=None):
+    annotations1_list, annotations2_list = list(annotations1), list(annotations2)
+    return next(annotations1)
+    #annotation_pairs = {annotations1
