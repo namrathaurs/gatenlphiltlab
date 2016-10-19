@@ -26,12 +26,12 @@ class GateAnnotation:
 
     def get_annotations(self, annotation_type, *, annotation_set=None):
         if annotation_set:
-            return self.root.iterfind(".//AnnotationSet/Annotation[@Type='{}']".format(annotation_type))
+            return self.root.iterfind(".//AnnotationSet[@Name='{}']/Annotation[@Type='{}']".format(annotation_set, annotation_type))
         return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
 
 def annotation_kappa(annotations1, annotations2, *, schema=None):
-    annotations1_dict = {annotation.get('Type'): annotation for annotation in annotations1}
-    annotations2_dict = {annotation.get('Type'): annotation for annotation in annotations2}
+    annotations1_dict = {annotation.get('Id'): annotation for annotation in annotations1}
+    annotations2_dict = {annotation.get('Id'): annotation for annotation in annotations2}
     annotations = {}
     for annotation1 in annotations1_dict.keys():
         for annotation2 in annotations2_dict.keys():

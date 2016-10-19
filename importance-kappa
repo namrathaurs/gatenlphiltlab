@@ -28,4 +28,5 @@ source2 = GateAnnotation(sources[1])
 
 #print(source1.get_annotation_set_names())
 #print(source1.get_annotations(args.annotation_type))
-print(gate.annotation_kappa(source1.get_annotations(args.annotation_type), source2.get_annotations(args.annotation_type)))
+print(gate.annotation_kappa(list(source1.get_annotations(args.annotation_type)), list(source2.get_annotations(args.annotation_type))))
+#print(list(source1.get_annotations(args.annotation_type)))
