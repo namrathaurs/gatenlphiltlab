@@ -33,18 +33,20 @@ class GateAnnotation:
 
 def pair_annotations(annotations1, annotations2):
     annotations1_list, annotations2_list = list(annotations1), list(annotations2)
-    annotations_dict = {}
+    annotation_pairs = {}
     for annotation1 in annotations1_list:
         for annotation2 in annotations2_list:
             if ((int(annotation1.get('StartNode')) >= int(annotation2.get('StartNode'))
                     and int(annotation1.get('StartNode')) < int(annotation2.get('EndNode')))
                     or (int(annotation1.get('EndNode')) > int(annotation2.get('StartNode'))
                         and int(annotation1.get('EndNode')) <= int(annotation2.get('EndNode')))):
-                annotations_dict.update({annotation1:annotation2})
+                annotation_pairs.update({annotation1:annotation2})
                 annotations2_list.remove(annotation2)
                 break
     annotations1_list.clear()
     annotations2_list.clear()
-    for x in list(iter(annotations_dict)):
-        print(('a', x.get('StartNode'), x.get('EndNode')), ('b', annotations_dict[x].get('StartNode'), annotations_dict[x].get('EndNode')))
-    return annotations_dict
+    return annotation_pairs
+
+def kappa(annotation_pairs):
+    for pair in annotation_pairs:
+        return list(pair), list(annotation_pairs[pair])
