@@ -31,6 +31,16 @@ class GateAnnotation:
         else:
             return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
 
+class GateSchema:
+    def __init__(self, filename):
+        self.filename = filename
+    
+    def filename(self, filename):
+        self.filename = filename
+
+    @property
+    def 
+
 def pair_annotations(annotations1, annotations2):
     annotations1_list, annotations2_list = list(annotations1), list(annotations2)
 
