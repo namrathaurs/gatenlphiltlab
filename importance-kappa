@@ -27,4 +27,4 @@ source2 = GateAnnotation(sources[1])
 
 
 test = gate.pair_annotations(source1.get_annotations(args.annotation_type, annotation_set=args.annotation_set), source2.get_annotations(args.annotation_type, annotation_set=args.annotation_set))
-print(test[0])
+gate.kappa(test)
