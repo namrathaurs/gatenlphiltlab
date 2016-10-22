@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 class InputError(Exception):
     pass
 
-class GateAnnotation:
+class Annotation:
     def __init__(self, filename):
         self.filename = filename
 
@@ -31,15 +31,29 @@ class GateAnnotation:
         else:
             return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
 
-class GateSchema:
+class Schema:
     def __init__(self, filename):
         self.filename = filename
-    
+        self.namespace = {'schema':'http://www.w3.org/2000/10/XMLSchema'}
+
     def filename(self, filename):
         self.filename = filename
 
     @property
-    def 
+    def tree(self):
+        return ET.parse(self.filename)
+
+    @property
+    def root(self):
+        return self.tree.getroot()
+
+    def get_annotations(self, annotation_type):
+        attributes = self.root.findall(".//schema:element[@name='{}']//schema:attribute".format(annotation_type), namespaces=self.namespace)
+        return attributes
+
+
+
+
 
 def pair_annotations(annotations1, annotations2):
     annotations1_list, annotations2_list = list(annotations1), list(annotations2)
