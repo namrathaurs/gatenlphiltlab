@@ -55,3 +55,5 @@ def pair_annotations(annotations1, annotations2):
         content_pairs.append(new_pair)
 
     return content_pairs
+
+#def kappa(content_pairs, schema_file/contents):
