@@ -26,5 +26,7 @@ source2 = gate.Annotation(sources[1])
 schema = gate.Schema(args.schema)
 
 
-test = gate.pair_annotations(source1.get_annotations(args.annotation_type, annotation_set=args.annotation_set), source2.get_annotations(args.annotation_type, annotation_set=args.annotation_set))
-print(schema.get_annotations(args.annotation_type))
+test = gate.pair_annotations(source1.get_annotations(annotation_type=args.annotation_type, annotation_set=args.annotation_set), source2.get_annotations(annotation_type=args.annotation_type, annotation_set=args.annotation_set), annotation_type=args.annotation_type, schema=schema)
+print('{},{}'.format('attribute', 'kappa'))
+for x in test:
+    print('{},{}'.format(x.attribute, str(gate.kappa(x, weights='linear'))))
