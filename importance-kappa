@@ -7,18 +7,56 @@ import gate
 
 
 # parses command line arguments
-# sample command: importanceKappa -c file1.xml file2.xml
-parser = argparse.ArgumentParser(description="calculates Cohen's Kappa scores from CompanionBot Importance annotations")
-parser.add_argument('--csv-header', action='store_true', dest='csv_header', help='print the header line for stats in CSV format to terminal: (file1,file2,total,agreement,chance,kappa_score)')
-parser.add_argument('--csv-output', action='store_true', dest='csv_output_mode', help='print stats in CSV format to terminal: (file1,file2,total,agreement,chance,kappa_score)')
-parser.add_argument('--annotation-set', dest='annotation_set', type=str, help='specifies the annotation set from which to gather annotations')
-parser.add_argument('--schema', dest='schema', type=str, help='specifies the annotation schema used to create annotations')
-parser.add_argument('annotation_type', type=str, help='the annotation type to gather')
-parser.add_argument('source1', type=str, help='the first source annotation file')
-parser.add_argument('source2', type=str, help='the second source annotation file')
+# sample command: importanceKappa -csv-output file1.xml file2.xml
+
+
+parser = argparse.ArgumentParser(
+        description='''calculates Cohen's Kappa scores from
+         CompanionBot Importance annotations'''
+        )
+# TODO: csv-header output
+#parser.add_argument(
+#        '--csv-header',
+#        action='store_true',
+#        dest='csv_header',
+#        help='''print the header line for stats in CSV format to terminal:
+#         (file1,file2,total,agreement,chance,kappa_score)'''
+#        )
+parser.add_argument(
+        '--csv-output',
+        action='store_true',
+        dest='csv_output_mode',
+        help='''print stats in CSV format to terminal:
+         (file1,file2,total,agreement,chance,kappa_score)'''
+        )
+parser.add_argument(
+        '--annotation-set',
+        dest='annotation_set',
+        type=str,
+        help='specifies the annotation set from which to gather annotations'
+        )
+parser.add_argument(
+        '--schema',
+        dest='schema',
+        type=str,
+        help='specifies the annotation schema used to create annotations'
+        )
+parser.add_argument(
+        'annotation_type',
+        type=str,
+        help='the annotation type to gather'
+        )
+parser.add_argument(
+        'source1',
+        type=str,
+        help='the first source annotation file'
+        )
+parser.add_argument(
+        'source2',
+        type=str,
+        help='the second source annotation file')
 
 args = parser.parse_args()
-
 sources = [args.source1, args.source2]
 
 source1 = gate.Annotation(sources[0])
@@ -26,7 +64,19 @@ source2 = gate.Annotation(sources[1])
 schema = gate.Schema(args.schema)
 
 
-test = gate.pair_annotations(source1.get_annotations(annotation_type=args.annotation_type, annotation_set=args.annotation_set), source2.get_annotations(annotation_type=args.annotation_type, annotation_set=args.annotation_set), annotation_type=args.annotation_type, schema=schema)
+test = gate.pair_annotations(
+        source1.get_annotations(
+            annotation_type=args.annotation_type,
+            annotation_set=args.annotation_set
+            ),
+        source2.get_annotations(
+            annotation_type=args.annotation_type,
+            annotation_set=args.annotation_set
+            ),
+        annotation_type=args.annotation_type,
+        schema=schema
+        )
+
 print('{},{}'.format('attribute', 'kappa'))
 for x in test:
     print('{},{}'.format(x.attribute, str(gate.kappa(x, weights='linear'))))
