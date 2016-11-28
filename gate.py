@@ -4,6 +4,7 @@ from collections import namedtuple
 import re
 import xml.etree.ElementTree as ET
 import skll
+from collections import Counter
 
 class InputError(Exception):
     pass
@@ -101,4 +102,6 @@ def kappa(comparison_set, weights=None):
     new_comparison_set = new_comparison_set._replace(annotator2=tuple( re.sub(r'(\d+).*', r'\1', annotation) for annotation in comparison_set.annotator2 if annotation ))
     if (len(new_comparison_set.annotator1) == len(new_comparison_set.annotator2)
         and not (len(new_comparison_set.annotator1) <= 0 or len(new_comparison_set.annotator2) <= 0) ):
+        #print(new_comparison_set.attribute)
+        #print(Counter(list(zip(new_comparison_set.annotator1, new_comparison_set.annotator2))))
         return skll.kappa(new_comparison_set.annotator1, new_comparison_set.annotator2, weights=weights)
