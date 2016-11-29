@@ -363,7 +363,7 @@ if __name__ == '__main__':
     for source in sources:
         if not os.path.isfile(source): quit()
 
-    readCSVs = []
+    CSV_files = []
     for source in sources:
         source = os.path.abspath(source)
         if source.endswith('.txt'):
@@ -390,14 +390,14 @@ if __name__ == '__main__':
             for x in range(3):
                 if os.path.isfile(outputFile): break
                 else: time.sleep(1)
-            readCSVs.append(outputFile)
+            CSV_files.append(outputFile)
         elif source.endswith('.csv'):
-            readCSVs.append(source)
+            CSV_files.append(source)
         else: print('{} not recognized'.format(source))
 
     # If the label is not recognized, use previous.
     # If no previous, use 'neutral'.
-    for f in readCSVs:
+    for f in CSV_files:
         lines = []
         for line in open(f).readlines():
             lines.append(line.rstrip('\n').split(','))
@@ -414,10 +414,10 @@ if __name__ == '__main__':
             for line in lines:
                 csv.writer(csvFile).writerow(line)
 
-    with open(readCSVs[0], 'r', newline='') as csvFile:
+    with open(CSV_files[0], 'r', newline='') as csvFile:
         insertAnnotations('annotator1', csvFile)
 
-    with open(readCSVs[1], 'r', newline='') as csvFile:
+    with open(CSV_files[1], 'r', newline='') as csvFile:
         insertAnnotations('annotator2', csvFile)
 
     compareAnnotations()
@@ -429,8 +429,8 @@ if __name__ == '__main__':
         print(
             '{},{},{},{},{},{}'.format(
                 os.path.basename(
-                readCSVs[0]),
-                os.path.basename(readCSVs[1]),
+                CSV_files[0]),
+                os.path.basename(CSV_files[1]),
                 round(stats['total'],2),
                 round(stats['agreement'],2),
                 round(stats['chance'],2),
