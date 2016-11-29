@@ -321,7 +321,7 @@ if __name__ == '__main__':
             "Emotion Detection annotation files"
             )
         )
-    #TODO: finish csv header output
+#TODO: finish csv header output
     parser.add_argument(
         '-H',
         '--csv-header',
@@ -365,7 +365,7 @@ if __name__ == '__main__':
 
     readCSVs = []
     for source in sources:
-        source = os.path.abspath(source)
+        source = os.path.abspath(re.sub(""""|'""",'',source))
         if source.endswith('.txt'):
             readFile = open(source)
             outputFile = (
