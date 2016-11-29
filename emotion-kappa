@@ -284,7 +284,7 @@ def calculateKappa():
     neutral3 = ((neutral1 * neutral2)
         /total)
 
-    chance = sum(
+    chance = (sum(
         [anger3,
             boredom3,
             confusion3,
@@ -296,7 +296,7 @@ def calculateKappa():
             neutral3
             ]
         )
-        /total
+        /total)
 
     kappa_score = (agreement - chance) / (1 - chance)
 
