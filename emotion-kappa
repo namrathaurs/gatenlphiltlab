@@ -317,7 +317,7 @@ def timespanToSeconds(timespan):
 
 if __name__ == '__main__':
     parser= argparse.ArgumentParser(
-        description=("calculates Cohen's Kappa scores from CompanionBot ",
+        description=("calculates Cohen's Kappa scores from CompanionBot "
             "Emotion Detection annotation files"
             )
         )
@@ -327,7 +327,7 @@ if __name__ == '__main__':
         '--csv-header',
         action='store_true',
         dest='csv_header',
-        help=("print the header line for stats in CSV format to terminal: ",
+        help=("print the header line for stats in CSV format to terminal: "
             "(file1,file2,total,agreement,chance,kappa_score)"
             )
         )
@@ -336,7 +336,7 @@ if __name__ == '__main__':
         '--csv-output',
         action='store_true',
         dest='csv_output_mode',
-        help=("print stats in CSV format to terminal: ",
+        help=("print stats in CSV format to terminal: "
             "(file1,file2,total,agreement,chance,kappa_score)"
             )
         )
