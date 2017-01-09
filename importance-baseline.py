@@ -12,7 +12,8 @@ parser = argparse.ArgumentParser(
     ''' Importance annotation files.'''
     )
 parser.add_argument(
-    'schema',
+    'schema_file',
+    metavar='schema-file',
     type=argparse.FileType(mode='r', encoding='UTF-8'),
     )
 parser.add_argument(
@@ -25,9 +26,12 @@ parser.add_argument(
     metavar='output-file',
     type=argparse.FileType(mode='w', encoding='UTF-8'),
     )
-input_file = parser.parse_args().input_file
+input_file = gate.Annotation(parser.parse_args().input_file)
 output_file = parser.parse_args().output_file
-schema = gate.Schema(parser.parse_args().schema)
+schema_file = gate.Schema(parser.parse_args().schema_file)
+
+# TODO: export baseline and its alteration to its own file.
+# This prog doesn't need to process the CSV every time it's run.
 baseline_file = os.path.join(
     os.path.dirname(
         os.path.realpath(__file__)
@@ -64,12 +68,31 @@ baseline_dict = {}
 for x in baseline:
     baseline_dict.update({x.relation: x})
 baseline.clear()
-for x in schema.root.findall(
+
+for x in input_file.get_annotation_set_names():
+    if isinstance(x, str):
+        if 'consensus' in x.lower():
+            if input_file.get_annotations(
+                annotation_type='Relationship',
+                annotation_set='consensus',
+                ):
+                consensus_set = x
+
+input_file.get_annotations(
+    annotation_type='Relationship',
+    annotation_set=consensus_set,
+    )
+
+
+
+for x in schema_file.root.findall(
     ".//schema:element[@name='Relationship']"
-    "//schema:attribute[@name='3.Type of Relationship']"
+    "//schema:attribute[@name]"
     "//schema:enumeration[@value]",
-    namespaces=schema.namespace
+    namespaces=schema_file.namespace
     ):
+    print(x.get('value'))
+    continue
     if x.get('value') in baseline_dict:
         print('hit')
     else:
