@@ -1,0 +1,54 @@
+relation,imp1,imp1_cert,imp2,imp2_cert,qual,qual_cert
+Acquaintance Of,1,2,1,2,3,9
+Aunt Of,3,7,3,5,4,5
+Boss Of,2,4,2,4,3,5
+Boyfriend Of,4,8,4,8,4,8
+Brother Of,4,7,4,7,4,4
+Brother-in-law Of,2,4,2,4,3,4
+Children Of,4,7,4,8,4,6
+Co-Worker Of,2,5,2,5,3,4
+Cousin Of,3,4,3,4,3,4
+Daughter Of,4,7,4,9,4,5
+Daughter-in-law Of,3,5,3,5,3,4
+Doctor Of,2,5,2,5,3,6
+Ex-Husband Of,2,3,2,3,2,5
+Ex-Wife Of,2,3,2,3,2,5
+Family Of,3,5,3,5,4,5
+Father Of,4,9,4,7,4,5
+Father-in-law Of,3,5,3,5,3,4
+Friend Of,3,6,3,7,4,7
+Girlfriend,4,8,4,8,4,8
+Grandchildren Of,3,6,4,8,4,6
+Granddaughter Of,3,7,4,8,4,6
+Granddaughter-in-law Of,2,4,2,4,3,7
+Grandfather Of,4,8,3,7,4,6
+Grandmother Of,4,8,3,7,4,6
+Grandson Of,3,7,4,8,4,6
+Grandson-in-law Of,2,4,2,4,3,7
+Husband Of,4,8,4,8,4,6
+Mother Of,4,9,4,7,4,5
+Mother-in-law Of,3,5,3,5,3,4
+Neighbor Of,1,5,1,5,3,5
+Nephew Of,3,5,3,7,4,5
+Niece Of,3,5,3,7,4,5
+Nurse Of,2,6,2,7,3,6
+Partner Of,2,4,2,4,4,6
+Physical Therapist Of,2,6,2,6,3,5
+Romantic Partner Of,4,7,4,7,4,7
+Siblings Of,4,7,4,7,4,4
+Sister Of,4,7,4,7,4,4
+Sister-in-law Of,2,4,2,4,3,4
+Son Of,4,7,4,9,4,5
+Son-in-law Of,3,5,3,5,3,4
+Step-brother Of,3,5,3,5,3,3
+Step-daughter Of,3,5,4,7,3,3
+Step-father Of,4,6,3,4,3,3
+Step-mother Of,4,6,3,4,3,3
+Step-siblings of,3,5,3,5,3,3
+Step-sister Of,3,5,3,5,3,3
+Step-son Of,3,5,4,7,3,3
+Therapist Of,2,5,3,5,4,6
+Trainer Of,2,5,2,5,3,6
+Uncle Of,3,7,3,5,4,5
+Wife Of,4,8,4,8,4,6
+Unknown,1,0,1,0,3,0
