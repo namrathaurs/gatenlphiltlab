@@ -3,7 +3,7 @@
   <!-- XSchema definition for Personal Associations -->
   <element name="Relationship">
     <complexType>
-	  <attribute name="1.Person 1">
+	  <attribute name="1. Person 1">
         <simpleType>
           <restriction base="string">
 			<enumeration value="ID Number and Text Span"/>
@@ -11,7 +11,7 @@
           </restriction>
 		</simpleType>   
        </attribute>
-      <attribute name="3.Type of Relationship">
+      <attribute name="3. Type of Relationship">
         <simpleType>
           <restriction base="string">
 			<enumeration value="Mother Of"/>
@@ -70,7 +70,7 @@
 		  </restriction>
         </simpleType>   
        </attribute>
-	   <attribute name="4.Importance of Relationship according to Person 1">
+	   <attribute name="4. Importance of Relationship according to Person 1">
         <simpleType>
           <restriction base="string">
 			<enumeration value="1--Neutral"/>
@@ -97,7 +97,7 @@
           </restriction>
 		</simpleType>   
        </attribute>
-	    <attribute name="6.Importance of Relationship according to Person 2">
+	    <attribute name="7. Importance of Relationship according to Person 2">
         <simpleType>
           <restriction base="string">
 			<enumeration value="1--Neutral"/>
@@ -107,7 +107,7 @@
           </restriction>
 		</simpleType>   
        </attribute>
-	   <attribute name="7. Certainty of Importance of Relationship according to Person 2">
+	   <attribute name="8. Certainty of Importance of Relationship according to Person 2">
         <simpleType>
           <restriction base="string">
 			<enumeration value="0"/>
@@ -132,7 +132,7 @@
           </restriction>
 		</simpleType>   
        </attribute>
-	   <attribute name="8. Quality of Relationship">
+	   <attribute name="9. Quality of Relationship">
         <simpleType>
           <restriction base="string">
 			<enumeration value="1--Very Bad"/>
@@ -143,7 +143,7 @@
           </restriction>
 		</simpleType>   
        </attribute>
-	   <attribute name="9. Percent Certainty of Quality of Realationship">
+	   <attribute name="10. Percent Certainty of Quality of Relationship">
         <simpleType>
           <restriction base="string">
 			<enumeration value="0"/>
