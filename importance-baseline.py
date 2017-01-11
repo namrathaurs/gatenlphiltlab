@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import pprint
 import os
 import csv
+import re
 from collections import namedtuple
 import argparse
 import xml.etree.ElementTree as ET
@@ -113,46 +115,57 @@ for x in schema_file.root.findall(
     schema_dict.update({name:enumerations})
 
 # map schema names to baseline names
-baseline_ids = [
-    'imp1',
-    'imp1_cert',
-    'imp2',
-    'imp2_cert',
-    'qual',
-    'qual_cert',
-    ]
-baseline_schema_map = {x:'' for x in baseline_ids}
-Person1 = []
-Person2 = []
-Qual = []
-for x in schema_dict.keys():
-    if 'person 1' in x.lower():
-        Person1.append(x)
-    if 'person 2' in x.lower():
-        Person2.append(x)
-    if 'quality' in x.lower():
-        Qual.append(x)
-for x in Person1:
-    if 'importan' in x.lower():
-        if 'certain' in x.lower():
-            baseline_schema_map.update({'imp1_cert':x})
+'''
+ImportanceAnnotation = namedtuple(
+        'ImportanceAnnotation',
+        ['abbrev', 'long', 'scores']
+        )
+imp_annotations = []
+imp1 = ImportanceAnnotation(abbrev='imp1')
+imp1_cert = ImportanceAnnotation(abbrev='imp1_cert')
+imp2 = ImportanceAnnotation(abbrev='imp2')
+imp2_cert = ImportanceAnnotation(abbrev='imp2_cert')
+qual = ImportanceAnnotation(abbrev='qual')
+qual_cert = ImportanceAnnotation(abbrev='qual_cert')
+'''
+baseline_schema_map = {}
+for k,v in schema_dict.items():
+    if 'person 1' in k.lower():
+        if 'importan' in k.lower():
+            if 'certain' in k.lower():
+                v_dict = {}
+                for enumeration in v:
+                    digit = re.search(enumeration, '^\d+')
+                    v_dict.update({v_digit:v})
+                baseline_schema_map.update({'imp1_cert':{k:v}})
+                continue
+            else:
+                v_digit = re.search(v, '^\d+')
+                v_dict = {v_digit:v}
+                baseline_schema_map.update({'imp1':{k:v}})
+    if 'person 2' in k.lower():
+        if 'importan' in k.lower():
+            if 'certain' in k.lower():
+                v_digit = re.search(v, '^\d+')
+                v_dict = {v_digit:v}
+                baseline_schema_map.update({'imp2_cert':{k:v}})
+                continue
+            else:
+                v_digit = re.search(v, '^\d+')
+                v_dict = {v_digit:v}
+                baseline_schema_map.update({'imp2':{k:v}})
+    if 'quality' in k.lower():
+        if 'certain' in k.lower():
+            v_digit = re.search(v, '^\d+')
+            v_dict = {v_digit:v}
+            baseline_schema_map.update({'qual_cert':{k:v}})
             continue
         else:
-            baseline_schema_map.update({'imp1':x})
-for x in Person2:
-    if 'importan' in x.lower():
-        if 'certain' in x.lower():
-            baseline_schema_map.update({'imp2_cert':x})
-            continue
-        else:
-            baseline_schema_map.update({'imp2':x})
-for x in Qual:
-    if 'certain' in x.lower():
-        baseline_schema_map.update({'qual_cert':x})
-        continue
-    else:
-        baseline_schema_map.update({'qual':x})
+            v_digit = re.search(v, '^\d+')
+            v_dict = {v_digit:v}
+            baseline_schema_map.update({'qual':{k:v}})
 
+pprint.pprint(baseline_schema_map)
 
 quit()
 
