@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import pprint
 import os
 import csv
 import re
@@ -61,39 +60,23 @@ Baseline = namedtuple(
         'qual_cert'
         ]
     )
-baseline = []
 with open(baseline_file, 'r') as csvfile:
+    baseline_dict = {}
     for row in csv.DictReader(csvfile):
-        baseline.append(
-            Baseline(
-                relation=row['relation'],
-                imp1=row['imp1'],
-                imp1_cert=row['imp1_cert'],
-                imp2=row['imp2_cert'],
-                imp2_cert=row['imp2_cert'],
-                qual=row['qual'],
-                qual_cert=row['qual_cert']
-                )
+        baseline_dict.update(
+            {
+                row['relation']:
+                Baseline(
+                    relation=row['relation'],
+                    imp1=row['imp1'],
+                    imp1_cert=row['imp1_cert'],
+                    imp2=row['imp2'],
+                    imp2_cert=row['imp2_cert'],
+                    qual=row['qual'],
+                    qual_cert=row['qual_cert']
+                    )
+                }
             )
-baseline_dict = {}
-for x in baseline:
-    baseline_dict.update({x.relation: x})
-baseline.clear()
-
-# find consensus set
-for x in input_file.get_annotation_set_names():
-    if isinstance(x, str):
-        if 'consensus' in x.lower():
-            # makes sure rel annotations are in this set
-            if input_file.get_annotations(
-                annotation_type='Relationship',
-                annotation_set='consensus',
-                ):
-                consensus_set_name = x
-consensus_set = input_file.get_annotations(
-    annotation_type='Relationship',
-    annotation_set=consensus_set_name,
-    )
 
 # parse schema into dictionary
 ## keys = name of attribute
@@ -115,66 +98,134 @@ for x in schema_file.root.findall(
     schema_dict.update({name:enumerations})
 
 # map schema names to baseline names
-'''
 ImportanceAnnotation = namedtuple(
         'ImportanceAnnotation',
-        ['abbrev', 'long', 'scores']
+        ['abbrev', 'longform', 'scores']
         )
-imp_annotations = []
-imp1 = ImportanceAnnotation(abbrev='imp1')
-imp1_cert = ImportanceAnnotation(abbrev='imp1_cert')
-imp2 = ImportanceAnnotation(abbrev='imp2')
-imp2_cert = ImportanceAnnotation(abbrev='imp2_cert')
-qual = ImportanceAnnotation(abbrev='qual')
-qual_cert = ImportanceAnnotation(abbrev='qual_cert')
-'''
-baseline_schema_map = {}
+
+def schema_parse(abbrev=None, longform=None, scores=None):
+    enumeration_dict = {}
+    for enumeration in scores:
+        digit = re.search('^\d+', enumeration).group()
+        enumeration_dict.update({digit:enumeration})
+    return ImportanceAnnotation(
+        abbrev=abbrev,
+        longform=longform,
+        scores=enumeration_dict
+        )
+
 for k,v in schema_dict.items():
     if 'person 1' in k.lower():
         if 'importan' in k.lower():
             if 'certain' in k.lower():
-                v_dict = {}
-                for enumeration in v:
-                    digit = re.search(enumeration, '^\d+')
-                    v_dict.update({v_digit:v})
-                baseline_schema_map.update({'imp1_cert':{k:v}})
+                imp1_cert = schema_parse(
+                    abbrev='imp1_cert',
+                    longform=k,
+                    scores=v
+                    )
                 continue
             else:
-                v_digit = re.search(v, '^\d+')
-                v_dict = {v_digit:v}
-                baseline_schema_map.update({'imp1':{k:v}})
+                imp1 = schema_parse(
+                    abbrev='imp1',
+                    longform=k,
+                    scores=v
+                    )
+                continue
     if 'person 2' in k.lower():
         if 'importan' in k.lower():
             if 'certain' in k.lower():
-                v_digit = re.search(v, '^\d+')
-                v_dict = {v_digit:v}
-                baseline_schema_map.update({'imp2_cert':{k:v}})
+                imp2_cert = schema_parse(
+                    abbrev='imp2_cert',
+                    longform=k,
+                    scores=v
+                    )
                 continue
             else:
-                v_digit = re.search(v, '^\d+')
-                v_dict = {v_digit:v}
-                baseline_schema_map.update({'imp2':{k:v}})
+                imp2 = schema_parse(
+                    abbrev='imp2',
+                    longform=k,
+                    scores=v
+                    )
+                continue
     if 'quality' in k.lower():
         if 'certain' in k.lower():
-            v_digit = re.search(v, '^\d+')
-            v_dict = {v_digit:v}
-            baseline_schema_map.update({'qual_cert':{k:v}})
+            qual_cert = schema_parse(
+                abbrev='qual_cert',
+                longform=k,
+                scores=v
+                )
             continue
         else:
-            v_digit = re.search(v, '^\d+')
-            v_dict = {v_digit:v}
-            baseline_schema_map.update({'qual':{k:v}})
+            qual = schema_parse(
+                abbrev='qual',
+                longform=k,
+                scores=v
+                )
+            continue
 
-pprint.pprint(baseline_schema_map)
+imp_annotation_scheme = [
+    imp1,
+    imp1_cert,
+    imp2,
+    imp2_cert,
+    qual,
+    qual_cert
+    ]
 
-quit()
+# find consensus set
+for x in input_file.get_annotation_set_names():
+    if isinstance(x, str):
+        if 'consensus' in x.lower():
+            # makes sure relevant annotations are in this set
+            if input_file.get_annotations(
+                annotation_type='Relationship',
+                annotation_set='consensus',
+                ):
+                consensus_set_name = x
+consensus_set = input_file.get_annotations(
+    annotation_type='Relationship',
+    annotation_set=consensus_set_name,
+    )
 
-# edits consensus set
+# edit consensus set
+importance_prompts = [x.longform for x in imp_annotation_scheme]
+unrecognized_relations = {}
 for annotation in consensus_set:
+    # remove preexisting importance annotations
     for feature in annotation:
         for element in feature:
             if element.tag == 'Name':
-                element.text = 'fqwhgads'
+                if (('type' in element.text.lower()) and
+                    ('relation' in element.text.lower())):
+                    relation = feature.find('.//Value').text
+                    break
+                if element.text in importance_prompts:
+                    annotation.remove(feature)
+                    break
+    # tally unrecognized relation types
+    if relation not in baseline_dict:
+        if relation in unrecognized_relations:
+            unrecognized_relations[relation] += 1
+        else:
+            unrecognized_relations.update({relation: 1})
+        continue
+    # create baseline importance annotations
+    baseline = baseline_dict[relation]._asdict()
+    for dimension in imp_annotation_scheme:
+        feature = ET.SubElement(annotation, 'Feature')
+        name = ET.SubElement(
+            feature,
+            'Name',
+            className='java.lang.String'
+            )
+        value = ET.SubElement(
+            feature,
+            'Value',
+            className='java.lang.String'
+            )
+        name.text = dimension.longform
+        score = baseline[dimension.abbrev]
+        value.text = dimension.scores[score] 
 
 # writes edits to output file
 input_file.tree.write(
