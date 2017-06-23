@@ -76,11 +76,12 @@ for output_annotation_path in output_annotation_paths:
             ),
         )
 
-# compile list of restriction_strings from annotation file
+# gather annotated text
 text_with_nodes = OrderedDict()
 for node in annotation_file.root.findall("./TextWithNodes/Node"):
     text_with_nodes.update({node.get('id'): node})
 
+# compile list of restriction_strings from annotation file
 restriction_strings = []
 for annotation in annotation_file.get_annotations(
     annotation_type=input_annotation_type
@@ -97,6 +98,14 @@ for annotation in annotation_file.get_annotations(
                 text_with_nodes.items()
                 )[start_node:end_node]]
             )
+        # trim string to include only first 3 and last 3 words
+        if len(string.split()) > 6:
+            string = ' (...) '.join(
+                [
+                    ' '.join(string.split()[:3]),
+                    ' '.join(string.split()[-3:])
+                    ]
+                )
         # formatting of feature string selection
         restriction_strings.append(
             '{ID} {string}'.format(
