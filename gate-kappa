@@ -1,33 +1,40 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import re
 import argparse
 import gate
 
 
 # parses command line arguments
-# sample command: importanceKappa -csv-output file1.xml file2.xml
+# sample command: importanceKappa --csv-output --annotation-set event_spans file1.xml file2.xml
 
+csv_format = 'file1,file2,annotation_type:attribute,kappa_score,kappa_length'
 
 parser = argparse.ArgumentParser(
         description='''calculates Cohen's Kappa scores from
          CompanionBot Importance annotations'''
         )
 # TODO: csv-header output
-#parser.add_argument(
-#        '--csv-header',
-#        action='store_true',
-#        dest='csv_header',
-#        help='''print the header line for stats in CSV format to terminal:
-#         (file1,file2,total,agreement,chance,kappa_score)'''
-#        )
+parser.add_argument(
+        '--csv-header',
+        action='store_true',
+        dest='csv_header',
+        help='''print the header line for stats in CSV format to terminal:
+         ({})'''.format(csv_format)
+        )
+
+if '--csv-header' in sys.argv:
+    print(csv_format)
+    quit()
+
 parser.add_argument(
         '--csv-output',
         action='store_true',
         dest='csv_output_mode',
-        help='''print stats in CSV format to terminal:
-         (file1,file2,total,agreement,chance,kappa_score)'''
+        help='''print stats in CSV format to terminal and exit:
+         ({})'''.format(csv_format)
         )
 parser.add_argument(
         '--annotation-set',
@@ -42,8 +49,9 @@ parser.add_argument(
         help='specifies the annotation schema used to create annotations'
         )
 parser.add_argument(
-        'annotation_type',
+        '--annotation-type',
         type=str,
+        required=True,
         help='the annotation type to gather'
         )
 parser.add_argument(
@@ -55,14 +63,20 @@ parser.add_argument(
         'source2',
         type=str,
         help='the second source annotation file')
+parser.add_argument(
+        '--weighting',
+        type=str,
+        required=True,
+        help="the type of weighting used to calculate Kappa; can be 'linear', 'quadratic', or 'none'")
 
 args = parser.parse_args()
 sources = [args.source1, args.source2]
-
+csv_output_mode = args.csv_output_mode
 source1 = gate.Annotation(sources[0])
 source2 = gate.Annotation(sources[1])
 schema = gate.Schema(args.schema)
-
+weighting = args.weighting
+if weighting == 'none': weighting = None
 
 test = gate.pair_annotations(
         source1.get_annotations(
@@ -77,6 +91,23 @@ test = gate.pair_annotations(
         schema=schema
         )
 
-print('{},{}'.format('attribute', 'kappa'))
 for x in test:
-    print('{},{}'.format(x.attribute, str(gate.kappa(x, weights='linear'))))
+    # use linear weighting for importance
+    # don't use weighting for categorical values like polarity
+    # if no weighting, assign unique numbers for each annotation feature value
+
+    kappa = gate.kappa(x, weights=weighting)
+
+    if csv_output_mode:
+        print(
+            '{},{},{}:{},{},{}'.format(
+                os.path.basename(args.source1),
+                os.path.basename(args.source2),
+                args.annotation_type,
+                x.attribute,
+                kappa['score'],
+                kappa['length']
+            )
+        )
+    else:
+        print(kappa)
