@@ -14,33 +14,46 @@ class InputError(Exception):
 class Annotation:
     def __init__(self, filename):
         self.filename = filename
-
-    def filename(self, filename):
-        self.filename = filename
-
-    @property
-    def tree(self):
-        return ET.parse(self.filename)
-
-    @property
-    def root(self):
-        return self.tree.getroot()
+        self.tree = ET.parse(self.filename)
+        self.root = self.tree.getroot()
 
     def get_annotation_set_names(self):
-        return [annotation_set.get('Name') for annotation_set in self.root.iter("AnnotationSet")]
+        annotation_set_names = []
+        for annotation_set in self.root.findall(".//AnnotationSet"):
+            annotation_set_names.append(annotation_set.get("Name"))
+        return annotation_set_names
 
-    def get_annotations(self, *, annotation_type=None, annotation_set=None):
+    def get_annotations(
+        self,
+        *,
+        annotation_type=None,
+        annotation_set=None
+        ):
         if annotation_set:
-            return self.root.iterfind(".//AnnotationSet[@Name='{}']/Annotation[@Type='{}']".format(annotation_set, annotation_type))
+            return self.root.findall(
+                ''.join(
+                    [
+                        ".//AnnotationSet[@Name='{}']".format(annotation_set),
+                        "/Annotation[@Type='{}']".format(annotation_type)
+                        ]
+                    )
+                )
         else:
-            return self.root.iterfind(".//Annotation[@Type='{}']".format(annotation_type))
+            return self.root.findall(
+                ".//Annotation[@Type='{}']".format(annotation_type)
+                )
 
 
 class Schema:
     def __init__(self, filename):
         self.filename = filename
-        self.namespace = {'schema':'http://www.w3.org/2000/10/XMLSchema'}
+        self.tree = ET.parse(self.filename)
+        self.root = self.tree.getroot()
+        self.namespace = {
+            'schema':'http://www.w3.org/2000/10/XMLSchema'
+            }
 
+    '''
     def filename(self, filename):
         self.filename = filename
 
@@ -51,15 +64,27 @@ class Schema:
     @property
     def root(self):
         return self.tree.getroot()
+    '''
 
     def get_attributes(self, annotation_type):
-        attributes = self.root.findall(".//schema:element[@name='{}']//schema:attribute".format(annotation_type), namespaces=self.namespace)
+        attributes = self.root.findall(
+            ".//schema:element[@name='{}']"
+            "//schema:attribute".format(annotation_type),
+            namespaces=self.namespace
+            )
         return attributes
 
 
-def pair_annotations(annotations1, annotations2, *, annotation_type=None, schema=None):
+def pair_annotations(
+    annotations1,
+    annotations2,
+    *,
+    annotation_type=None,
+    schema=None
+    ):
 
-    annotations1_list, annotations2_list = list(annotations1), list(annotations2)
+    annotations1_list = list(annotations1)
+    annotations2_list = list(annotations2)
 
     # Build list of annotation pairs
     annotation_pairs = []
