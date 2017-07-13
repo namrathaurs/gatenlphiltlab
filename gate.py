@@ -126,87 +126,88 @@ def pair_annotations(
 
 def kappa(comparison_set, weights=None):
 
-    new_comparison_set = comparison_set
+    if len(comparison_set.annotator1) == len(comparison_set.annotator2):
 
-    if weights == None:
-    # skll.kappa accepts only int-like arguments,
-    # so, given a set of string annotations, each will
-    # be assigned a unique int id. 
-    # this is only statistically accurate when calculating an unweighted kappa
-    # since only then do the distances between annotations not matter. 
+        new_comparison_set = comparison_set
 
-        # store a set of annotations...
-        annotation_dict = {}
-        for annotations in [
-            comparison_set.annotator1,
-            comparison_set.annotator2
-        ]:
-            for annotation in annotations:
-                annotation_dict.update({annotation : None})
+        if weights == None:
+        # skll.kappa accepts only int-like arguments,
+        # so, given a set of string annotations, each will
+        # be assigned a unique int id. 
+        # this is only statistically accurate when calculating an unweighted kappa
+        # since only then do the distances between annotations not matter. 
 
-        # then assign ints as ids
-        id = 1
-        for k in annotation_dict:
-            annotation_dict.update({k : str(id)})
-            id += 1
+            # store a set of annotations...
+            annotation_dict = {}
+            for annotations in [
+                comparison_set.annotator1,
+                comparison_set.annotator2
+            ]:
+                for annotation in annotations:
+                    annotation_dict.update({annotation : None})
 
-        def annotation_int(annotations):
-            for annotation in annotations:
-                if annotation in annotation_dict:
-                    yield re.sub(
-                        annotation,
-                        annotation_dict.get(annotation),
-                        annotation
-                    )
+            # then assign ints as ids
+            id = 1
+            for k in annotation_dict:
+                annotation_dict.update({k : str(id)})
+                id += 1
 
-        # replace the annotation strings with int labels
-        new_comparison_set = new_comparison_set._replace(
-            annotator1=tuple(
-                annotation_int(comparison_set.annotator1)
-            ),
-            annotator2=tuple(
-                annotation_int(comparison_set.annotator2)
+            def annotation_int(annotations):
+                for annotation in annotations:
+                    if annotation in annotation_dict:
+                        yield re.sub(
+                            annotation,
+                            annotation_dict.get(annotation),
+                            annotation
+                        )
+
+            # replace the annotation strings with int labels
+            new_comparison_set = new_comparison_set._replace(
+                annotator1=tuple(
+                    annotation_int(comparison_set.annotator1)
+                ),
+                annotator2=tuple(
+                    annotation_int(comparison_set.annotator2)
+                )
             )
-        )
+
+            annotator1 = new_comparison_set.annotator1
+            annotator2 = new_comparison_set.annotator2
+
+        else:
+
+            def annotation_int(annotations):
+                for annotation in annotations:
+                    if annotation:
+                        yield re.sub(
+                            r'(\d+).*',
+                            r'\1',
+                            annotation
+                        )
+                        next()
+                    else:
+                        yield annotation
+                        next()
+
+            new_comparison_set = new_comparison_set._replace(
+                annotator1=tuple(
+                    annotation_int(comparison_set.annotator1)
+                ),
+                annotator2=tuple(
+                    annotation_int(comparison_set.annotator2)
+                )
+            )
+
+            annotator1 = new_comparison_set.annotator1
+            annotator2 = new_comparison_set.annotator2
+
 
         kappa_score = skll.kappa(
-            new_comparison_set.annotator1,
-            new_comparison_set.annotator2,
+            annotator1,
+            annotator2,
             weights=weights
         )
 
-    else:
-
-        def annotation_int(annotations):
-            for annotation in annotations:
-                if annotation:
-                    yield re.sub(
-                        r'(\d+).*',
-                        r'\1',
-                        annotation
-                    )
-                    next()
-                else:
-                    yield annotation
-                    next()
-
-        new_comparison_set = new_comparison_set._replace(
-            annotator1=tuple(
-                annotation_int(annotator1)
-            ),
-            annotator2=tuple(
-                annotation_int(annotator2)
-            )
-        )
-
-
-        kappa_score = skll.kappa(
-            new_comparison_set.annotator1,
-            new_comparison_set.annotator2,
-            weights=weights
-        )
-
-    if len(new_comparison_set.annotator1) == len(new_comparison_set.annotator2):
         kappa_length = len(new_comparison_set.annotator1)
 
     return dict(

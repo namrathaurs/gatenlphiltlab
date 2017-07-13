@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# calculates Cohen's Kappa scores from CompanionBot Importance annotations
+
 import os
 import sys
 import re
@@ -8,88 +10,95 @@ import gate
 
 
 # parses command line arguments
-# sample command: importanceKappa --csv-output --annotation-set event_spans file1.xml file2.xml
+# sample command:
+#   importanceKappa --csv-output --annotation-set event_spans file1.xml file2.xml
 
 csv_format = 'file1,file2,annotation_type:attribute,kappa_score,kappa_length'
 
 parser = argparse.ArgumentParser(
-        description='''calculates Cohen's Kappa scores from
-         CompanionBot Importance annotations'''
-        )
-# TODO: csv-header output
+    description="calculates Cohen's Kappa scores from "
+    "CompanionBot Importance annotations"
+)
 parser.add_argument(
-        '--csv-header',
-        action='store_true',
-        dest='csv_header',
-        help='''print the header line for stats in CSV format to terminal:
-         ({})'''.format(csv_format)
-        )
+    '--csv-header',
+    action='store_true',
+    dest='csv_header',
+    help='''print the header line for stats in CSV format to terminal:
+     ({})'''.format(csv_format)
+)
 
+# stop arg-parse configuration if csv-header is requested
 if '--csv-header' in sys.argv:
     print(csv_format)
     quit()
 
 parser.add_argument(
-        '--csv-output',
-        action='store_true',
-        dest='csv_output_mode',
-        help='''print stats in CSV format to terminal and exit:
-         ({})'''.format(csv_format)
-        )
+    '--csv-output',
+    action='store_true',
+    dest='csv_output_mode',
+    help='''print stats in CSV format to terminal and exit:
+     ({})'''.format(csv_format)
+)
 parser.add_argument(
-        '--annotation-set',
-        dest='annotation_set',
-        type=str,
-        help='specifies the annotation set from which to gather annotations'
-        )
+    '--annotation-set',
+    dest='annotation_set',
+    type=str,
+    help='specifies the annotation set from which to gather annotations'
+)
 parser.add_argument(
-        '--schema',
-        dest='schema',
-        type=str,
-        help='specifies the annotation schema used to create annotations'
-        )
+    '--schema',
+    dest='schema',
+    required=True,
+    type=str,
+    help='specifies the annotation schema used to create annotations'
+)
 parser.add_argument(
-        '--annotation-type',
-        type=str,
-        required=True,
-        help='the annotation type to gather'
-        )
+    '--annotation-type',
+    type=str,
+    required=True,
+    help='the annotation type to gather'
+)
 parser.add_argument(
-        'source1',
-        type=str,
-        help='the first source annotation file'
-        )
+    'source1',
+    type=str,
+    help='the first source annotation file'
+)
 parser.add_argument(
-        'source2',
-        type=str,
-        help='the second source annotation file')
+    'source2',
+    type=str,
+    help='the second source annotation file'
+)
 parser.add_argument(
-        '--weighting',
-        type=str,
-        required=True,
-        help="the type of weighting used to calculate Kappa; can be 'linear', 'quadratic', or 'none'")
+    '--weighting',
+    type=str,
+    required=True,
+    help="the type of weighting used to calculate Kappa; "
+    "can be 'linear', 'quadratic', or 'none'"
+)
 
+# parse command-line arguments
 args = parser.parse_args()
-sources = [args.source1, args.source2]
+
 csv_output_mode = args.csv_output_mode
-source1 = gate.Annotation(sources[0])
-source2 = gate.Annotation(sources[1])
+source1 = gate.Annotation(args.source1)
+source2 = gate.Annotation(args.source2)
 schema = gate.Schema(args.schema)
 weighting = args.weighting
-if weighting == 'none': weighting = None
+if weighting.lower() == 'none':
+    weighting = None
 
 test = gate.pair_annotations(
-        source1.get_annotations(
-            annotation_type=args.annotation_type,
-            annotation_set=args.annotation_set
-            ),
-        source2.get_annotations(
-            annotation_type=args.annotation_type,
-            annotation_set=args.annotation_set
-            ),
+    source1.get_annotations(
         annotation_type=args.annotation_type,
-        schema=schema
-        )
+        annotation_set=args.annotation_set
+    ),
+    source2.get_annotations(
+        annotation_type=args.annotation_type,
+        annotation_set=args.annotation_set
+    ),
+    annotation_type=args.annotation_type,
+    schema=schema
+)
 
 for x in test:
     # use linear weighting for importance
