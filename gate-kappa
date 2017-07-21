@@ -71,7 +71,7 @@ parser.add_argument(
 parser.add_argument(
     '--weighting',
     type=str,
-    required=True,
+    default='none',
     help="the type of weighting used to calculate Kappa; "
     "can be 'linear', 'quadratic', or 'none'"
 )
