@@ -13,10 +13,11 @@ documents, and without editing the code of the underlying tool, this
 will most likely persist."""
 
 
+# container for annotations lines from CSVs
 annotations = {
-    'annotator1': [],
-    'annotator2': []
-    }
+        'annotator1':[],
+        'annotator2':[]
+        }
 
 # all possible labels
 labelBank = (
@@ -59,13 +60,12 @@ def insertAnnotations(annotator, fileName):
     lines = [first]
     for row in range(len(rows)):
         line = rows.popleft()
-        # if the previous annotation's timestamp is greater than the current,
-        # reset the annotations to be calculated
         if line[0] >= lines[-1][0]: lines.append(line)
+        # if the previous annotation's timestamp is greater than
+        # the current, reset the annotations to be calculated
         else: lines = [line]
 
-    for line in lines:
-        annotations[annotator].append(line)
+    annotations[annotator] = lines
 
 def compareAnnotations():
     global prevPosition1
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     for source in sources:
         if not os.path.isfile(source): quit()
 
-    readCSVs = []
+    CSV_files = []
     for source in sources:
         source = os.path.abspath(source)
         if source.endswith('.txt'):
@@ -390,14 +390,16 @@ if __name__ == '__main__':
             for x in range(3):
                 if os.path.isfile(outputFile): break
                 else: time.sleep(1)
-            readCSVs.append(outputFile)
+            CSV_files.append(outputFile)
         elif source.endswith('.csv'):
-            readCSVs.append(source)
+            CSV_files.append(source)
         else: print('{} not recognized'.format(source))
 
     # If the label is not recognized, use previous.
     # If no previous, use 'neutral'.
-    for f in readCSVs:
+    count = 0
+    for f in CSV_files:
+        count =+ 1
         lines = []
         for line in open(f).readlines():
             lines.append(line.rstrip('\n').split(','))
@@ -414,23 +416,47 @@ if __name__ == '__main__':
             for line in lines:
                 csv.writer(csvFile).writerow(line)
 
-    with open(readCSVs[0], 'r', newline='') as csvFile:
+        '''
+        with open(f, 'r', newline='') as csvFile:
+            annotators.update(
+                    ('annotator_{}'.format(str(count),
+                    insertAnnotations('annotator1', csvFile)
+                        )
+                    )
+        '''
+
+
+    with open(CSV_files[0], 'r', newline='') as csvFile:
         insertAnnotations('annotator1', csvFile)
 
-    with open(readCSVs[1], 'r', newline='') as csvFile:
+    with open(CSV_files[1], 'r', newline='') as csvFile:
         insertAnnotations('annotator2', csvFile)
 
     compareAnnotations()
 
     stats = calculateKappa()
+
+    '''
+    if csv_header:
+        print(
+            '{},{},{},{},{},{}'.format(
+                'file1',
+                'file2',
+                'length',
+                'agreement',
+                'chance',
+                'kappa_score'
+                )
+            )
+    '''
+
     if csv_output_mode:
         #TODO: create csv-header output
         #file1,file2,total,agreement,chance,kappa_score
         print(
             '{},{},{},{},{},{}'.format(
-                os.path.basename(
-                readCSVs[0]),
-                os.path.basename(readCSVs[1]),
+                os.path.basename(CSV_files[0]),
+                os.path.basename(CSV_files[1]),
                 round(stats['total'],2),
                 round(stats['agreement'],2),
                 round(stats['chance'],2),
