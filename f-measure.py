@@ -1,6 +1,3 @@
-def get_annotation_spans( annotations ):
-    return ( span for get_caused_event( annotation ), get_annotation_span( annotation ) in annotations )
-
 def iter_true_positives( key_set, response_set ):
     return ( x for x in response_set if x in key_set )
 
@@ -8,7 +5,7 @@ def iter_false_positives( key_set, response_set ):
     return ( x for x in response_set if x not in key_set )
 
 def iter_false_negatives( key_set, response_set ):
-    return ( x for x in key_set if x in response_set )
+    return ( x for x in key_set if x not in response_set )
 
 def calc_precision( num_true_positives, num_false_positives ):
     return num_true_positives / ( num_true_positives + num_false_positives )
