@@ -28,20 +28,24 @@ class Annotation:
         *,
         annotation_type=None,
         annotation_set=None
-        ):
+    ):
         if annotation_set:
             return self.root.findall(
                 ''.join(
                     [
                         ".//AnnotationSet[@Name='{}']".format(annotation_set),
                         "/Annotation[@Type='{}']".format(annotation_type)
-                        ]
-                    )
+                    ]
                 )
-        else:
+            )
+        elif annotation_type:
             return self.root.findall(
                 ".//Annotation[@Type='{}']".format(annotation_type)
-                )
+            )
+        else:
+            return self.root.findall(
+                ".//Annotation"
+            )
 
 
 class Schema:
@@ -51,27 +55,14 @@ class Schema:
         self.root = self.tree.getroot()
         self.namespace = {
             'schema':'http://www.w3.org/2000/10/XMLSchema'
-            }
-
-    '''
-    def filename(self, filename):
-        self.filename = filename
-
-    @property
-    def tree(self):
-        return ET.parse(self.filename)
-
-    @property
-    def root(self):
-        return self.tree.getroot()
-    '''
+        }
 
     def get_attributes(self, annotation_type):
         attributes = self.root.findall(
             ".//schema:element[@name='{}']"
             "//schema:attribute".format(annotation_type),
             namespaces=self.namespace
-            )
+        )
         return attributes
 
 
@@ -81,7 +72,7 @@ def pair_annotations(
     *,
     annotation_type=None,
     schema=None
-    ):
+):
 
     annotations1_list = list(annotations1)
     annotations2_list = list(annotations2)
