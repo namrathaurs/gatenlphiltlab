@@ -1,11 +1,17 @@
-def iter_true_positives( key_set, response_set ):
-    return ( x for x in response_set if x in key_set )
+def is_strict_match( x, y ):
+    return x == y
 
-def iter_false_positives( key_set, response_set ):
-    return ( x for x in response_set if x not in key_set )
+def is_lenient_match( x, y ):
+    return not x.isdisjoint( y )
 
-def iter_false_negatives( key_set, response_set ):
-    return ( x for x in key_set if x not in response_set )
+def iter_true_positives( key_set, response_set, is_match ):
+    return ( (x,y) for x in response_set for y in key_set if is_match(x,y) )
+
+def iter_false_positives( key_set, response_set, is_match ):
+    return ( (x,y) for x in response_set for y in key_set if not is_match(x,y) )
+
+def iter_false_negatives( key_set, response_set, is_match ):
+    return ( (x,y) for x in key_set for y in response_set if not is_match(x,y) )
 
 def calc_precision( num_true_positives, num_false_positives ):
     return num_true_positives / ( num_true_positives + num_false_positives )
