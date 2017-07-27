@@ -14,16 +14,27 @@ def iter_false_negatives( key_set, response_set, is_match ):
     return ( (x,y) for x in key_set for y in response_set if not is_match(x,y) )
 
 def calc_precision( num_true_positives, num_false_positives ):
-    return num_true_positives / ( num_true_positives + num_false_positives )
+    try: return num_true_positives / ( num_true_positives + num_false_positives )
+    except ZeroDivisionError: return 1
 
 def calc_recall( num_true_positives, num_false_negatives ):
-    return num_true_positives / ( num_true_positives + num_false_negatives )
+    try: return num_true_positives / ( num_true_positives + num_false_negatives )
+    except ZeroDivisionError: return 1
 
 def calc_harmonic_mean( x, y ):
     return 2 * ( ( x * y ) / ( x + y ) )
 
-def calc_f_measure( precision, recall ):
-    return harmonic_mean( precision, recall )
+def calc_f_measure( num_true_positives, num_false_positives, num_false_negatives ):
+    precision = calc_precision(
+        num_true_positives,
+        num_false_positives
+    )
+    recall = calc_recall(
+        num_true_positives,
+        num_false_negatives
+    )
+    try: return calc_harmonic_mean( precision, recall )
+    except ZeroDivisionError: return 0
 
 def main():
     key_annotations = get_annotations(key_annotation_set)
