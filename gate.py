@@ -18,9 +18,11 @@ class Annotation:
         self.root = self.tree.getroot()
 
     def get_annotation_set_names(self):
-        annotation_set_names = []
-        for annotation_set in self.root.findall(".//AnnotationSet"):
-            annotation_set_names.append(annotation_set.get("Name"))
+        annotation_set_names = [
+            annotation_set.get("Name")
+            for annotation_set
+            in self.root.findall(".//AnnotationSet")
+        ]
         return annotation_set_names
 
     def get_annotations(self,
@@ -28,7 +30,7 @@ class Annotation:
                         annotation_type=None,
                         annotation_set=None):
         if annotation_set:
-            return self.root.findall(
+            annotations = self.root.findall(
                 ''.join(
                     [
                         ".//AnnotationSet[@Name='{}']".format(annotation_set),
@@ -37,13 +39,15 @@ class Annotation:
                 )
             )
         elif annotation_type:
-            return self.root.findall(
+            annotations = self.root.findall(
                 ".//Annotation[@Type='{}']".format(annotation_type)
             )
         else:
-            return self.root.findall(
+            annotations = self.root.findall(
                 ".//Annotation"
             )
+
+        return annotations
 
 
 class Schema:
