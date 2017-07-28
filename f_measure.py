@@ -1,8 +1,3 @@
-"""
-def iter_concat_annotation( annotation ):
-    return
-"""
-
 def is_strict_match( x, y ):
     return x == y
 
@@ -45,8 +40,14 @@ def calc_harmonic_mean( x, y ):
     return 2 * ( ( x * y ) / ( x + y ) )
 
 def calc_f_measure( num_true_positives, num_false_positives, num_false_negatives ):
-    precision = calc_precision( num_true_positives, num_false_positives )
-    recall = calc_recall( num_true_positives, num_false_negatives )
+    precision = calc_precision(
+        num_true_positives,
+        num_false_positives
+    )
+    recall = calc_recall(
+        num_true_positives,
+        num_false_negatives
+    )
     try: return calc_harmonic_mean( precision, recall )
     except ZeroDivisionError: return 0
 
