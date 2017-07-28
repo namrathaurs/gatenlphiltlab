@@ -23,12 +23,10 @@ class Annotation:
             annotation_set_names.append(annotation_set.get("Name"))
         return annotation_set_names
 
-    def get_annotations(
-        self,
-        *,
-        annotation_type=None,
-        annotation_set=None
-    ):
+    def get_annotations(self,
+                        *,
+                        annotation_type=None,
+                        annotation_set=None):
         if annotation_set:
             return self.root.findall(
                 ''.join(
@@ -66,13 +64,11 @@ class Schema:
         return attributes
 
 
-def pair_annotations(
-    annotations1,
-    annotations2,
-    *,
-    annotation_type=None,
-    schema=None
-):
+def pair_annotations(annotations1,
+                     annotations2,
+                     *,
+                     annotation_type=None,
+                     schema=None):
 
     annotations1_list = list(annotations1)
     annotations2_list = list(annotations2)
