@@ -11,7 +11,7 @@ class InputError(Exception):
     pass
 
 
-class Annotation:
+class AnnotationFile:
     def __init__(self, filename):
         self.filename = filename
         self.tree = ET.parse(self.filename)
@@ -49,6 +49,11 @@ class Annotation:
 
         return annotations
 
+class Annotation:
+    def __init__(self, filename):
+        self.filename = filename
+        self.tree = ET.parse(self.filename)
+        self.root = self.tree.getroot()
 
 class Schema:
     def __init__(self, filename):
@@ -124,9 +129,9 @@ def kappa(comparison_set, weights=None):
         if weights == None:
         # skll.kappa accepts only int-like arguments,
         # so, given a set of string annotations, each will
-        # be assigned a unique int id. 
+        # be assigned a unique int id.
         # this is only statistically accurate when calculating an unweighted kappa
-        # since only then do the distances between annotations not matter. 
+        # since only then do the distances between annotations not matter.
 
             # store a set of annotations...
             annotation_dict = {}
