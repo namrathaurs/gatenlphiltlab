@@ -47,13 +47,22 @@ class AnnotationFile:
                 ".//Annotation"
             )
 
-        return annotations
+        return ( Annotation(x) for x in annotations )
 
 class Annotation:
-    def __init__(self, filename):
-        self.filename = filename
-        self.tree = ET.parse(self.filename)
-        self.root = self.tree.getroot()
+    def __init__(self, annotation):
+        self._annotation_type = annotation.get("Type")
+        self._start_node = annotation.get("StartNode")
+        self._end_node = annotation.get("EndNode")
+        self._caused_event_id = None
+        self._features = ( x for x in annotation if x.tag == "Feature" )
+
+        if self._annotation_type == "Attribution":
+            for feature in self._features:
+                Name = feature.find("./Name").text
+                Value = feature.find("./Value").text
+                if Name == "Caused_Event":
+                    self._caused_event_id = Value.split(' ')[0]
 
 class Schema:
     def __init__(self, filename):
