@@ -17,11 +17,17 @@ class AnnotationFile:
         self.filename = filename
         self.tree = ET.parse(self.filename)
         self.root = self.tree.getroot()
+        self._text_with_nodes = self.root.find(".//TextWithNodes")
         self.annotation_set_names = [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
+
+    def get_text(self):
+        return ''.join(
+            ( x for x in self._text_with_nodes.itertext() )
+        )
 
     def get_annotations(self,
                         *,
@@ -49,18 +55,29 @@ class AnnotationFile:
 
 class Annotation:
     def __init__(self, annotation):
+        self._annotation = annotation
         self._annotation_type = annotation.get("Type")
         self._annotation_set = annotation.getparent().get("Name")
-        self._start_node = annotation.get("StartNode")
-        self._end_node = annotation.get("EndNode")
-        self._features = [ Feature(x) for x in annotation if x.tag == "Feature" ]
-        self._caused_event_id = None
+        self._id = annotation.get("Id")
+        self._start_node = int(annotation.get("StartNode"))
+        self._end_node = int(annotation.get("EndNode"))
 
         if self._annotation_type == "Attribution":
-            for feature in self._features:
+            self._caused_event_id = None
+            for feature in self.get_features():
                 if feature._name == "Caused_Event":
-                    self._caused_event_id = feature._value.split(' ')[0]
+                    self._caused_event_id = feature._value.split()[0]
                     break
+
+    def get_text(self):
+        text_with_nodes = self._annotation.getroottree().find(".//TextWithNodes")
+        return ''.join(
+            x.tail for x in text_with_nodes
+            if int(x.get("id")) in range(self._start_node, self._end_node)
+        )
+
+    def get_features(self):
+        return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
 
 
 class Feature:
