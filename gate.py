@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 import re
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 import skll
 from collections import Counter
 from pprint import pprint
@@ -12,18 +12,16 @@ class InputError(Exception):
 
 
 class AnnotationFile:
+    #TODO: make get_text_with_nodes() function
     def __init__(self, filename):
         self.filename = filename
         self.tree = ET.parse(self.filename)
         self.root = self.tree.getroot()
-
-    def get_annotation_set_names(self):
-        annotation_set_names = [
+        self.annotation_set_names = [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
-        return annotation_set_names
 
     def get_annotations(self,
                         *,
@@ -52,17 +50,30 @@ class AnnotationFile:
 class Annotation:
     def __init__(self, annotation):
         self._annotation_type = annotation.get("Type")
+        self._annotation_set = annotation.getparent().get("Name")
         self._start_node = annotation.get("StartNode")
         self._end_node = annotation.get("EndNode")
+        self._features = [ Feature(x) for x in annotation if x.tag == "Feature" ]
         self._caused_event_id = None
-        self._features = ( x for x in annotation if x.tag == "Feature" )
 
         if self._annotation_type == "Attribution":
             for feature in self._features:
-                Name = feature.find("./Name").text
-                Value = feature.find("./Value").text
-                if Name == "Caused_Event":
-                    self._caused_event_id = Value.split(' ')[0]
+                if feature._name == "Caused_Event":
+                    self._caused_event_id = feature._value.split(' ')[0]
+                    break
+
+
+class Feature:
+    def __init__(self, feature):
+        self._name = feature.find("./Name").text
+        self._value = feature.find("./Value").text
+
+"""
+class AnnotationGroup:
+    def __init__(self, annotation_iteratable):
+
+    def group_annotations(annotation_iterable):
+"""
 
 class Schema:
     def __init__(self, filename):
