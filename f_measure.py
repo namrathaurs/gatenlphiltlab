@@ -115,14 +115,18 @@ def main():
     from functools import reduce
 
     def get_char_set(gate_annotation):
+
         char_set = []
+
         head_char_set = set(
             range(
                 gate_annotation._start_node,
                 gate_annotation._end_node
             )
         )
+
         char_set.append(head_char_set)
+
         if gate_annotation._continuations:
             continuations = gate_annotation._continuations
             for x in continuations:
@@ -132,11 +136,12 @@ def main():
                         x._end_node
                     )
                 )
+
                 char_set.append(continuation_span)
-        char_set = frozenset(
-            reduce( lambda x,y: x | y, char_set )
-        )
-        return char_set
+
+        char_set = reduce( lambda x,y : x|y, char_set )
+
+        return frozenset(char_set)
 
     paths = [
         "/home/nick/hilt/PES/7/2/4-MG-2014-05-15_PES_2_NB.xml",
