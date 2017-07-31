@@ -10,6 +10,10 @@ from pprint import pprint
 class InputError(Exception):
     pass
 
+def reverse_find_from_index(iterable, match_function, index):
+    for x in iterable[index::-1]:
+        if match_function(x):
+            return x
 
 class AnnotationFile:
     def __init__(self, filename):
@@ -28,49 +32,23 @@ class AnnotationFile:
             ( x for x in self._text_with_nodes.itertext() )
         )
 
-    def iter_annotations(self,
-                        *,
-                        annotation_types=None,
-                        annotation_sets=None):
-
-        if type(annotation_sets) == str:
-            annotation_sets = [annotation_sets]
-        if type(annotation_types) == str:
-            annotation_types = [annotation_types]
-
-        if annotation_sets:
-            for annotation_set in annotation_sets:
-                annotations = self.root.findall(
-                    ''.join(
-                        [
-                        ".//AnnotationSet[@Name='{}']".format(annotation_set),
-                        "/Annotation[@Type='{}']".format(annotation_type)
-                        ]
-                    )
-                )
-                for annotation in annotations:
-                    yield annotation
-        elif annotation_types:
-            for annotation_type in annotation_types:
-                annotations = self.root.findall(
-                    ".//Annotation[@Type='{}']".format(annotation_type)
-                )
-                for annotation in annotations:
-                    yield annotation
-        else:
-            annotations = self.root.findall(
-                ".//Annotation"
-            )
-            for annotation in annotations:
-                yield annotation
-
-        #return AnnotationGroup( Annotation(x) for x in annotations )
+    def iter_annotations(self):
+        annotations = self.root.findall(
+            ".//Annotation"
+        )
+        for x in annotations:
+            yield Annotation(x)
 
 class Annotation:
     def __init__(self, annotation):
         self._annotation = annotation
+
+        annotation_set_name = annotation.getparent().get("Name")
+        if annotation_set_name:
+            self._annotation_set = annotation.getparent().get("Name")
+        else: self._annotation_set = ""
+
         self._type = annotation.get("Type")
-        self._annotation_set = annotation.getparent().get("Name")
         self._id = annotation.get("Id")
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
@@ -106,30 +84,22 @@ class AnnotationGroup:
     def __init__(self, annotation_iterable):
         self._annotations = sorted(
             sorted(
-                sorted(
-                    annotation_iterable,
-                    key=(lambda x: x._annotation_set)
-                ),
-                key=(lambda x: x._end_node)
+                annotation_iterable,
+                key=(lambda x: x._annotation_set)
             ),
-            key=(lambda x: x._type)
+            key=(lambda x: x._end_node)
         )
-
-        def reverse_find_from_index(iterable, match_function, index):
-            for x in sorted(iterable[:index], reverse=True):
-                if match_function(x):
-                    return x
 
         for i, annotation in enumerate(self._annotations):
             if "_continuation" in annotation._type:
                 continuation = annotation
                 base_annotation_type = continuation._type.replace("_continuation","")
                 continued_annotation = reverse_find_from_index(
-                    annotation,
+                    self._annotations,
                     ( lambda x : x._type == base_annotation_type ),
                     i
                 )
-                continued_annotation.append(annotation)
+                continued_annotation._continuations.append(annotation)
 
 class Schema:
     def __init__(self, filename):
