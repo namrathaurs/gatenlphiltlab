@@ -99,7 +99,7 @@ class AnnotationGroup:
                     ( lambda x : x._type == base_annotation_type ),
                     i
                 )
-                continued_annotation._continuations.append(annotation)
+                continued_annotation.add_continuation.append(annotation)
 
 class Schema:
     def __init__(self, filename):
