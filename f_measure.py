@@ -10,40 +10,43 @@ def is_lenient_match( x, y ):
 def iter_true_positives(key_set,
                         response_set,
                         is_match):
-    """"key_set and response_set must be a list of sets.
-    is_match must be a comparative operation.
+    """"key_set and response_set must be a list of frozensets.
+    is_match must be a boolean expression.
     """
     return (
-        (x,y)
-        for x in frozenset(response_set)
-        for y in frozenset(key_set)
-        if is_match(x,y)
+        response
+        for response in response_set
+        if any(
+            ( is_match(response, key) for key in key_set )
+        )
     )
 
 def iter_false_positives(key_set,
                          response_set,
                          is_match):
-    """key_set and response_set must be a list of sets.
-    is_match must be a comparative operation.
+    """key_set and response_set must be a list of frozensets.
+    is_match must be a boolean expression.
     """
     return (
-        (x,y)
-        for x in frozenset(response_set)
-        for y in frozenset(key_set)
-        if not is_match(x,y)
+        response
+        for response in response_set
+        if not any(
+            ( is_match(response, key) for key in key_set )
+        )
     )
 
 def iter_false_negatives(key_set,
                          response_set,
                          is_match):
-    """key_set and response_set must be a list of sets.
-    is_match must be a comparative operation.
+    """key_set and response_set must be a list of frozensets.
+    is_match must be a boolean expression.
     """
     return (
-        (x,y)
-        for x in frozenset(key_set)
-        for y in frozenset(response_set)
-        if not is_match(x,y)
+        key
+        for key in key_set
+        if not any(
+            ( is_match(key, response) for response in response_set )
+        )
     )
 
 def calc_precision(num_true_positives,
@@ -106,9 +109,3 @@ def calc_f_measure(key_set,
         # no agreement.
         return 0
 
-def main():
-
-    print(calc_f_measure(num_true_positives, num_false_positives, num_false_negatives))
-
-if __name__ == "__main__":
-    main()
