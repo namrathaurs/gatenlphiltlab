@@ -12,7 +12,6 @@ class InputError(Exception):
 
 
 class AnnotationFile:
-    #TODO: make get_text_with_nodes() function
     def __init__(self, filename):
         self.filename = filename
         self.tree = ET.parse(self.filename)
@@ -29,40 +28,55 @@ class AnnotationFile:
             ( x for x in self._text_with_nodes.itertext() )
         )
 
-    def get_annotations(self,
+    def iter_annotations(self,
                         *,
-                        annotation_type=None,
-                        annotation_set=None):
-        if annotation_set:
-            annotations = self.root.findall(
-                ''.join(
-                    [
+                        annotation_types=None,
+                        annotation_sets=None):
+
+        if type(annotation_sets) == str:
+            annotation_sets = [annotation_sets]
+        if type(annotation_types) == str:
+            annotation_types = [annotation_types]
+
+        if annotation_sets:
+            for annotation_set in annotation_sets:
+                annotations = self.root.findall(
+                    ''.join(
+                        [
                         ".//AnnotationSet[@Name='{}']".format(annotation_set),
                         "/Annotation[@Type='{}']".format(annotation_type)
-                    ]
+                        ]
+                    )
                 )
-            )
-        elif annotation_type:
-            annotations = self.root.findall(
-                ".//Annotation[@Type='{}']".format(annotation_type)
-            )
+                for annotation in annotations:
+                    yield annotation
+        elif annotation_types:
+            for annotation_type in annotation_types:
+                annotations = self.root.findall(
+                    ".//Annotation[@Type='{}']".format(annotation_type)
+                )
+                for annotation in annotations:
+                    yield annotation
         else:
             annotations = self.root.findall(
                 ".//Annotation"
             )
+            for annotation in annotations:
+                yield annotation
 
-        return ( Annotation(x) for x in annotations )
+        #return AnnotationGroup( Annotation(x) for x in annotations )
 
 class Annotation:
     def __init__(self, annotation):
         self._annotation = annotation
-        self._annotation_type = annotation.get("Type")
+        self._type = annotation.get("Type")
         self._annotation_set = annotation.getparent().get("Name")
         self._id = annotation.get("Id")
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
+        self._continuations = []
 
-        if self._annotation_type == "Attribution":
+        if self._type == "Attribution":
             self._caused_event_id = None
             for feature in self.get_features():
                 if feature._name == "Caused_Event":
@@ -79,18 +93,43 @@ class Annotation:
     def get_features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
 
+    def add_continuation(self, annotation):
+        self._continuations.append(annotation)
+
 
 class Feature:
     def __init__(self, feature):
         self._name = feature.find("./Name").text
         self._value = feature.find("./Value").text
 
-"""
 class AnnotationGroup:
-    def __init__(self, annotation_iteratable):
+    def __init__(self, annotation_iterable):
+        self._annotations = sorted(
+            sorted(
+                sorted(
+                    annotation_iterable,
+                    key=(lambda x: x._annotation_set)
+                ),
+                key=(lambda x: x._end_node)
+            ),
+            key=(lambda x: x._type)
+        )
 
-    def group_annotations(annotation_iterable):
-"""
+        def reverse_find_from_index(iterable, match_function, index):
+            for x in sorted(iterable[:index], reverse=True):
+                if match_function(x):
+                    return x
+
+        for i, annotation in enumerate(self._annotations):
+            if "_continuation" in annotation._type:
+                continuation = annotation
+                base_annotation_type = continuation._type.replace("_continuation","")
+                continued_annotation = reverse_find_from_index(
+                    annotation,
+                    ( lambda x : x._type == base_annotation_type ),
+                    i
+                )
+                continued_annotation.append(annotation)
 
 class Schema:
     def __init__(self, filename):
