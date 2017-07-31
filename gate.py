@@ -101,6 +101,9 @@ class AnnotationGroup:
                 )
                 continued_annotation.add_continuation(annotation)
 
+    def get_annotations(self):
+        return self._annotations
+
 class Schema:
     def __init__(self, filename):
         self.filename = filename
