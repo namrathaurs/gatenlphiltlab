@@ -50,7 +50,7 @@ parser.add_argument(
 )
 # parse CL arguments
 args = parser.parse_args()
-annotation_file = gate.Annotation(args.annotation_file)
+annotation_file = gate.AnnotationFile(args.annotation_file)
 schema_file = gate.Schema(args.schema_file)
 write_file = args.write_file
 input_annotation_type = args.input_annotation_type
@@ -77,15 +77,14 @@ for output_annotation_path in output_annotation_paths:
     )
 
 # gather annotated text
+# TODO: Utilize new gate classes
 text_with_nodes = OrderedDict()
 for node in annotation_file.root.findall("./TextWithNodes/Node"):
     text_with_nodes.update({node.get('id'): node})
 
 # compile list of restriction_strings from annotation file
 restriction_strings = []
-for annotation in annotation_file.get_annotations(
-    annotation_type=input_annotation_type
-):
+for annotation in annotation_file.get_annotations(annotation_type=input_annotation_type):
         annotation_id = annotation.get('Id')
         start_node = int(
             list(text_with_nodes.keys()).index(annotation.get('StartNode'))

@@ -2,53 +2,136 @@
 
 from collections import namedtuple
 import re
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 import skll
 from collections import Counter
 from pprint import pprint
+from functools import reduce
 
 class InputError(Exception):
     pass
 
+def reverse_find_from_index(iterable, match_function, index):
+    for x in iterable[index::-1]:
+        if match_function(x):
+            return x
 
-class Annotation:
+class AnnotationFile:
     def __init__(self, filename):
         self.filename = filename
         self.tree = ET.parse(self.filename)
         self.root = self.tree.getroot()
-
-    def get_annotation_set_names(self):
-        annotation_set_names = [
+        self._text_with_nodes = self.root.find(".//TextWithNodes")
+        self.annotation_set_names = [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
-        return annotation_set_names
 
-    def get_annotations(self,
-                        *,
-                        annotation_type=None,
-                        annotation_set=None):
-        if annotation_set:
-            annotations = self.root.findall(
-                ''.join(
-                    [
-                        ".//AnnotationSet[@Name='{}']".format(annotation_set),
-                        "/Annotation[@Type='{}']".format(annotation_type)
-                    ]
+    def get_text(self):
+        return ''.join(
+            ( x for x in self._text_with_nodes.itertext() )
+        )
+
+    def iter_annotations(self):
+        annotations = self.root.findall(
+            ".//Annotation"
+        )
+        for x in annotations:
+            yield Annotation(x)
+
+class Annotation:
+    def __init__(self, annotation):
+        self._annotation = annotation
+
+        annotation_set_name = annotation.getparent().get("Name")
+        if annotation_set_name:
+            self._annotation_set = annotation.getparent().get("Name")
+        else: self._annotation_set = ""
+
+        self._type = annotation.get("Type")
+        self._id = annotation.get("Id")
+        self._start_node = int(annotation.get("StartNode"))
+        self._end_node = int(annotation.get("EndNode"))
+        self._continuations = []
+
+        if self._type == "Attribution":
+            self._caused_event_id = None
+            for feature in self.get_features():
+                if feature._name == "Caused_Event":
+                    self._caused_event_id = feature._value.split()[0]
+                    break
+
+    def get_text(self):
+        text_with_nodes = self._annotation.getroottree().find(".//TextWithNodes")
+        return ''.join(
+            x.tail for x in text_with_nodes
+            if int(x.get("id")) in range(self._start_node, self._end_node)
+        )
+
+    def get_features(self):
+        return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
+
+    def add_continuation(self, annotation):
+        self._continuations.append(annotation)
+
+    def get_char_set(self):
+
+        char_set = []
+
+        head_char_set = set(
+            range(
+                self._start_node,
+                self._end_node
+            )
+        )
+
+        char_set.append(head_char_set)
+
+        if self._continuations:
+            continuations = self._continuations
+            for x in continuations:
+                continuation_span = set(
+                    range(
+                        x._start_node,
+                        x._end_node
+                    )
                 )
-            )
-        elif annotation_type:
-            annotations = self.root.findall(
-                ".//Annotation[@Type='{}']".format(annotation_type)
-            )
-        else:
-            annotations = self.root.findall(
-                ".//Annotation"
-            )
 
-        return annotations
+                char_set.append(continuation_span)
 
+        char_set = reduce( lambda x,y : x|y, char_set )
+
+        return frozenset(char_set)
+
+class Feature:
+    def __init__(self, feature):
+        self._name = feature.find("./Name").text
+        self._value = feature.find("./Value").text
+
+class AnnotationGroup:
+    def __init__(self, annotation_iterable):
+        self._annotations = sorted(
+            sorted(
+                annotation_iterable,
+                key=(lambda x: x._annotation_set)
+            ),
+            key=(lambda x: x._end_node)
+        )
+
+        for i, annotation in enumerate(self._annotations):
+            if "_continuation" in annotation._type:
+                continuation = annotation
+                base_annotation_type = continuation._type.replace("_continuation","")
+                continued_annotation = reverse_find_from_index(
+                    self._annotations,
+                    ( lambda x : x._type == base_annotation_type ),
+                    i
+                )
+                continued_annotation.add_continuation(annotation)
+
+    def get_annotations(self):
+        return self._annotations
 
 class Schema:
     def __init__(self, filename):
@@ -124,9 +207,9 @@ def kappa(comparison_set, weights=None):
         if weights == None:
         # skll.kappa accepts only int-like arguments,
         # so, given a set of string annotations, each will
-        # be assigned a unique int id. 
+        # be assigned a unique int id.
         # this is only statistically accurate when calculating an unweighted kappa
-        # since only then do the distances between annotations not matter. 
+        # since only then do the distances between annotations not matter.
 
             # store a set of annotations...
             annotation_dict = {}
