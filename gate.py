@@ -6,6 +6,7 @@ from lxml import etree as ET
 import skll
 from collections import Counter
 from pprint import pprint
+from functools import reduce
 
 class InputError(Exception):
     pass
@@ -74,6 +75,34 @@ class Annotation:
     def add_continuation(self, annotation):
         self._continuations.append(annotation)
 
+    def get_char_set(self):
+
+        char_set = []
+
+        head_char_set = set(
+            range(
+                self._start_node,
+                self._end_node
+            )
+        )
+
+        char_set.append(head_char_set)
+
+        if self._continuations:
+            continuations = self._continuations
+            for x in continuations:
+                continuation_span = set(
+                    range(
+                        x._start_node,
+                        x._end_node
+                    )
+                )
+
+                char_set.append(continuation_span)
+
+        char_set = reduce( lambda x,y : x|y, char_set )
+
+        return frozenset(char_set)
 
 class Feature:
     def __init__(self, feature):
