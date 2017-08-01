@@ -1,11 +1,9 @@
 def is_strict_match( x, y ):
-    return x == y
+    return x.get_char_set() == y.get_char_set()
 
 def is_lenient_match( x, y ):
     """x and y must be sets"""
-    intersection = x & y
-    symmetric_difference = x ^ y
-    return len( intersection )  > len( symmetric_difference )
+    return not x.get_char_set().isdisjoint(y.get_char_set())
 
 def iter_true_positives(key_set,
                         response_set,
@@ -114,8 +112,8 @@ def main():
     import gate
 
     paths = [
-        "/home/nick/hilt/PES/7/2/4-MG-2014-05-15_PES_2_NB.xml",
-        "/home/nick/hilt/PES/7/2/4-MG-2014-05-15_PES_2_NU.xml"
+        "/home/nick/hilt/PES/8/4-MG-2014-05-16_PES_2_NB.xml",
+        "/home/nick/hilt/PES/8/4-MG-2014-05-16_PES_2_NU.xml"
     ]
 
     sets = []
@@ -128,7 +126,7 @@ def main():
         spans = []
         for x in annotations:
             if x._type == "Attribution":
-                spans.append(x.get_char_set())
+                spans.append(x)
         sets.append(spans)
 
     key_set = sets[0]
@@ -139,7 +137,7 @@ def main():
         calc_f_measure(
             key_set,
             response_set,
-            is_match
+            (lambda x,y : is_match(x,y) and x._caused_event_id == y._caused_event_id )
         )
     )
 
