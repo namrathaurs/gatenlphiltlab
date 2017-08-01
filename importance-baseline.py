@@ -12,22 +12,22 @@ import gate
 parser = argparse.ArgumentParser(
     description='''automatically supplies baseline annotations to'''
     ''' Importance annotation files.'''
-    )
+)
 parser.add_argument(
     'schema_file',
     metavar='schema-file',
     type=argparse.FileType(mode='r'),
-    )
+)
 parser.add_argument(
     'input_file',
     metavar='input-file',
     type=argparse.FileType(mode='r'),
-    )
+)
 parser.add_argument(
     'output_file',
     metavar='output-file',
     type=argparse.FileType(mode='w+b'),
-    )
+)
 
 # instantiate input files as appropriate gate objects
 schema_file = gate.Schema(parser.parse_args().schema_file)
@@ -45,9 +45,9 @@ output_file = parser.parse_args().output_file
 baseline_file = os.path.join(
     os.path.dirname(
         os.path.realpath(__file__)
-        ),
+    ),
     'baseline.csv'
-    )
+)
 Baseline = namedtuple(
     'Baseline',
     [
@@ -58,8 +58,8 @@ Baseline = namedtuple(
         'imp2_cert',
         'qual',
         'qual_cert'
-        ]
-    )
+    ]
+)
 with open(baseline_file, 'r') as csvfile:
     baseline_dict = {}
     for row in csv.DictReader(csvfile):
@@ -74,9 +74,9 @@ with open(baseline_file, 'r') as csvfile:
                     imp2_cert=row['imp2_cert'],
                     qual=row['qual'],
                     qual_cert=row['qual_cert']
-                    )
-                }
-            )
+                )
+            }
+        )
 
 # parse schema into dictionary
 ## keys = name of attribute
@@ -90,18 +90,18 @@ for x in schema_file.root.findall(
     name = x.get('name')
     enumerations = []
     for enumeration in x.findall(
-            ".//schema:enumeration",
-            namespaces=schema_file.namespace
-            ):
+    ".//schema:enumeration",
+    namespaces=schema_file.namespace
+    ):
         enumerations.append(enumeration.get('value'))
 
     schema_dict.update({name:enumerations})
 
 # map schema names to baseline names
 ImportanceAnnotation = namedtuple(
-        'ImportanceAnnotation',
-        ['abbrev', 'longform', 'scores']
-        )
+    'ImportanceAnnotation',
+    ['abbrev', 'longform', 'scores']
+)
 
 def schema_parse(abbrev=None, longform=None, scores=None):
     enumeration_dict = {}
@@ -112,7 +112,7 @@ def schema_parse(abbrev=None, longform=None, scores=None):
         abbrev=abbrev,
         longform=longform,
         scores=enumeration_dict
-        )
+    )
 
 for k,v in schema_dict.items():
     if 'person 1' in k.lower():
@@ -122,14 +122,14 @@ for k,v in schema_dict.items():
                     abbrev='imp1_cert',
                     longform=k,
                     scores=v
-                    )
+                )
                 continue
             else:
                 imp1 = schema_parse(
                     abbrev='imp1',
                     longform=k,
                     scores=v
-                    )
+                )
                 continue
     if 'person 2' in k.lower():
         if 'importan' in k.lower():
@@ -138,14 +138,14 @@ for k,v in schema_dict.items():
                     abbrev='imp2_cert',
                     longform=k,
                     scores=v
-                    )
+                )
                 continue
             else:
                 imp2 = schema_parse(
                     abbrev='imp2',
                     longform=k,
                     scores=v
-                    )
+                )
                 continue
     if 'quality' in k.lower():
         if 'certain' in k.lower():
@@ -153,14 +153,14 @@ for k,v in schema_dict.items():
                 abbrev='qual_cert',
                 longform=k,
                 scores=v
-                )
+            )
             continue
         else:
             qual = schema_parse(
                 abbrev='qual',
                 longform=k,
                 scores=v
-                )
+            )
             continue
 
 imp_annotation_scheme = [
@@ -170,7 +170,7 @@ imp_annotation_scheme = [
     imp2_cert,
     qual,
     qual_cert
-    ]
+]
 
 # find consensus set
 for x in input_file.get_annotation_set_names():
@@ -180,12 +180,12 @@ for x in input_file.get_annotation_set_names():
             if input_file.get_annotations(
                 annotation_type='Relationship',
                 annotation_set='consensus',
-                ):
+            ):
                 consensus_set_name = x
 consensus_set = input_file.get_annotations(
     annotation_type='Relationship',
     annotation_set=consensus_set_name,
-    )
+)
 
 # edit consensus set
 importance_prompts = [x.longform for x in imp_annotation_scheme]
@@ -217,12 +217,12 @@ for annotation in consensus_set:
             feature,
             'Name',
             className='java.lang.String'
-            )
+        )
         value = ET.SubElement(
             feature,
             'Value',
             className='java.lang.String'
-            )
+        )
         name.text = dimension.longform
         score = baseline[dimension.abbrev]
         value.text = dimension.scores[score] 
@@ -232,4 +232,4 @@ input_file.tree.write(
     output_file,
     encoding='UTF-8',
     xml_declaration=True
-    )
+)
