@@ -225,7 +225,7 @@ for annotation in consensus_set:
         )
         name.text = dimension.longform
         score = baseline[dimension.abbrev]
-        value.text = dimension.scores[score] 
+        value.text = dimension.scores[score]
 
 # writes edits to output file
 input_file.tree.write(
