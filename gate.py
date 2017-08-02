@@ -7,6 +7,7 @@ import skll
 from collections import Counter
 from pprint import pprint
 from functools import reduce
+import itertools
 
 class InputError(Exception):
     pass
@@ -46,7 +47,7 @@ class Annotation:
 
         annotation_set_name = annotation.getparent().get("Name")
         if annotation_set_name:
-            self._annotation_set = annotation.getparent().get("Name")
+            self._annotation_set = annotation_set_name
         else: self._annotation_set = ""
 
         self._type = annotation.get("Type")
@@ -62,18 +63,23 @@ class Annotation:
                     self._caused_event_id = feature._value.split()[0]
                     break
 
-    def get_text(self):
-        text_with_nodes = self._annotation.getroottree().find(".//TextWithNodes")
-        return ''.join(
-            x.tail for x in text_with_nodes
-            if int(x.get("id")) in range(self._start_node, self._end_node)
-        )
+    def add_continuation(self, annotation):
+        self._continuations.append(annotation)
+
+    def iter_spans(self):
+        return ( x for x in itertools.chain( [self], ( x for x in self._continuations ) ) )
 
     def get_features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
 
-    def add_continuation(self, annotation):
-        self._continuations.append(annotation)
+    def get_text(self, text_with_nodes):
+        return "".join(
+            x.tail for x in text_with_nodes
+            if int(x.get("id")) in range(self._start_node, self._end_node)
+        )
+
+    def get_concatenated_text(self, text_with_nodes, separator):
+        return separator.join( x.get_text(text_with_nodes) for x in self.iter_spans() )
 
     def get_char_set(self):
 
