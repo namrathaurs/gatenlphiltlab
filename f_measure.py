@@ -128,8 +128,31 @@ def main():
     )
     parser.add_argument(
         "-f",
+        action="store_true",
+        dest="feature_match",
+        default=False,
+        help="the input; a GATE annotation file with Person Mentions"
+    )
+    parser.add_argument(
+        "-s",
+        "--strict",
+        action="store_true",
+        dest="strict",
+        default=False,
+        help="the input; a GATE annotation file with Person Mentions"
+    )
+    parser.add_argument(
+        "-l",
+        "--lenient",
+        action="store_true",
+        dest="lenient",
+        default=False,
+        help="the input; a GATE annotation file with Person Mentions"
+    )
+    parser.add_argument(
+        "-i",
         "--annotation-file",
-        dest="annotation_files",
+        dest="annotation_file",
         nargs=2,
         required="true",
         help="the input; a GATE annotation file with Person Mentions"
@@ -137,10 +160,23 @@ def main():
 
     args = parser.parse_args()
     annotation_type = args.annotation_type
-    paths = args.annotation_files
+    paths = args.annotation_file
+    lenient = args.lenient
+    strict = args.strict
+    is_feature_match = args.feature_match
+
+    if strict and lenient:
+        print(
+            "F-measure can't be both lenient and strict!"
+        )
+        quit()
+    if not ( strict or lenient ):
+        print(
+            "Must choose either strict or lenient!"
+        )
+        quit()
 
     annotations = []
-
     for path in paths:
         annotation_file = gate.AnnotationFile(path)
         annotations.append(
@@ -152,7 +188,6 @@ def main():
                 if x._type == annotation_type
             ]
         )
-
     key_annotations = annotations[0]
     response_annotations = annotations[1]
 
@@ -164,8 +199,10 @@ def main():
             for y in key.get_features()
         )
 
-    does_span_match = is_lenient_match
-    is_feature_match = True
+    if strict:
+        does_span_match = is_strict_match
+    if lenient:
+        does_span_match = is_lenient_match
 
     def is_match(x,y):
         span_match = does_span_match(
