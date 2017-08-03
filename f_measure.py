@@ -115,6 +115,8 @@ def main():
     import argparse
     import gate
 
+    class InputError(Exception):
+        pass
 
     parser = argparse.ArgumentParser(
         description="Computes inter-rater reliability of like "
@@ -168,15 +170,13 @@ def main():
     is_feature_match = args.feature_match
 
     if strict and lenient:
-        print(
+        raise InputError(
             "F-measure can't be both lenient and strict!"
         )
-        quit()
     if not ( strict or lenient ):
-        print(
+        raise InputError(
             "Must choose either strict or lenient!"
         )
-        quit()
 
     annotations = []
     for path in paths:
