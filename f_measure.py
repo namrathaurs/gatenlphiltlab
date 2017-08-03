@@ -133,7 +133,7 @@ def main():
         action="store_true",
         dest="feature_match",
         default=False,
-        help="the input; a GATE annotation file with Person Mentions"
+        help="use features as part of match function"
     )
     parser.add_argument(
         "-s",
@@ -141,7 +141,7 @@ def main():
         action="store_true",
         dest="strict",
         default=False,
-        help="the input; a GATE annotation file with Person Mentions"
+        help="use strict span-matching, i.e. identical spans"
     )
     parser.add_argument(
         "-l",
@@ -149,15 +149,15 @@ def main():
         action="store_true",
         dest="lenient",
         default=False,
-        help="the input; a GATE annotation file with Person Mentions"
+        help="use lenient span-matching, i.e. overlapping spans"
     )
     parser.add_argument(
         "-i",
-        "--annotation-file",
+        "--annotation-files",
         dest="annotation_file",
         nargs=2,
         required="true",
-        help="the input; a GATE annotation file with Person Mentions"
+        help="GATE annotation files"
     )
 
     args = parser.parse_args()
@@ -222,7 +222,12 @@ def main():
         is_match
     )
 
-    print(f_measure)
+    print(
+        round(
+            f_measure,
+            4
+        )
+    )
 
 if __name__ == "__main__":
     main()
