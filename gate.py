@@ -67,9 +67,7 @@ class Annotation:
         self._continuations.append(annotation)
 
     def iter_spans(self):
-        return (
-            x for x in itertools.chain( [self], ( x for x in self._continuations ) )
-        )
+        return itertools.chain( [self], ( x for x in self._continuations ) )
 
     def get_features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
@@ -86,9 +84,12 @@ class Annotation:
         )
 
     def get_concatenated_char_set(self):
-        return reduce(
-            lambda x,y : x.get_char_set() | y.get_char_set(), self.iter_spans()
-        )
+        if self._continuations:
+            return reduce(
+                lambda x,y : frozenset( x.get_char_set() | y.get_char_set() ),
+                self.iter_spans()
+            )
+        else: return self.get_char_set()
 
     def get_char_set(self):
         return frozenset(
