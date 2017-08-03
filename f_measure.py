@@ -1,9 +1,9 @@
 def is_strict_match( x, y ):
-    return x.get_char_set() == y.get_char_set()
+    return x == y
 
 def is_lenient_match( x, y ):
     """x and y must be sets"""
-    return not x.get_char_set().isdisjoint(y.get_char_set())
+    return not x.isdisjoint(y)
 
 def iter_true_positives(key_set,
                         response_set,
@@ -80,6 +80,7 @@ def calc_f_measure(key_set,
                    response_set,
                    is_match):
 
+
     num_true_positives = sum(
         1 for _ in iter_true_positives( key_set, response_set, is_match )
     )
@@ -109,37 +110,80 @@ def calc_f_measure(key_set,
 
 def main():
 
+    import argparse
     import gate
 
-    paths = [
-        "/home/nick/hilt/PES/8/4-MG-2014-05-16_PES_2_NB.xml",
-        "/home/nick/hilt/PES/8/4-MG-2014-05-16_PES_2_NU.xml"
-    ]
 
-    sets = []
+    parser = argparse.ArgumentParser(
+        description="Computes inter-rater reliability of like "
+        "annotations between two annotation files in terms "
+        "of an F1 score.",
+    )
+    parser.add_argument(
+        "-t",
+        "--annotation-type",
+        dest="annotation_type",
+        required="true",
+        help="the type of annotation that will be compared"
+    )
+    parser.add_argument(
+        "-f",
+        "--annotation-file",
+        dest="annotation_files",
+        nargs=2,
+        required="true",
+        help="the input; a GATE annotation file with Person Mentions"
+    )
+
+    args = parser.parse_args()
+    annotation_type = args.annotation_type
+    paths = args.annotation_files
+
+    annotations = []
 
     for path in paths:
         annotation_file = gate.AnnotationFile(path)
-        annotations = gate.AnnotationGroup(
-            x for x in annotation_file.iter_annotations()
-        ).get_annotations()
-        spans = []
-        for x in annotations:
-            if x._type == "Attribution":
-                spans.append(x)
-        sets.append(spans)
-
-    key_set = sets[0]
-    response_set = sets[1]
-    is_match = is_lenient_match
-
-    print(
-        calc_f_measure(
-            key_set,
-            response_set,
-            (lambda x,y : is_match(x,y) and x._caused_event_id == y._caused_event_id )
+        annotations.append(
+            [
+                x for x in
+                gate.AnnotationGroup(
+                    y for y in annotation_file.iter_annotations()
+                ).get_annotations()
+                if x._type == annotation_type
+            ]
         )
+
+    key_annotations = annotations[0]
+    response_annotations = annotations[1]
+
+    def has_same_features(key, response):
+        return any(
+            x._name == y._name
+            and x._value == y._value
+            for x in response.get_features()
+            for y in key.get_features()
+        )
+
+    does_span_match = is_lenient_match
+    is_feature_match = True
+
+    def is_match(x,y):
+        span_match = does_span_match(
+            x.get_concatenated_char_set(),
+            y.get_concatenated_char_set()
+        )
+        if is_feature_match:
+            feature_match = has_same_features(x,y)
+            return span_match and feature_match
+        else: return span_match
+
+    f_measure = calc_f_measure(
+        key_annotations,
+        response_annotations,
+        is_match
     )
+
+    print(f_measure)
 
 if __name__ == "__main__":
     main()
