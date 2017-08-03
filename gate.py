@@ -67,7 +67,9 @@ class Annotation:
         self._continuations.append(annotation)
 
     def iter_spans(self):
-        return ( x for x in itertools.chain( [self], ( x for x in self._continuations ) ) )
+        return (
+            x for x in itertools.chain( [self], ( x for x in self._continuations ) )
+        )
 
     def get_features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
@@ -79,36 +81,22 @@ class Annotation:
         )
 
     def get_concatenated_text(self, text_with_nodes, separator):
-        return separator.join( x.get_text(text_with_nodes) for x in self.iter_spans() )
+        return separator.join(
+            x.get_text(text_with_nodes) for x in self.iter_spans()
+        )
+
+    def get_concatenated_char_set(self):
+        return reduce(
+            lambda x,y : x.get_char_set() | y.get_char_set(), self.iter_spans()
+        )
 
     def get_char_set(self):
-
-        char_set = []
-
-        head_char_set = set(
+        return frozenset(
             range(
                 self._start_node,
                 self._end_node
             )
         )
-
-        char_set.append(head_char_set)
-
-        if self._continuations:
-            continuations = self._continuations
-            for x in continuations:
-                continuation_span = set(
-                    range(
-                        x._start_node,
-                        x._end_node
-                    )
-                )
-
-                char_set.append(continuation_span)
-
-        char_set = reduce( lambda x,y : x|y, char_set )
-
-        return frozenset(char_set)
 
 class Feature:
     def __init__(self, feature):
