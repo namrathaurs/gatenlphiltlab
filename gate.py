@@ -60,7 +60,7 @@ class Annotation:
             self._caused_event_id = None
             for feature in self.get_features():
                 if feature._name == "Caused_Event":
-                    self._caused_event_id = feature._value.split()[0]
+                    self._caused_event_id = int(feature._value.split()[0])
                     break
 
     def add_continuation(self, annotation):
