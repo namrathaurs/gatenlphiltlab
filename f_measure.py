@@ -195,8 +195,7 @@ def main():
 
     def has_same_features(key, response):
         return any(
-            x._name == y._name
-            and x._value == y._value
+            x._name == y._name and x._value == y._value
             for x in response.get_features()
             for y in key.get_features()
         )
