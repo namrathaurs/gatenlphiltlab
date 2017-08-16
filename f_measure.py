@@ -112,6 +112,7 @@ def calc_f_measure(key_set,
 
 def main():
 
+    from itertools import groupby
     import argparse
     import gate
 
@@ -194,10 +195,19 @@ def main():
     response_annotations = annotations[1]
 
     def has_same_features(key, response):
-        return any(
-            x._name == y._name and x._value == y._value
-            for x in response.get_features()
-            for y in key.get_features()
+        return all(
+            x._value == y._value
+            for x,y
+            in zip(
+                sorted(
+                    ( x for x in response.get_features() ),
+                    key=lambda x: x._name
+                ),
+                sorted(
+                    ( x for x in key.get_features() ),
+                    key=lambda x: x._name
+                )
+            )
         )
 
     if strict:
