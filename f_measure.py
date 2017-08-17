@@ -112,7 +112,7 @@ def calc_f_measure(key_set,
 
 def main():
 
-    from itertools import groupby
+    from itertools import product
     import argparse
     import gate
 
@@ -155,6 +155,15 @@ def main():
         help="use lenient span-matching, i.e. overlapping spans"
     )
     parser.add_argument(
+        "-p",
+        "--pes-mode",
+        action="store_true",
+        dest="pes_mode",
+        default=False,
+        help="temporary PES mode which evaluates only those attributions "
+        "for which the events are universally considered valid"
+    )
+    parser.add_argument(
         "-i",
         "--annotation-files",
         dest="annotation_file",
@@ -188,11 +197,30 @@ def main():
                 gate.AnnotationGroup(
                     y for y in annotation_file.iter_annotations()
                 ).get_annotations()
-                if x._type == annotation_type
+                if (x._type == annotation_type)
+                or (x._type == "Event")
             ]
         )
-    key_annotations = annotations[0]
-    response_annotations = annotations[1]
+    key_annotations = [
+        x for x in
+        annotations[0]
+        if x._type == annotation_type
+    ]
+    response_annotations = [
+        x for x in
+        annotations[1]
+        if x._type == annotation_type
+    ]
+    key_event_annotations = [
+        x for x in
+        annotations[0]
+        if x._type == "Event"
+    ]
+    response_event_annotations = [
+        x for x in
+        annotations[1]
+        if x._type == "Event"
+    ]
 
     def has_same_features(key, response):
         return all(
@@ -209,6 +237,79 @@ def main():
                 )
             )
         )
+
+    ### only when agreed on event validity
+    if args.pes_mode:
+        if not any(
+            x._caused_event_id == y._caused_event_id
+            and any(
+                (
+                    a._name == "has_valid_attribute"
+                    and
+                    b._name == "has_valid_attribute"
+                    and
+                    a._value == "yes"
+                    and
+                    b._value == "yes"
+                )
+                for a,b in product(
+                    x.get_caused_event(response_event_annotations).get_features(),
+                    y.get_caused_event(key_event_annotations).get_features()
+                )
+            )
+            for x,y in product(key_annotations, response_annotations)
+        ):
+            print("0.0")
+            quit()
+        key_annotations = [
+            x for x in filter(
+                lambda x: any(
+                    x._caused_event_id == y._caused_event_id
+                    and any(
+                        (
+                            a._name == "has_valid_attribute"
+                            and
+                            b._name == "has_valid_attribute"
+                            and
+                            a._value == "yes"
+                            and
+                            b._value == "yes"
+                        )
+                        for a,b in product(
+                            x.get_caused_event(key_event_annotations).get_features(),
+                            y.get_caused_event(response_event_annotations).get_features()
+                        )
+                    )
+                    for y in response_annotations
+                ),
+                key_annotations
+            )
+        ]
+        response_annotations = [
+            x for x in filter(
+                lambda x: any(
+                    x._caused_event_id == y._caused_event_id
+                    and any(
+                        (
+                            a._name == "has_valid_attribute"
+                            and
+                            b._name == "has_valid_attribute"
+                            and
+                            a._value == "yes"
+                            and
+                            b._value == "yes"
+                        )
+                        for a,b in product(
+                            x.get_caused_event(response_event_annotations).get_features(),
+                            y.get_caused_event(key_event_annotations).get_features()
+                        )
+                    )
+                    for y in key_annotations
+                ),
+                response_annotations
+            )
+        ]
+    ### end agreed event filter
 
     if strict:
         does_span_match = is_strict_match
