@@ -51,7 +51,7 @@ class Annotation:
         else: self._annotation_set = ""
 
         self._type = annotation.get("Type")
-        self._id = annotation.get("Id")
+        self._id = int(annotation.get("Id"))
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
         self._continuations = []
@@ -85,10 +85,12 @@ class Annotation:
 
     def get_concatenated_char_set(self):
         if self._continuations:
-            return reduce(
-                lambda x,y : frozenset( x.get_char_set() | y.get_char_set() ),
-                self.iter_spans()
-            )
+                return reduce(
+                    # only second arg needs get_char_set()
+                    lambda x,y : frozenset( x | y.get_char_set() ),
+                    self.iter_spans(),
+                    next(self.iter_spans()).get_char_set()
+                )
         else: return self.get_char_set()
 
     def get_char_set(self):
@@ -98,6 +100,9 @@ class Annotation:
                 self._end_node
             )
         )
+
+    def get_caused_event(self, events):
+        return next( x for x in events if x._id == self._caused_event_id )
 
 class Feature:
     def __init__(self, feature):
