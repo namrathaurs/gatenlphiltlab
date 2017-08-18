@@ -85,12 +85,11 @@ class Annotation:
 
     def get_concatenated_char_set(self):
         if self._continuations:
-                return reduce(
-                    # only second arg needs get_char_set()
-                    lambda x,y : frozenset( x | y.get_char_set() ),
-                    self.iter_spans(),
-                    next(self.iter_spans()).get_char_set()
-                )
+            return reduce(
+                lambda x,y : frozenset( x | y.get_char_set() ),
+                self.iter_spans(),
+                next(self.iter_spans()).get_char_set()
+            )
         else: return self.get_char_set()
 
     def get_char_set(self):
