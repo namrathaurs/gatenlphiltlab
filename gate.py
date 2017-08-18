@@ -83,6 +83,14 @@ class Annotation:
             x.get_text(text_with_nodes) for x in self.iter_spans()
         )
 
+    def get_char_set(self):
+        return frozenset(
+            range(
+                self._start_node,
+                self._end_node
+            )
+        )
+
     def get_concatenated_char_set(self):
         if self._continuations:
             return reduce(
@@ -91,14 +99,6 @@ class Annotation:
                 next(self.iter_spans()).get_char_set()
             )
         else: return self.get_char_set()
-
-    def get_char_set(self):
-        return frozenset(
-            range(
-                self._start_node,
-                self._end_node
-            )
-        )
 
     def get_caused_event(self, events):
         return next( x for x in events if x._id == self._caused_event_id )
