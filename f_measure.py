@@ -78,20 +78,9 @@ def calc_recall(num_true_positives,
 def calc_harmonic_mean( x, y ):
     return 2 * ( ( x * y ) / ( x + y ) )
 
-def calc_f_measure(key_set,
-                   response_set,
-                   is_match):
-
-
-    num_true_positives = sum(
-        1 for _ in iter_true_positives( key_set, response_set, is_match )
-    )
-    num_false_positives = sum(
-        1 for _ in iter_false_positives( key_set, response_set, is_match )
-    )
-    num_false_negatives = sum(
-        1 for _ in iter_false_negatives(key_set, response_set, is_match)
-    )
+def calc_f_measure(num_true_positives,
+                   num_false_positives,
+                   num_false_negatives):
 
     precision = calc_precision(
         num_true_positives,
@@ -113,6 +102,7 @@ def calc_f_measure(key_set,
 def main():
 
     from itertools import product
+    import csv
     import argparse
     import gate
 
@@ -128,7 +118,7 @@ def main():
         "-t",
         "--annotation-type",
         dest="annotation_type",
-        required="true",
+        #required="true",
         help="the type of annotation that will be compared"
     )
     parser.add_argument(
@@ -166,178 +156,247 @@ def main():
     parser.add_argument(
         "-i",
         "--annotation-files",
-        dest="annotation_file",
-        nargs=2,
+        dest="input_files",
+        nargs="+",
         required="true",
         help="GATE annotation files"
+    )
+    parser.add_argument(
+        "--csv-input-mode",
+        action="store_true",
+        dest="csv_input_mode",
+        default=False,
+        help="Use a CSV file as input"
+    )
+    parser.add_argument(
+        "-c",
+        "--csv-output-mode",
+        action="store_true",
+        dest="csv_output_mode",
+        default=False,
+        help="Use a CSV file as output"
     )
 
     args = parser.parse_args()
     annotation_type = args.annotation_type
-    paths = args.annotation_file
+    input_files = args.input_files
     lenient = args.lenient
     strict = args.strict
     is_feature_match = args.feature_match
+    csv_input_mode = args.csv_input_mode
+    csv_output_mode = args.csv_output_mode
 
-    if strict and lenient:
-        raise InputError(
-            "F-measure can't be both lenient and strict!"
-        )
-    if not ( strict or lenient ):
-        raise InputError(
-            "Must choose either strict or lenient!"
-        )
-
-    annotations = []
-    for path in paths:
-        annotation_file = gate.AnnotationFile(path)
-        annotations.append(
-            [
-                x for x in
-                gate.AnnotationGroup(
-                    y for y in annotation_file.iter_annotations()
-                ).get_annotations()
-                if (x._type == annotation_type)
-                or (x._type == "Event")
-            ]
-        )
-    key_annotations = [
-        x for x in
-        annotations[0]
-        if x._type == annotation_type
-    ]
-    response_annotations = [
-        x for x in
-        annotations[1]
-        if x._type == annotation_type
-    ]
-    key_event_annotations = [
-        x for x in
-        annotations[0]
-        if x._type == "Event"
-    ]
-    response_event_annotations = [
-        x for x in
-        annotations[1]
-        if x._type == "Event"
-    ]
-
-    def has_same_features(key, response):
-        return all(
-            x._value == y._value
-            for x,y
-            in zip(
-                sorted(
-                    ( x for x in response.get_features() ),
-                    key=lambda x: x._name
-                ),
-                sorted(
-                    ( x for x in key.get_features() ),
-                    key=lambda x: x._name
+    if csv_input_mode:
+        rows = []
+        with open(input_files[0]) as csvfile:
+            reader = csv.DictReader(
+                csvfile,
+                fieldnames = (
+                    "file_1",
+                    "file_2",
+                    "num_true_positives",
+                    "num_false_positives",
+                    "num_false_negatives",
+                    "fmeasure",
                 )
             )
-        )
+            for row in reader:
+                rows.append(row)
 
-    ### only when agreed on event validity
-    if args.pes_mode:
-        if not any(
-            x._caused_event_id == y._caused_event_id
-            and any(
-                (
-                    a._name == "has_valid_attribute"
-                    and
-                    b._name == "has_valid_attribute"
-                    and
-                    a._value == "yes"
-                    and
-                    b._value == "yes"
-                )
-                for a,b in product(
-                    x.get_caused_event(response_event_annotations).get_features(),
-                    y.get_caused_event(key_event_annotations).get_features()
-                )
+        num_true_positives = sum( int(x["num_true_positives"]) for x in rows )
+        num_false_positives = sum( int(x["num_false_positives"]) for x in rows )
+        num_false_negatives = sum( int(x["num_false_negatives"]) for x in rows )
+
+    else:
+        if strict and lenient:
+            raise InputError(
+                "F-measure can't be both lenient and strict!"
             )
-            for x,y in product(key_annotations, response_annotations)
-        ):
-            print("0.0")
-            quit()
+        if not ( strict or lenient ):
+            raise InputError(
+                "Must choose either strict or lenient!"
+            )
+
+        annotations = []
+        for input_file in input_files:
+            annotation_file = gate.AnnotationFile(input_file)
+            annotations.append(
+                [
+                    x for x in
+                    gate.AnnotationGroup(
+                        y for y in annotation_file.iter_annotations()
+                    ).get_annotations()
+                    if (x._type == annotation_type)
+                    or (x._type == "Event")
+                ]
+            )
         key_annotations = [
-            x for x in filter(
-                lambda x: any(
-                    x._caused_event_id == y._caused_event_id
-                    and any(
-                        (
-                            a._name == "has_valid_attribute"
-                            and
-                            b._name == "has_valid_attribute"
-                            and
-                            a._value == "yes"
-                            and
-                            b._value == "yes"
-                        )
-                        for a,b in product(
-                            x.get_caused_event(key_event_annotations).get_features(),
-                            y.get_caused_event(response_event_annotations).get_features()
-                        )
-                    )
-                    for y in response_annotations
-                ),
-                key_annotations
-            )
+            x for x in
+            annotations[0]
+            if x._type == annotation_type
         ]
         response_annotations = [
-            x for x in filter(
-                lambda x: any(
-                    x._caused_event_id == y._caused_event_id
-                    and any(
-                        (
-                            a._name == "has_valid_attribute"
-                            and
-                            b._name == "has_valid_attribute"
-                            and
-                            a._value == "yes"
-                            and
-                            b._value == "yes"
-                        )
-                        for a,b in product(
-                            x.get_caused_event(response_event_annotations).get_features(),
-                            y.get_caused_event(key_event_annotations).get_features()
-                        )
-                    )
-                    for y in key_annotations
-                ),
-                response_annotations
-            )
+            x for x in
+            annotations[1]
+            if x._type == annotation_type
         ]
-    ### end agreed event filter
+        key_event_annotations = [
+            x for x in
+            annotations[0]
+            if x._type == "Event"
+        ]
+        response_event_annotations = [
+            x for x in
+            annotations[1]
+            if x._type == "Event"
+        ]
 
-    if strict:
-        does_span_match = is_strict_match
-    if lenient:
-        does_span_match = is_lenient_match
+        def has_same_features(key, response):
+            return all(
+                x._value == y._value
+                for x,y
+                in zip(
+                    sorted(
+                        ( x for x in response.get_features() ),
+                        key=lambda x: x._name
+                    ),
+                    sorted(
+                        ( x for x in key.get_features() ),
+                        key=lambda x: x._name
+                    )
+                )
+            )
 
-    def is_match(x,y):
-        span_match = does_span_match(
-            x.get_concatenated_char_set(),
-            y.get_concatenated_char_set()
+        ### only when agreed on event validity
+        if args.pes_mode:
+            if not any(
+                x._caused_event_id == y._caused_event_id
+                and any(
+                    (
+                        a._name == "has_valid_attribute"
+                        and
+                        b._name == "has_valid_attribute"
+                        and
+                        a._value == "yes"
+                        and
+                        b._value == "yes"
+                    )
+                    for a,b in product(
+                        x.get_caused_event(response_event_annotations).get_features(),
+                        y.get_caused_event(key_event_annotations).get_features()
+                    )
+                )
+                for x,y in product(key_annotations, response_annotations)
+            ):
+                print("0.0")
+                quit()
+            key_annotations = [
+                x for x in filter(
+                    lambda x: any(
+                        x._caused_event_id == y._caused_event_id
+                        and any(
+                            (
+                                a._name == "has_valid_attribute"
+                                and
+                                b._name == "has_valid_attribute"
+                                and
+                                a._value == "yes"
+                                and
+                                b._value == "yes"
+                            )
+                            for a,b in product(
+                                x.get_caused_event(key_event_annotations).get_features(),
+                                y.get_caused_event(response_event_annotations).get_features()
+                            )
+                        )
+                        for y in response_annotations
+                    ),
+                    key_annotations
+                )
+            ]
+            response_annotations = [
+                x for x in filter(
+                    lambda x: any(
+                        x._caused_event_id == y._caused_event_id
+                        and any(
+                            (
+                                a._name == "has_valid_attribute"
+                                and
+                                b._name == "has_valid_attribute"
+                                and
+                                a._value == "yes"
+                                and
+                                b._value == "yes"
+                            )
+                            for a,b in product(
+                                x.get_caused_event(response_event_annotations).get_features(),
+                                y.get_caused_event(key_event_annotations).get_features()
+                            )
+                        )
+                        for y in key_annotations
+                    ),
+                    response_annotations
+                )
+            ]
+        ### end agreed event filter
+
+        if strict:
+            does_span_match = is_strict_match
+        if lenient:
+            does_span_match = is_lenient_match
+
+        def is_match(x,y):
+            span_match = does_span_match(
+                x.get_concatenated_char_set(),
+                y.get_concatenated_char_set()
+            )
+            if is_feature_match:
+                feature_match = has_same_features(x,y)
+                return span_match and feature_match
+            else: return span_match
+
+        num_true_positives = sum(
+            1 for _ in iter_true_positives( key_annotations, response_annotations, is_match )
         )
-        if is_feature_match:
-            feature_match = has_same_features(x,y)
-            return span_match and feature_match
-        else: return span_match
+        num_false_positives = sum(
+            1 for _ in iter_false_positives( key_annotations, response_annotations, is_match )
+        )
+        num_false_negatives = sum(
+            1 for _ in iter_false_negatives(key_annotations, response_annotations, is_match)
+        )
 
     f_measure = calc_f_measure(
-        key_annotations,
-        response_annotations,
-        is_match
+        num_true_positives,
+        num_false_positives,
+        num_false_negatives,
     )
 
-    print(
-        round(
-            f_measure,
-            4
+    if csv_output_mode:
+        print(
+            ",".join(
+                str(x) for x in
+                (
+                    input_files[0],
+                    input_files[1],
+                    num_true_positives,
+                    num_false_positives,
+                    num_false_negatives,
+                    round(
+                        f_measure,
+                        4
+                    )
+                )
+            )
         )
-    )
+        quit()
+
+    else:
+        print(
+            round(
+                f_measure,
+                4
+            )
+        )
 
 if __name__ == "__main__":
     main()
