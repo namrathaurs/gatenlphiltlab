@@ -31,6 +31,7 @@ def cronbachs_alpha(annotations):
     alpha = (
         ( num_items / (num_items - 1) )
         * ( 1 - sum_component_variances / overall_variance )
+        # * ( 1 - overall_variance / sum_component_variances )
     )
 
     return (
@@ -135,20 +136,30 @@ def main():
         for x, y in annotations
     ]
 
-    print("internality:")
-    print(annotations_internality)
-    print(cronbachs_alpha(annotations_internality))
-    print()
+    # print("internality:")
+    # print(annotations_internality)
+    # print(cronbachs_alpha(annotations_internality))
+    # print()
 
-    print("stability:")
-    print(annotations_stability)
-    print(cronbachs_alpha(annotations_stability))
-    print()
+    # print("stability:")
+    # print(annotations_stability)
+    # print(cronbachs_alpha(annotations_stability))
+    # print()
 
-    print("globality:")
-    print(annotations_globality)
-    print(cronbachs_alpha(annotations_globality))
-    print()
+    # print("globality:")
+    # print(annotations_globality)
+    # print(cronbachs_alpha(annotations_globality))
+    # print()
+
+    print(
+        "\n".join(
+            ",".join(
+                ( str(value) for value in item )
+            )
+            for item in
+            annotations_stability
+        )
+    )
 
 
 if __name__ == "__main__":
