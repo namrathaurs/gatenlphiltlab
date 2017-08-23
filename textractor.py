@@ -3,11 +3,7 @@ import argparse
 import gate
 
 
-class InputError(Exception):
-    pass
-
 parser = argparse.ArgumentParser(
-    # TODO: update desc
     description="Writes the plain text used within "
     "a GATE document to a file"
 )
