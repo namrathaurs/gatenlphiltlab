@@ -18,6 +18,8 @@ def reverse_find_from_index(iterable, match_function, index):
             return x
 
 class AnnotationFile:
+    """Given a GATE XML annotation file, returns an AnnotationFile object.
+    """
     def __init__(self, filename):
         self.filename = filename
         self.tree = ET.parse(self.filename)
@@ -126,6 +128,10 @@ class Schema:
         return attributes
 
 def concatenate_annotations(annotation_iterable):
+    """Given an iterable of Annotation objects, returns a list of Annotations
+    objects such that each Annotation's continuations list is populated
+    appropriately, less all continuation annotations"""
+
     annotations = sorted(
         sorted(
             annotation_iterable,
