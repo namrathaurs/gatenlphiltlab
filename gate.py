@@ -117,6 +117,12 @@ class Feature:
     def get_value(self):
         return self._value.text
 
+    def set_name(self, name):
+        self._name.text = name
+
+    def set_value(self, value):
+        self._value.text = value
+
 class Schema:
     def __init__(self, filename):
         self.filename = filename
