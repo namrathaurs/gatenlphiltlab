@@ -108,6 +108,23 @@ class Feature:
         self._name = feature.find("./Name").text
         self._value = feature.find("./Value").text
 
+class Schema:
+    def __init__(self, filename):
+        self.filename = filename
+        self.tree = ET.parse(self.filename)
+        self.root = self.tree.getroot()
+        self.namespace = {
+            'schema':'http://www.w3.org/2000/10/XMLSchema'
+        }
+
+    def get_attributes(self, annotation_type):
+        attributes = self.root.findall(
+            ".//schema:element[@name='{}']"
+            "//schema:attribute".format(annotation_type),
+            namespaces=self.namespace
+        )
+        return attributes
+
 def concatenate_annotations(annotation_iterable):
     annotations = sorted(
         sorted(
@@ -133,24 +150,6 @@ def concatenate_annotations(annotation_iterable):
         for annotation in annotations
         if not annotation._type.endswith("_continuation")
     ]
-
-class Schema:
-    def __init__(self, filename):
-        self.filename = filename
-        self.tree = ET.parse(self.filename)
-        self.root = self.tree.getroot()
-        self.namespace = {
-            'schema':'http://www.w3.org/2000/10/XMLSchema'
-        }
-
-    def get_attributes(self, annotation_type):
-        attributes = self.root.findall(
-            ".//schema:element[@name='{}']"
-            "//schema:attribute".format(annotation_type),
-            namespaces=self.namespace
-        )
-        return attributes
-
 
 def pair_annotations(annotations1,
                      annotations2,
