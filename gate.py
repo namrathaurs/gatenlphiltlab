@@ -108,29 +108,31 @@ class Feature:
         self._name = feature.find("./Name").text
         self._value = feature.find("./Value").text
 
-class AnnotationGroup:
-    def __init__(self, annotation_iterable):
-        self._annotations = sorted(
-            sorted(
-                annotation_iterable,
-                key=(lambda x: x._annotation_set)
-            ),
-            key=(lambda x: x._end_node)
-        )
+def concatenate_annotations(annotation_iterable):
+    annotations = sorted(
+        sorted(
+            annotation_iterable,
+            key=(lambda x: x._annotation_set)
+        ),
+        key=(lambda x: x._end_node)
+    )
 
-        for i, annotation in enumerate(self._annotations):
-            if "_continuation" in annotation._type:
-                continuation = annotation
-                base_annotation_type = continuation._type.replace("_continuation","")
-                continued_annotation = reverse_find_from_index(
-                    self._annotations,
-                    ( lambda x : x._type == base_annotation_type ),
-                    i
-                )
-                continued_annotation.add_continuation(annotation)
+    for i, annotation in enumerate(annotations):
+        if "_continuation" in annotation._type:
+            continuation = annotation
+            base_annotation_type = continuation._type.replace("_continuation","")
+            continued_annotation = reverse_find_from_index(
+                annotations,
+                ( lambda x : x._type == base_annotation_type ),
+                i
+            )
+            continued_annotation.add_continuation(annotation)
 
-    def get_annotations(self):
-        return self._annotations
+    return [
+        annotation
+        for annotation in annotations
+        if not annotation._type.endswith("_continuation")
+    ]
 
 class Schema:
     def __init__(self, filename):
