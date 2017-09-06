@@ -169,6 +169,13 @@ def iter_overlapping_annotations(key_annotation,
         if not key_char_set.isdisjoint(annotation_char_set):
             yield annotation
 
+def get_feature_by_name(name, annotation):
+    return next(
+        feature
+        for feature in annotation.get_features()
+        if name.lower() in feature._name.lower()
+    )
+
 def pair_annotations(annotations1,
                      annotations2,
                      *,
