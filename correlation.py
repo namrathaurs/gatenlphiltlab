@@ -94,11 +94,9 @@ def main():
         zip(
             *[
                 sorted(
-                    (
-                        x for x in gate.AnnotationGroup(
-                            _ for _ in annotation_file.iter_annotations()
-                        ).get_annotations()
-                        if (x._type == "Attribution")
+                    gate.concatenate_annotations(
+                        x for x in annotation_file.iter_annotations()
+                        if x._type.lower() == "attribution"
                     ),
                     key=lambda x: x._id
                 )

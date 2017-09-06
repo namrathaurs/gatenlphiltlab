@@ -78,13 +78,10 @@ for output_annotation_path in output_annotation_paths:
 
 text_with_nodes = annotation_file._text_with_nodes
 
-annotations = [
-    x for x in
-    gate.AnnotationGroup(
-        y for y in annotation_file.iter_annotations()
-    ).get_annotations()
-    if x._type == input_annotation_type
-]
+annotations = gate.concatenate_annotations(
+    x for x in annotation_file.iter_annotations()
+    if x._type.lower() == input_annotation_type.lower()
+)
 
 restriction_strings = []
 

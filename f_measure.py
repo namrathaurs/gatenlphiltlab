@@ -221,14 +221,11 @@ def main():
         for input_file in input_files:
             annotation_file = gate.AnnotationFile(input_file)
             annotations.append(
-                [
-                    x for x in
-                    gate.AnnotationGroup(
-                        y for y in annotation_file.iter_annotations()
-                    ).get_annotations()
-                    if (x._type == annotation_type)
-                    or (x._type == "Event")
-                ]
+                gate.concatenate_annotations(
+                    x for x in annotation_file.iter_annotations()
+                    if (x._type.lower() == annotation_type.lower())
+                    or (x._type.lower() == "event")
+                )
             )
         key_annotations = [
             x for x in
