@@ -158,6 +158,17 @@ def concatenate_annotations(annotation_iterable):
         if not annotation._type.endswith("_continuation")
     ]
 
+def iter_overlapping_annotations(key_annotation,
+                              annotation_iterable):
+    """Given a key Annotation and an iterable of Annotations, yield all
+    annotations whose span intersects with that of the key Annotation.
+    """
+    key_char_set = key_annotation.get_concatenated_char_set()
+    for annotation in annotation_iterable:
+        annotation_char_set = annotation.get_concatenated_char_set()
+        if not key_char_set.isdisjoint(annotation_char_set):
+            yield annotation
+
 def pair_annotations(annotations1,
                      annotations2,
                      *,
