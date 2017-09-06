@@ -130,7 +130,8 @@ class Schema:
 def concatenate_annotations(annotation_iterable):
     """Given an iterable of Annotation objects, returns a list of Annotations
     objects such that each Annotation's continuations list is populated
-    appropriately, less all continuation annotations"""
+    appropriately, less all continuation annotations
+    """
 
     annotations = sorted(
         sorted(
