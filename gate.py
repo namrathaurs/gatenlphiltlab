@@ -107,8 +107,15 @@ class Annotation:
 
 class Feature:
     def __init__(self, feature):
-        self._name = feature.find("./Name").text
-        self._value = feature.find("./Value").text
+        self._feature = feature
+        self._name = feature.find("./Name")
+        self._value = feature.find("./Value")
+
+    def get_name(self):
+        return self._name.text
+
+    def get_value(self):
+        return self._value.text
 
 class Schema:
     def __init__(self, filename):
