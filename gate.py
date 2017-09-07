@@ -199,7 +199,7 @@ def get_feature_by_name(name,
     return next(
         feature
         for feature in annotation.get_features()
-        if name.lower() in feature._name.lower()
+        if name.lower() in feature.get_name().lower()
     )
 
 def pair_annotations(annotations1,
