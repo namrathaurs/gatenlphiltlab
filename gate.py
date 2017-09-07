@@ -172,7 +172,7 @@ def concatenate_annotations(annotation_iterable):
     ]
 
 def iter_overlapping_annotations(key_annotation,
-                              annotation_iterable):
+                                 annotation_iterable):
     """Given a key Annotation and an iterable of Annotations, yield all
     annotations whose span intersects with that of the key Annotation.
     """
