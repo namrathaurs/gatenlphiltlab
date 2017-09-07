@@ -56,6 +56,18 @@ class EventAttributionUnit:
     def get_polarity(self):
         return self._polarity
 
+    def get_internality(self):
+        return self._internality
+
+    def get_stability(self):
+        return self._stability
+
+    def get_globality(self):
+        return self._globality
+
+    def get_dimensions(self):
+        return self._dimensions
+
 def get_event_attribution_units(events,
                                 attributions):
     """Given an iterable of events and one of attributions, return a list of
@@ -96,3 +108,72 @@ def get_event_attribution_units_from_annotations(annotation_iterable,
         events,
         attributions,
     )
+
+if __name__ == "__main__":
+
+    import csv
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Extracts information about EAUs contained within given "
+        "GATE files and writes to a CSV file"
+    )
+    parser.add_argument(
+        "-c",
+        "--with-continuations",
+        dest="with_continuations",
+        action="store_true",
+        default=False,
+        help="include annotation continuations"
+    )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        dest="output_file",
+        required="true",
+        help="destination file"
+    )
+    parser.add_argument(
+        "-i",
+        "--annotation-files",
+        dest="annotation_files",
+        nargs="+",
+        required="true",
+        help="GATE annotation files"
+    )
+    args = parser.parse_args()
+
+    with open(args.output_file, "w") as output_file:
+        writer = csv.DictWriter(
+            output_file,
+            fieldnames=[
+                "attr_id",
+                "attr_start_node",
+                "attr_end_node",
+                "polarity",
+                "internality",
+                "stability",
+                "globality",
+            ]
+        )
+        writer.writeheader()
+
+        for annotation_file in args.annotation_files:
+            annotations = gate.AnnotationFile(annotation_file).iter_annotations()
+
+            EAUs = get_event_attribution_units_from_annotations(
+                annotations,
+                with_continuations=args.with_continuations
+            )
+            for EAU in EAUs:
+                writer.writerow(
+                    {
+                        "attr_id" : EAU.get_attribution()._id,
+                        "attr_start_node" : EAU.get_attribution()._start_node,
+                        "attr_end_node" : EAU.get_attribution()._end_node,
+                        "polarity" : EAU.get_polarity(),
+                        "internality" : EAU.get_internality(),
+                        "stability" : EAU.get_stability(),
+                        "globality" : EAU.get_globality(),
+                    }
+                )
