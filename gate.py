@@ -182,15 +182,23 @@ def iter_overlapping_annotations(key_annotation,
         if not key_char_set.isdisjoint(annotation_char_set):
             yield annotation
 
-def iter_annotations_by_type(key_type,
-                            annotation_iterable):
+def filter_annotations_by_type(annotation_iterable,
+                               *annotation_types,
+                               with_continuations=False):
     """Given an iterable of Annotation objects, return a generator which yields
-    all Annotations of the given type"""
+    all Annotations of the given type(s)"""
+    base_types = [ x.lower() for x in annotation_types ]
+    key_types = []
+    for x in base_types:
+        key_types.append(x)
+        if with_continuations:
+            key_types.append(x + "_continuation")
+
     return (
         annotation
         for annotation in annotation_iterable
         if (
-            key_type.lower() == annotation._type.lower()
+            annotation._type.lower() in key_types
         )
     )
 
