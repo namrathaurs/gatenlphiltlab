@@ -56,6 +56,18 @@ class EventAttributionUnit:
     def get_polarity(self):
         return self._polarity
 
+    def get_internality(self):
+        return self._internality
+
+    def get_stability(self):
+        return self._stability
+
+    def get_globality(self):
+        return self._globality
+
+    def get_dimensions(self):
+        return self._dimensions
+
 def get_event_attribution_units(events,
                                 attributions):
     """Given an iterable of events and one of attributions, return a list of
