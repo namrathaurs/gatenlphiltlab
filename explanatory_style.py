@@ -11,6 +11,35 @@ class EventAttributionUnit:
             if not isinstance(annotation, gate.Annotation):
                 raise TypeError("Not a gate.Annotation object!")
 
+        self._polarity = (
+            gate.get_feature_by_name("Polarity", self._event)
+            .get_value()
+            .lower()
+        )
+
+        # extract dimensions from annotations using 3 P's terminology
+        dimensions = {
+            "pers": None,
+            "perm": None,
+            "perv": None,
+        }
+        for key in dimensions.keys():
+            dimensions[key] = int(
+                gate.get_feature_by_name(key, self._attribution)
+                .get_value()
+                .split(" ")[0]
+            )
+
+        self._internality = dimensions["pers"]
+        self._stability = dimensions["perm"]
+        self._globality = dimensions["perv"]
+
+        self._dimensions = {
+            "internality" : self._internality,
+            "stability" : self._stability,
+            "globality" : self._globality,
+        }
+
     def get_event(self):
         return self._event
 
@@ -60,6 +89,5 @@ if __name__ == "__main__":
 
     for x in event_attribution_units:
         print(
-            x.get_event().get_concatenated_text(text_with_nodes, " "),
-            x.get_attribution().get_concatenated_text(text_with_nodes, " ")
+            x._polarity,
         )
