@@ -194,13 +194,11 @@ def filter_annotations_by_type(annotation_iterable,
         if with_continuations:
             key_types.append(x + "_continuation")
 
-    return (
+    return [
         annotation
         for annotation in annotation_iterable
-        if (
-            annotation._type.lower() in key_types
-        )
-    )
+        if annotation._type.lower() in key_types
+    ]
 
 def get_feature_by_name(name,
                         annotation):
