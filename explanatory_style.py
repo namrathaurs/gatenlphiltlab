@@ -114,17 +114,69 @@ def get_event_attribution_units_from_annotations(annotation_iterable,
 
 if __name__ == "__main__":
 
-    test_file = "/home/nick/hilt/pes/conversations/16/4-MG-2014-06-02_PES_3_consensus.xml"
+    import csv
+    import argparse
 
-
-    annotation_file = gate.AnnotationFile(test_file)
-    text_with_nodes = annotation_file._text_with_nodes
-
-    EAUs = get_event_attribution_units_from_annotations(
-        annotation_file.iter_annotations()
+    parser = argparse.ArgumentParser(
+        description="Extracts information about EAUs contained within given "
+        "GATE files and writes to a CSV file"
     )
+    parser.add_argument(
+        "-c",
+        "--with-continuations",
+        dest="with_continuations",
+        action="store_true",
+        default=False,
+        help="include annotation continuations"
+    )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        dest="output_file",
+        required="true",
+        help="destination file"
+    )
+    parser.add_argument(
+        "-i",
+        "--annotation-files",
+        dest="annotation_files",
+        nargs="+",
+        required="true",
+        help="GATE annotation files"
+    )
+    args = parser.parse_args()
 
-    for x in EAUs:
-        print(
-            x.get_event().get_text(text_with_nodes),
+    with open(args.output_file, "w") as output_file:
+        writer = csv.DictWriter(
+            output_file,
+            fieldnames=[
+                "attr_id",
+                "attr_start_node",
+                "attr_end_node",
+                "polarity",
+                "internality",
+                "stability",
+                "globality",
+            ]
         )
+        writer.writeheader()
+
+        for annotation_file in args.annotation_files:
+            annotations = gate.AnnotationFile(annotation_file).iter_annotations()
+
+            EAUs = get_event_attribution_units_from_annotations(
+                annotations,
+                with_continuations=args.with_continuations
+            )
+            for EAU in EAUs:
+                writer.writerow(
+                    {
+                        "attr_id" : EAU.get_attribution()._id,
+                        "attr_start_node" : EAU.get_attribution()._start_node,
+                        "attr_end_node" : EAU.get_attribution()._end_node,
+                        "polarity" : EAU.get_polarity(),
+                        "internality" : EAU.get_internality(),
+                        "stability" : EAU.get_stability(),
+                        "globality" : EAU.get_globality(),
+                    }
+                )
