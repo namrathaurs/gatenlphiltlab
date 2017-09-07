@@ -96,23 +96,3 @@ def get_event_attribution_units_from_annotations(annotation_iterable,
         events,
         attributions,
     )
-
-# def CoPos():
-# def CoNeg():
-
-if __name__ == "__main__":
-
-    test_file = "/home/nick/hilt/pes/conversations/16/4-MG-2014-06-02_PES_3_consensus.xml"
-
-
-    annotation_file = gate.AnnotationFile(test_file)
-    text_with_nodes = annotation_file._text_with_nodes
-
-    EAUs = get_event_attribution_units_from_annotations(
-        annotation_file.iter_annotations()
-    )
-
-    for x in EAUs:
-        print(
-            x.get_event().get_text(text_with_nodes),
-        )
