@@ -173,8 +173,8 @@ def concatenate_annotations(annotation_iterable):
 
 def iter_overlapping_annotations(key_annotation,
                                  annotation_iterable):
-    """Given a key Annotation and an iterable of Annotations, yield all
-    annotations whose span intersects with that of the key Annotation.
+    """Given a key Annotation and an iterable of Annotation objects, yield all
+    Annotations whose span intersects with that of the key Annotation.
     """
     key_char_set = key_annotation.get_concatenated_char_set()
     for annotation in annotation_iterable:
@@ -182,7 +182,20 @@ def iter_overlapping_annotations(key_annotation,
         if not key_char_set.isdisjoint(annotation_char_set):
             yield annotation
 
-def get_feature_by_name(name, annotation):
+def iter_annotations_by_type(key_type,
+                            annotation_iterable):
+    """Given an iterable of Annotation objects, return a generator which yields
+    all Annotations of the given type"""
+    return (
+        annotation
+        for annotation in annotation_iterable
+        if (
+            key_type.lower() == annotation._type.lower()
+        )
+    )
+
+def get_feature_by_name(name,
+                        annotation):
     return next(
         feature
         for feature in annotation.get_features()
