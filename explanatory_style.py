@@ -2,7 +2,9 @@ import gate
 
 
 class EventAttributionUnit:
-    def __init__(self, event, attribution):
+    def __init__(self,
+                 event,
+                 attribution):
         """event, attribution must be gate.Annotation objects
         """
         self._event = event
@@ -11,11 +13,16 @@ class EventAttributionUnit:
             if not isinstance(annotation, gate.Annotation):
                 raise TypeError("Not a gate.Annotation object!")
 
-        self._polarity = (
+        polarity = (
             gate.get_feature_by_name("Polarity", self._event)
             .get_value()
             .lower()
         )
+
+        if "neg" in polarity:
+            self._polarity = 0
+        elif "pos" in polarity:
+            self._polarity = 1
 
         # extract dimensions from annotations using 3 P's terminology
         dimensions = {
@@ -46,6 +53,9 @@ class EventAttributionUnit:
     def get_attribution(self):
         return self._attribution
 
+    def get_polarity(self):
+        return self._polarity
+
 def get_event_attribution_units(events,
                                 attributions):
     """Given an iterable of events and one of attributions, return a list of
@@ -59,6 +69,34 @@ def get_event_attribution_units(events,
         for attribution in attributions
     ]
 
+def get_event_attribution_units_from_annotations(annotation_iterable,
+                                                 with_continuations=False):
+    """Given an iterable of Annotation objects, return a list of
+    EventAttributionUnit objects
+    """
+    annotations = gate.concatenate_annotations(
+        gate.filter_annotations_by_type(
+            annotation_iterable,
+            "event",
+            "attribution",
+            with_continuations=with_continuations,
+        )
+    )
+    events = gate.filter_annotations_by_type(
+        annotations,
+        "event",
+        with_continuations=with_continuations,
+    )
+    attributions = gate.filter_annotations_by_type(
+        annotations,
+        "attribution",
+        with_continuations=with_continuations,
+    )
+    return get_event_attribution_units(
+        events,
+        attributions,
+    )
+
 # def CoPos():
 # def CoNeg():
 
@@ -70,24 +108,11 @@ if __name__ == "__main__":
     annotation_file = gate.AnnotationFile(test_file)
     text_with_nodes = annotation_file._text_with_nodes
 
-    raw_events = []
-    raw_attributions = []
-    annotations = annotation_file.iter_annotations()
-    for annotation in annotations:
-        if "event" in annotation._type.lower():
-            raw_events.append(annotation)
-        elif "attribution" in annotation._type.lower():
-            raw_attributions.append(annotation)
-
-    events = gate.concatenate_annotations(raw_events)
-    attributions = gate.concatenate_annotations(raw_attributions)
-
-    event_attribution_units = get_event_attribution_units(
-        events,
-        attributions
+    EAUs = get_event_attribution_units_from_annotations(
+        annotation_file.iter_annotations()
     )
 
-    for x in event_attribution_units:
+    for x in EAUs:
         print(
-            x._polarity,
+            x.get_event().get_text(text_with_nodes),
         )
