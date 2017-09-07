@@ -158,8 +158,9 @@ if __name__ == "__main__":
         )
         writer.writeheader()
 
-        for annotation_file in args.annotation_files:
-            annotations = gate.AnnotationFile(annotation_file).iter_annotations()
+        for f in args.annotation_files:
+            annotation_file = gate.AnnotationFile(f)
+            annotations = annotation_file.iter_annotations()
 
             EAUs = get_event_attribution_units_from_annotations(
                 annotations,
