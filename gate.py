@@ -53,7 +53,7 @@ class Annotation:
         else: self._annotation_set = ""
 
         self._type = annotation.get("Type")
-        self._id = int(annotation.get("Id"))
+        self._id = annotation.get("Id")
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
         self._continuations = []
@@ -62,7 +62,7 @@ class Annotation:
             self._caused_event_id = None
             for feature in self.get_features():
                 if feature.get_name().lower() == "caused_event":
-                    self._caused_event_id = int(feature.get_value().split()[0])
+                    self._caused_event_id = feature.get_value().split()[0]
                     break
 
     def add_continuation(self, annotation):
