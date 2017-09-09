@@ -103,7 +103,10 @@ class Annotation:
         else: return self.get_char_set()
 
     def get_caused_event(self, events):
-        return next( x for x in events if x._id == self._caused_event_id )
+        return next(
+            ( x for x in events if x._id == self._caused_event_id ),
+            None
+        )
 
 class Feature:
     def __init__(self, feature):
@@ -203,9 +206,12 @@ def filter_annotations_by_type(annotation_iterable,
 def get_feature_by_name(name,
                         annotation):
     return next(
-        feature
-        for feature in annotation.get_features()
-        if name.lower() in feature.get_name().lower()
+        (
+            feature
+            for feature in annotation.get_features()
+            if name.lower() in feature.get_name().lower()
+        ),
+        None
     )
 
 def pair_annotations(annotations1,
