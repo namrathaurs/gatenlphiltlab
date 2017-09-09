@@ -71,7 +71,7 @@ def group_by_eau(dataframe):
         ]
     )
 
-with open("/home/nick/test/gate/expl/eaus.csv") as eaus_file:
+with open("/home/nick/hilt/pes/csvs/eaus.csv") as eaus_file:
     df = pandas.read_csv( eaus_file, dtype={"attr_id":str} )
 df["composite"] = sum(
     df[x] for x in [
