@@ -167,5 +167,3 @@ if __name__ == "__main__":
     print(scores_df)
     with open("/home/nick/hilt/pes/csvs/dimension_scores.csv", "w") as scores_file:
         scores_df.to_csv(scores_file)
-    quit()
-
