@@ -73,7 +73,7 @@ def group_by_eau(dataframe):
         ]
     )
 
-if __name__ == "__main":
+if __name__ == "__main__":
 
     with open("/home/nick/hilt/pes/csvs/eaus.csv") as eaus_file:
         df = pandas.read_csv( eaus_file, dtype={"attr_id":str} )
@@ -156,27 +156,16 @@ if __name__ == "__main":
                 )
             }
         )
-    print(irr_stats)
+
+    scores_df = (
+        pandas.DataFrame(
+            data=irr_stats,
+            index=IRRStat._fields,
+        )
+        .transpose()
+    )
+    print(scores_df)
+    with open("/home/nick/hilt/pes/csvs/dimension_scores.csv", "w") as scores_file:
+        scores_df.to_csv(scores_file)
     quit()
 
-    # irr_stats.update(
-    #     { irr_stats["CPCN"] : irr_stats["CoPos"] - irr_stats["CoNeg"] }
-    # )
-
-    # print("internality:")
-    # print("alpha = " + str(cronbachs_alpha(internality_annotations)))
-    # print("linear kappa = " + str(internality_kappa))
-    # print("pearson's corrcoef = " + str(internality_pearsons))
-    # print()
-
-    # print("stability:")
-    # print("alpha = " + str(cronbachs_alpha(stability_annotations)))
-    # print("linear kappa = " + str(stability_kappa))
-    # print("pearson's corrcoef = " + str(stability_pearsons))
-    # print()
-
-    # print("globality:")
-    # print("alpha = " + str(cronbachs_alpha(globality_annotations)))
-    # print("linear kappa = " + str(globality_kappa))
-    # print("pearson's corrcoef = " + str(globality_pearsons))
-    # print()
