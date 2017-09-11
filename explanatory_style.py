@@ -2,6 +2,20 @@ import gate
 
 
 class EventAttributionUnit:
+
+    polarities = {
+        "negative" : 0,
+        "positive" : 1,
+    }
+
+    dimensions = {
+        name : [ x+1 for x in range(7) ] for name in [
+            "internality",
+            "stability",
+            "globality",
+        ]
+    }
+
     def __init__(self,
                  event,
                  attribution):
