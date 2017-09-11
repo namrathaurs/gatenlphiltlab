@@ -3,6 +3,7 @@ import csv
 import numpy as np
 import pandas
 import skll
+import explanatory_style as es
 
 
 def average(values):
@@ -89,50 +90,27 @@ df_by_negatives = df.groupby("polarity").get_group(0)
 df_positives_by_eaus = group_by_eau(df_by_positives)
 df_negatives_by_eaus = group_by_eau(df_by_negatives)
 
-# print(
-#     itemize_from_df_grouping(group_by_eau(df_by_negatives),"internality")
-# )
-
-annotations = {
-    "internalityPos" : itemize_from_df_grouping(
-        df_positives_by_eaus,
-        "internality"
-    ),
-    "stabilityPos" : itemize_from_df_grouping(
-        df_positives_by_eaus,
-        "stability"
-    ),
-    "globalityPos" : itemize_from_df_grouping(
-        df_positives_by_eaus,
-        "globality"
-    ),
-
-    "internalityNeg" : itemize_from_df_grouping(
-        df_negatives_by_eaus,
-        "internality"
-    ),
-    "stabilityNeg" : itemize_from_df_grouping(
-        df_negatives_by_eaus,
-        "stability"
-    ),
-    "globalityNeg" : itemize_from_df_grouping(
-        df_negatives_by_eaus,
-        "globality"
-    ),
-
-    "internalityPosNeg" : itemize_from_df_grouping(
-        df_by_eaus,
-        "internality"
-    ),
-    "stabilityPosNeg" : itemize_from_df_grouping(
-        df_by_eaus,
-        "stability"
-    ),
-    "globalityPosNeg" : itemize_from_df_grouping(
-        df_by_eaus,
-        "globality"
-    ),
-}
+annotations = {}
+for dimension_name in es.EventAttributionUnit.dimensions:
+    annotations.update(
+        {
+            dimension_name + "Pos" :
+            itemize_from_df_grouping(
+                df_positives_by_eaus,
+                dimension_name
+            ),
+            dimension_name + "Neg" :
+            itemize_from_df_grouping(
+                df_negatives_by_eaus,
+                dimension_name
+            ),
+            dimension_name + "PosNeg" :
+            itemize_from_df_grouping(
+                df_by_eaus,
+                dimension_name
+            ),
+        }
+    )
 
 print(
     skll.kappa(
@@ -141,8 +119,8 @@ print(
         weights="linear"
     )
 )
+
 quit()
-###
 
 irr_stats = {
     "internalityPos",
@@ -163,9 +141,6 @@ irr_stats = {
 
     "CPCN",
 }
-
-
-###
 
 internality_kappa = skll.kappa(
     [x[0] for x in internality_annotations],
