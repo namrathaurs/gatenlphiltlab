@@ -1,3 +1,4 @@
+from collections import namedtuple
 from itertools import groupby
 import csv
 import numpy as np
@@ -72,111 +73,110 @@ def group_by_eau(dataframe):
         ]
     )
 
-with open("/home/nick/hilt/pes/csvs/eaus.csv") as eaus_file:
-    df = pandas.read_csv( eaus_file, dtype={"attr_id":str} )
-df["composite"] = sum(
-    df[x] for x in [
-        "internality",
-        "stability",
-        "globality"
-    ]
-)
+if __name__ == "__main":
 
-df_by_eaus = group_by_eau(df)
+    with open("/home/nick/hilt/pes/csvs/eaus.csv") as eaus_file:
+        df = pandas.read_csv( eaus_file, dtype={"attr_id":str} )
+    df["composite"] = sum(
+        df[x] for x in [
+            "internality",
+            "stability",
+            "globality"
+        ]
+    )
 
-df_by_positives = df.groupby("polarity").get_group(1)
-df_by_negatives = df.groupby("polarity").get_group(0)
+    df_by_eaus = group_by_eau(df)
 
-df_positives_by_eaus = group_by_eau(df_by_positives)
-df_negatives_by_eaus = group_by_eau(df_by_negatives)
+    df_by_positives = df.groupby("polarity").get_group(1)
+    df_by_negatives = df.groupby("polarity").get_group(0)
 
-annotations = {}
-for dimension_name in es.EventAttributionUnit.dimensions:
+    df_positives_by_eaus = group_by_eau(df_by_positives)
+    df_negatives_by_eaus = group_by_eau(df_by_negatives)
+
+    annotations = {}
+    for dimension_name in es.EventAttributionUnit.dimensions:
+        annotations.update(
+            {
+                dimension_name + "Pos" :
+                itemize_from_df_grouping(
+                    df_positives_by_eaus,
+                    dimension_name
+                ),
+                dimension_name + "Neg" :
+                itemize_from_df_grouping(
+                    df_negatives_by_eaus,
+                    dimension_name
+                ),
+                dimension_name + "PosNeg" :
+                itemize_from_df_grouping(
+                    df_by_eaus,
+                    dimension_name
+                ),
+            }
+        )
     annotations.update(
         {
-            dimension_name + "Pos" :
+            "CoPos" :
             itemize_from_df_grouping(
                 df_positives_by_eaus,
-                dimension_name
+                "composite",
             ),
-            dimension_name + "Neg" :
+            "CoNeg" :
             itemize_from_df_grouping(
                 df_negatives_by_eaus,
-                dimension_name
+                "composite",
             ),
-            dimension_name + "PosNeg" :
+            "CoPosNeg" :
             itemize_from_df_grouping(
-                df_by_eaus,
-                dimension_name
+                df_negatives_by_eaus,
+                "composite",
             ),
         }
     )
 
-print(
-    skll.kappa(
-        [x[0] for x in annotations["internalityPosNeg"]],
-        [x[1] for x in annotations["internalityPosNeg"]],
-        weights="linear"
-    )
-)
+    IRRStat = namedtuple("IRRStat", ["kappa", "pearsons", "cronbachs"])
+    irr_stats = {}
+    for key, annotation_items in annotations.items():
+        kappa = skll.kappa(
+            [ x[0] for x in annotation_items ],
+            [ x[1] for x in annotation_items ],
+            weights="linear"
+        )
+        pearsons = np.corrcoef(
+            [ x for x in zip(*annotation_items) ]
+        )[0,1]
+        cronbachs = cronbachs_alpha(annotation_items)
+        irr_stats.update(
+            {
+                key :
+                IRRStat(
+                    kappa=kappa,
+                    pearsons=pearsons,
+                    cronbachs=cronbachs,
+                )
+            }
+        )
+    print(irr_stats)
+    quit()
 
-quit()
+    # irr_stats.update(
+    #     { irr_stats["CPCN"] : irr_stats["CoPos"] - irr_stats["CoNeg"] }
+    # )
 
-irr_stats = {
-    "internalityPos",
-    "stabilityPos",
-    "globalityPos",
+    # print("internality:")
+    # print("alpha = " + str(cronbachs_alpha(internality_annotations)))
+    # print("linear kappa = " + str(internality_kappa))
+    # print("pearson's corrcoef = " + str(internality_pearsons))
+    # print()
 
-    "internalityNeg",
-    "stabilityNeg",
-    "globalityNeg",
+    # print("stability:")
+    # print("alpha = " + str(cronbachs_alpha(stability_annotations)))
+    # print("linear kappa = " + str(stability_kappa))
+    # print("pearson's corrcoef = " + str(stability_pearsons))
+    # print()
 
-    "internalityPosNeg",
-    "stabilityPosNeg",
-    "globalityPosNeg",
-
-    "CoPosNeg",
-    "CoPos",
-    "CoNeg",
-
-    "CPCN",
-}
-
-internality_kappa = skll.kappa(
-    [x[0] for x in internality_annotations],
-    [x[1] for x in internality_annotations],
-    weights="linear"
-)
-stability_kappa = skll.kappa(
-    [x[0] for x in stability_annotations],
-    [x[1] for x in stability_annotations],
-    weights="linear"
-)
-globality_kappa = skll.kappa(
-    [x[0] for x in globality_annotations],
-    [x[1] for x in globality_annotations],
-    weights="linear"
-)
-
-internality_pearsons = np.corrcoef([x for x in zip(*internality_annotations)])[0,1]
-stability_pearsons = np.corrcoef([x for x in zip(*stability_annotations)])[0,1]
-globality_pearsons = np.corrcoef([x for x in zip(*globality_annotations)])[0,1]
-
-print("internality:")
-print("alpha = " + str(cronbachs_alpha(internality_annotations)))
-print("linear kappa = " + str(internality_kappa))
-print("pearson's corrcoef = " + str(internality_pearsons))
-print()
-
-print("stability:")
-print("alpha = " + str(cronbachs_alpha(stability_annotations)))
-print("linear kappa = " + str(stability_kappa))
-print("pearson's corrcoef = " + str(stability_pearsons))
-print()
-
-print("globality:")
-print("alpha = " + str(cronbachs_alpha(globality_annotations)))
-print("linear kappa = " + str(globality_kappa))
-print("pearson's corrcoef = " + str(globality_pearsons))
-print()
-
+    # print("globality:")
+    # print("alpha = " + str(cronbachs_alpha(globality_annotations)))
+    # print("linear kappa = " + str(globality_kappa))
+    # print("pearson's corrcoef = " + str(globality_pearsons))
+    # print()
