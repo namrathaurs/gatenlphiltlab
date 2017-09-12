@@ -12,10 +12,20 @@ import itertools
 class InputError(Exception):
     pass
 
-def reverse_find_from_index(iterable, match_function, index):
-    for x in iterable[index::-1]:
-        if match_function(x):
-            return x
+def find_from_index(match_function,
+                    iterable,
+                    index,
+                    reverse=False):
+    if reverse:
+        return (
+            x for x in iterable[index::-1]
+            if match_function(x)
+        )
+    else:
+        return (
+            x for x in iterable[index::1]
+            if match_function(x)
+        )
 
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
