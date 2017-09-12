@@ -214,6 +214,21 @@ def get_feature_by_name(name,
         None
     )
 
+def is_overlapping(annotations):
+    if len(annotations) == 0:
+        raise Exception("Can't compare to nothing!")
+    return all(
+        not (
+            annotation
+            .get_concatenated_char_set()
+            .isdisjoint(
+                annotations[i+1]
+                .get_concatenated_char_set()
+            )
+        )
+        for i, annotation in enumerate( annotations[:-1] )
+    )
+
 def pair_annotations(annotations1,
                      annotations2,
                      *,
