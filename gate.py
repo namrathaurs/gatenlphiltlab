@@ -170,11 +170,16 @@ def concatenate_annotations(annotation_iterable):
     for i, annotation in enumerate(annotations):
         if "_continuation" in annotation._type:
             continuation = annotation
-            base_annotation_type = continuation._type.replace("_continuation","")
-            continued_annotation = reverse_find_from_index(
-                annotations,
-                ( lambda x : x._type == base_annotation_type ),
-                i
+            base_annotation_type = (
+                continuation._type.replace("_continuation","")
+            )
+            continued_annotation = next(
+                find_from_index(
+                    annotations,
+                    lambda x : x._type == base_annotation_type,
+                    i,
+                    reverse=True,
+                )
             )
             continued_annotation.add_continuation(annotation)
 
