@@ -12,20 +12,31 @@ import itertools
 class InputError(Exception):
     pass
 
-def find_from_index(match_function,
-                    iterable,
-                    index,
-                    reverse=False):
+def find_from_index(index,
+                    source_list,
+                    match_function,
+                    reverse=False,
+                    greedy=True):
     if reverse:
-        return (
-            x for x in iterable[index::-1]
-            if match_function(x)
-        )
+        try:
+            list_from_index = source_list[index-1::-1]
+        except IndexError:
+            raise StopIteration()
     else:
-        return (
-            x for x in iterable[index::1]
-            if match_function(x)
-        )
+        try:
+            list_from_index = source_list[index+1::1]
+        except IndexError:
+            raise StopIteration()
+    if greedy:
+        for x in list_from_index:
+            if match_function(x):
+                yield x
+    else:
+        for x in list_from_index:
+            if match_function(x):
+                yield x
+            else:
+                raise StopIteration()
 
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
@@ -195,10 +206,13 @@ def iter_overlapping_annotations(key_annotation,
     Annotations whose span intersects with that of the key Annotation.
     """
     key_char_set = key_annotation.get_concatenated_char_set()
-    for annotation in annotation_iterable:
-        annotation_char_set = annotation.get_concatenated_char_set()
-        if not key_char_set.isdisjoint(annotation_char_set):
-            yield annotation
+    while True:
+        for annotation in annotation_iterable:
+            annotation_char_set = annotation.get_concatenated_char_set()
+            if not key_char_set.isdisjoint(annotation_char_set):
+                yield annotation
+            else:
+                break
 
 def filter_annotations_by_type(annotation_iterable,
                                *annotation_types,
