@@ -1,3 +1,3 @@
 # HILT-annotations
 
-This is a collection of Python 3 scripts intended to facilitate the calculation of inter-rater reliability of Companionbot annotations collected at the UNT HiLT Lab.
+This is a simple API written in Python 3 which is intended to facilitate the collection, interaction, and analysis of GATE tool annotations, and specifically those collected for the Companionbot project at the HiLT Lab at the University of North Texas.
