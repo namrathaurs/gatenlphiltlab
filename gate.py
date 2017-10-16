@@ -9,35 +9,6 @@ from pprint import pprint
 from functools import reduce
 import itertools
 
-class InputError(Exception):
-    pass
-
-def find_from_index(index,
-                    source_list,
-                    match_function,
-                    reverse=False,
-                    greedy=True):
-    if reverse:
-        try:
-            list_from_index = source_list[index-1::-1]
-        except IndexError:
-            raise StopIteration()
-    else:
-        try:
-            list_from_index = source_list[index+1::1]
-        except IndexError:
-            raise StopIteration()
-    if greedy:
-        for x in list_from_index:
-            if match_function(x):
-                yield x
-    else:
-        for x in list_from_index:
-            if match_function(x):
-                yield x
-            else:
-                raise StopIteration()
-
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
     """
@@ -91,6 +62,18 @@ class Annotation:
 
     def iter_spans(self):
         return itertools.chain( [self], ( x for x in self._continuations ) )
+
+    def get_type(self):
+        return self._type
+
+    def get_id(self):
+        return self._id
+
+    def get_start_node(self):
+        return self._start_node
+
+    def get_end_node(self):
+        return self._end_node
 
     def get_features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
@@ -163,6 +146,32 @@ class Schema:
             namespaces=self.namespace
         )
         return attributes
+
+def find_from_index(index,
+                    source_list,
+                    match_function,
+                    reverse=False,
+                    greedy=True):
+    if reverse:
+        try:
+            list_from_index = source_list[index-1::-1]
+        except IndexError:
+            raise StopIteration()
+    else:
+        try:
+            list_from_index = source_list[index+1::1]
+        except IndexError:
+            raise StopIteration()
+    if greedy:
+        for x in list_from_index:
+            if match_function(x):
+                yield x
+    else:
+        for x in list_from_index:
+            if match_function(x):
+                yield x
+            else:
+                raise StopIteration()
 
 def concatenate_annotations(annotation_iterable):
     """Given an iterable of Annotation objects, returns a list of Annotations
