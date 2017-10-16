@@ -17,15 +17,21 @@ class AnnotationFile:
         self.tree = ET.parse(self.filename)
         self.root = self.tree.getroot()
         self._text_with_nodes = self.root.find(".//TextWithNodes")
-        self.annotation_set_names = [
+        self._annotation_set_names = [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
 
+    def get_text_with_nodes(self):
+        return self._text_with_nodes
+
+    def get_annotation_set_names(self):
+        return self._annotation_set_names
+
     def get_text(self):
         return ''.join(
-            ( x for x in self._text_with_nodes.itertext() )
+            ( x for x in self.get_text_with_nodes().itertext() )
         )
 
     def iter_annotations(self):
