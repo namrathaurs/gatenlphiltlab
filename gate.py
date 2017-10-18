@@ -2,14 +2,14 @@
 
 from functools import reduce
 import itertools
-from lxml import etree as ET
+from lxml import etree
 
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
     """
     def __init__(self, filename):
         self._filename = filename
-        self._tree = ET.parse(self.filename)
+        self._tree = etree.parse(self.filename)
         self._root = self.tree.getroot()
         self._nodes = None
         self._text_with_nodes = None
@@ -196,7 +196,7 @@ class Feature:
 class Schema:
     def __init__(self, filename):
         self.filename = filename
-        self.tree = ET.parse(self.filename)
+        self.tree = etree.parse(self.filename)
         self.root = self.tree.getroot()
         self.namespace = {
             'schema':'http://www.w3.org/2000/10/XMLSchema'
