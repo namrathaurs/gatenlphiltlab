@@ -11,6 +11,9 @@ class AnnotationFile:
         self._filename = filename
         self._tree = ET.parse(self.filename)
         self._root = self.tree.getroot()
+        self._nodes = None
+        self._text_with_nodes = None
+        self._annotations = None
 
     @property
     def filename(self):
@@ -29,16 +32,43 @@ class AnnotationFile:
         return "".join( self.text_with_nodes.itertext() )
 
     @property
+    def nodes(self):
+        if not self._nodes:
+            nodes = self.text_with_nodes.getchildren()
+            self._nodes =  {
+                int(node.get("id")) : node for node in nodes
+            }
+            return self._nodes
+        else:
+            return self._nodes
+
+    @property
     def text_with_nodes(self):
-        return self.root.find(".//TextWithNodes")
+        if not self._text_with_nodes:
+            self._text_with_nodes = self.root.find(".//TextWithNodes")
+            return self._text_with_nodes
+        else:
+            return self._text_with_nodes
 
     @property
     def annotation_set_names(self):
-        return [
-            annotation_set.get("Name")
-            for annotation_set
-            in self.root.findall(".//AnnotationSet")
-        ]
+        if not self._annotation_set_names:
+            self._annotation_set_names = [
+                annotation_set.get("Name")
+                for annotation_set
+                in self.root.findall(".//AnnotationSet")
+            ]
+            return self._annotation_set_names
+        else:
+            return self._annotation_set_names
+
+    @property
+    def annotations(self):
+        if not self._annotations:
+            self._annotations = [ x for x in self.iter_annotations() ]
+            return self._annotations
+        else:
+            return self._annotations
 
     def iter_annotations(self):
         annotations = self.root.findall(
@@ -100,10 +130,14 @@ class Annotation:
     def iter_spans(self):
         return itertools.chain( [self], ( x for x in self.continuations ) )
 
-    def get_text(self, text_with_nodes):
+    def get_text(self, annotation_file):
         return "".join(
-            x.tail for x in text_with_nodes
-            if int(x.get("id")) in range(self.start_node, self.end_node)
+            annotation_file.nodes[node].tail
+            for node in sorted(
+                self.get_concatenated_char_set().intersection(
+                    annotation_file.nodes.keys()
+                )
+            )       
         )
 
     def get_concatenated_text(self, text_with_nodes, separator):
