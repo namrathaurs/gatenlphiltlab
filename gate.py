@@ -89,6 +89,10 @@ class Annotation:
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
 
     @property
+    def annotation_set_name(self):
+        return self._annotation_set_name
+
+    @property
     def continuations(self):
         return self._continuations
 
