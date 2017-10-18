@@ -258,9 +258,9 @@ def concatenate_annotations(annotation_iterable):
             )
             continued_annotation = next(
                 find_from_index(
+                    i,
                     annotations,
                     lambda x : x.type == base_annotation_type,
-                    i,
                     reverse=True,
                 )
             )
