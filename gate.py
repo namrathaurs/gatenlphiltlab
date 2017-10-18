@@ -24,20 +24,21 @@ class AnnotationFile:
     def root(self):
         return self._root
 
-    def get_text_with_nodes(self):
+    @property
+    def text(self):
+        return "".join( self.text_with_nodes.itertext() )
+
+    @property
+    def text_with_nodes(self):
         return self.root.find(".//TextWithNodes")
 
-    def get_annotation_set_names(self):
+    @property
+    def annotation_set_names(self):
         return [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
-
-    def get_text(self):
-        return ''.join(
-            ( x for x in self.get_text_with_nodes().itertext() )
-        )
 
     def iter_annotations(self):
         annotations = self.root.findall(
@@ -236,20 +237,6 @@ def concatenate_annotations(annotation_iterable):
         for annotation in annotations
         if not annotation.type.endswith("_continuation")
     ]
-
-def iter_overlapping_annotations(key_annotation,
-                                 annotation_iterable):
-    """Given a key Annotation and an iterable of Annotation objects, yield all
-    Annotations whose span intersects with that of the key Annotation.
-    """
-    key_char_set = key_annotation.get_concatenated_char_set()
-    while True:
-        for annotation in annotation_iterable:
-            annotation_char_set = annotation.get_concatenated_char_set()
-            if not key_char_set.isdisjoint(annotation_char_set):
-                yield annotation
-            else:
-                break
 
 def filter_annotations_by_type(annotation_iterable,
                                annotation_types,
