@@ -245,7 +245,7 @@ def concatenate_annotations(annotation_iterable):
     annotations = sorted(
         sorted(
             annotation_iterable,
-            key=(lambda x: x.annotation_set)
+            key=(lambda x: x.annotation_set_name)
         ),
         key=(lambda x: x.end_node)
     )
