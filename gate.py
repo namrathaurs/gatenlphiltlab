@@ -1,33 +1,38 @@
 #!/usr/bin/env python3
 
-from collections import namedtuple
-import re
-from lxml import etree as ET
-import skll
-from collections import Counter
-from pprint import pprint
 from functools import reduce
 import itertools
+from lxml import etree as ET
 
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
     """
     def __init__(self, filename):
-        self.filename = filename
-        self.tree = ET.parse(self.filename)
-        self.root = self.tree.getroot()
-        self._text_with_nodes = self.root.find(".//TextWithNodes")
-        self._annotation_set_names = [
+        self._filename = filename
+        self._tree = ET.parse(self.filename)
+        self._root = self.tree.getroot()
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def tree(self):
+        return self._tree
+
+    @property
+    def root(self):
+        return self._root
+
+    def get_text_with_nodes(self):
+        return self.root.find(".//TextWithNodes")
+
+    def get_annotation_set_names(self):
+        return [
             annotation_set.get("Name")
             for annotation_set
             in self.root.findall(".//AnnotationSet")
         ]
-
-    def get_text_with_nodes(self):
-        return self._text_with_nodes
-
-    def get_annotation_set_names(self):
-        return self._annotation_set_names
 
     def get_text(self):
         return ''.join(
@@ -44,50 +49,56 @@ class AnnotationFile:
 class Annotation:
     def __init__(self, annotation):
         self._annotation = annotation
-
-        annotation_set_name = annotation.getparent().get("Name")
-        if annotation_set_name:
-            self._annotation_set = annotation_set_name
-        else: self._annotation_set = ""
-
         self._type = annotation.get("Type")
         self._id = annotation.get("Id")
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
         self._continuations = []
 
+        annotation_set_name = annotation.getparent().get("Name")
+        if annotation_set_name:
+            self._annotation_set_name = annotation_set_name
+        else:
+            self._annotation_set_name = ""
+
         if self._type == "Attribution":
             self._caused_event_id = None
-            for feature in self.get_features():
-                if feature.get_name().lower() == "caused_event":
-                    self._caused_event_id = feature.get_value().split()[0]
+            for feature in self.features:
+                if feature.name.lower() == "caused_event":
+                    self._caused_event_id = feature.value.split()[0]
                     break
 
-    def add_continuation(self, annotation):
-        self._continuations.append(annotation)
-
-    def iter_spans(self):
-        return itertools.chain( [self], ( x for x in self._continuations ) )
-
-    def get_type(self):
+    @property
+    def type(self):
         return self._type
 
-    def get_id(self):
+    @property
+    def id(self):
         return self._id
 
-    def get_start_node(self):
+    @property
+    def start_node(self):
         return self._start_node
 
-    def get_end_node(self):
+    @property
+    def end_node(self):
         return self._end_node
 
-    def get_features(self):
+    @property
+    def features(self):
         return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
+
+    @property
+    def continuations(self):
+        return self._continuations
+
+    def iter_spans(self):
+        return itertools.chain( [self], ( x for x in self.continuations ) )
 
     def get_text(self, text_with_nodes):
         return "".join(
             x.tail for x in text_with_nodes
-            if int(x.get("id")) in range(self._start_node, self._end_node)
+            if int(x.get("id")) in range(self.start_node, self.end_node)
         )
 
     def get_concatenated_text(self, text_with_nodes, separator):
@@ -98,19 +109,22 @@ class Annotation:
     def get_char_set(self):
         return frozenset(
             range(
-                self._start_node,
-                self._end_node
+                self.start_node,
+                self.end_node
             )
         )
 
     def get_concatenated_char_set(self):
-        if self._continuations:
+        if self.continuations:
             return reduce(
                 lambda x,y : frozenset( x | y.get_char_set() ),
                 self.iter_spans(),
                 next(self.iter_spans()).get_char_set()
             )
         else: return self.get_char_set()
+
+    def add_continuation(self, annotation):
+        self._continuations.append(annotation)
 
     def get_caused_event(self, events):
         return next(
@@ -124,16 +138,20 @@ class Feature:
         self._name = feature.find("./Name")
         self._value = feature.find("./Value")
 
-    def get_name(self):
+    @property
+    def name(self):
         return self._name.text
 
-    def get_value(self):
-        return self._value.text
-
-    def set_name(self, name):
+    @name.setter
+    def name(self, name):
         self._name.text = name
 
-    def set_value(self, value):
+    @property
+    def value(self):
+        return self._value.text
+
+    @value.setter
+    def value(self, value):
         self._value.text = value
 
 class Schema:
@@ -188,21 +206,21 @@ def concatenate_annotations(annotation_iterable):
     annotations = sorted(
         sorted(
             annotation_iterable,
-            key=(lambda x: x._annotation_set)
+            key=(lambda x: x.annotation_set)
         ),
-        key=(lambda x: x._end_node)
+        key=(lambda x: x.end_node)
     )
 
     for i, annotation in enumerate(annotations):
-        if "_continuation" in annotation._type:
+        if "_continuation" in annotation.type:
             continuation = annotation
             base_annotation_type = (
-                continuation._type.replace("_continuation","")
+                continuation.type.replace("_continuation","")
             )
             continued_annotation = next(
                 find_from_index(
                     annotations,
-                    lambda x : x._type == base_annotation_type,
+                    lambda x : x.type == base_annotation_type,
                     i,
                     reverse=True,
                 )
@@ -212,7 +230,7 @@ def concatenate_annotations(annotation_iterable):
     return [
         annotation
         for annotation in annotations
-        if not annotation._type.endswith("_continuation")
+        if not annotation.type.endswith("_continuation")
     ]
 
 def iter_overlapping_annotations(key_annotation,
@@ -244,7 +262,7 @@ def filter_annotations_by_type(annotation_iterable,
     return [
         annotation
         for annotation in annotation_iterable
-        if annotation._type.lower() in key_types
+        if annotation.type.lower() in key_types
     ]
 
 def get_feature_by_name(name,
@@ -252,8 +270,8 @@ def get_feature_by_name(name,
     return next(
         (
             feature
-            for feature in annotation.get_features()
-            if name.lower() in feature.get_name().lower()
+            for feature in annotation.features
+            if name.lower() in feature.name.lower()
         ),
         None
     )
