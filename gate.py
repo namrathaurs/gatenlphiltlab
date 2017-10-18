@@ -248,7 +248,7 @@ def iter_overlapping_annotations(key_annotation,
                 break
 
 def filter_annotations_by_type(annotation_iterable,
-                               *annotation_types,
+                               annotation_types,
                                with_continuations=False):
     """Given an iterable of Annotation objects, return a generator which yields
     all Annotations of the given type(s)"""
