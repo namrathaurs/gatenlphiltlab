@@ -137,7 +137,7 @@ class Annotation:
                 self.get_concatenated_char_set().intersection(
                     annotation_file.nodes.keys()
                 )
-            )       
+            )
         )
 
     def get_concatenated_text(self, text_with_nodes, separator):
