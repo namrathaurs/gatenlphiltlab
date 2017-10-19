@@ -79,14 +79,14 @@ class AnnotationFile:
 
 class Annotation:
     def __init__(self, annotation):
-        self._annotation = annotation
+        self._annotation_element = annotation
         self._type = annotation.get("Type")
         self._id = annotation.get("Id")
         self._start_node = int(annotation.get("StartNode"))
         self._end_node = int(annotation.get("EndNode"))
         self._continuations = []
 
-        annotation_set_name = annotation.getparent().get("Name")
+        annotation_set_name = self._annotation_element.getparent().get("Name")
         if annotation_set_name:
             self._annotation_set_name = annotation_set_name
         else:
@@ -117,7 +117,7 @@ class Annotation:
 
     @property
     def features(self):
-        return [ Feature(x) for x in self._annotation if x.tag == "Feature" ]
+        return [ Feature(x) for x in self._annotation_element if x.tag == "Feature" ]
 
     @property
     def annotation_set_name(self):
@@ -164,12 +164,6 @@ class Annotation:
 
     def add_continuation(self, annotation):
         self._continuations.append(annotation)
-
-    def get_caused_event(self, events):
-        return next(
-            ( x for x in events if x._id == self._caused_event_id ),
-            None
-        )
 
 class Feature:
     def __init__(self, feature):
