@@ -1,21 +1,63 @@
 import gate
 
+class Event(gate.Annotation):
+    def __init__(self,
+                 annotation):
+        super().__init__(annotation._annotation_element)
+        self._polarity = None
+
+    @property
+    def polarity(self):
+        if not self._polarity:
+            polarity = (
+                gate.get_feature_by_name("polarity", self)
+                .value
+                .lower()
+            )
+            if "neg" in polarity:
+                self._polarity = 0
+            elif "pos" in polarity:
+                self._polarity = 1
+            return self._polarity
+        else:
+            return self._polarity
+
+class Attribution(gate.Annotation):
+    def __init__(self,
+                 annotation):
+        super().__init__(annotation._annotation_element)
+        self._dimensions = None
+
+    @property
+    def dimensions(self):
+        if not self._dimensions:
+            dimensions = {
+                "pers": None,
+                "perm": None,
+                "perv": None,
+            }
+            for key in dimensions.keys():
+                dimensions[key] = int(
+                    gate.get_feature_by_name(key, self)
+                    .value
+                    .split(" ")[0]
+                )
+            self._dimensions = {
+                "internality" : dimensions["pers"],
+                "stability" : dimensions["perm"],
+                "globality" : dimensions["perv"],
+            }
+            return self._dimensions
+        else:
+            return self._dimensions
+
+    def get_caused_event(self, events):
+        return next(
+            ( x for x in events if x.id == self._caused_event_id ),
+            None
+        )
 
 class EventAttributionUnit:
-
-    polarities = {
-        "negative" : 0,
-        "positive" : 1,
-    }
-
-    dimensions = {
-        name : [ x+1 for x in range(7) ] for name in [
-            "internality",
-            "stability",
-            "globality",
-        ]
-    }
-
     def __init__(self,
                  event,
                  attribution):
@@ -23,69 +65,22 @@ class EventAttributionUnit:
         """
         self._event = event
         self._attribution = attribution
-        for annotation in [self._event, self._attribution]:
+        for annotation in [self.event, self.attribution]:
             if not isinstance(annotation, gate.Annotation):
                 raise TypeError("Not a gate.Annotation object!")
 
-        polarity = (
-            gate.get_feature_by_name("Polarity", self._event)
-            .get_value()
-            .lower()
-        )
-
-        if "neg" in polarity:
-            self._polarity = 0
-        elif "pos" in polarity:
-            self._polarity = 1
-
-        # extract dimensions from annotations using 3 P's terminology
-        dimensions = {
-            "pers": None,
-            "perm": None,
-            "perv": None,
-        }
-        for key in dimensions.keys():
-            dimensions[key] = int(
-                gate.get_feature_by_name(key, self._attribution)
-                .get_value()
-                .split(" ")[0]
-            )
-
-        self._internality = dimensions["pers"]
-        self._stability = dimensions["perm"]
-        self._globality = dimensions["perv"]
-
-        self._dimensions = {
-            "internality" : self._internality,
-            "stability" : self._stability,
-            "globality" : self._globality,
-        }
-
-    def get_event(self):
+    @property
+    def event(self):
         return self._event
 
-    def get_attribution(self):
+    @property
+    def attribution(self):
         return self._attribution
-
-    def get_polarity(self):
-        return self._polarity
-
-    def get_internality(self):
-        return self._internality
-
-    def get_stability(self):
-        return self._stability
-
-    def get_globality(self):
-        return self._globality
-
-    def get_dimensions(self):
-        return self._dimensions
 
 def get_event_attribution_units(events,
                                 attributions):
-    """Given an iterable of events and one of attributions, return a list of
-    EventAttributionUnit objects
+    """Given an iterable of Events and one of Attributions, return a list of
+    EventAttributionUnits
     """
     return [
         EventAttributionUnit(
@@ -103,20 +98,28 @@ def get_event_attribution_units_from_annotations(annotation_iterable,
     annotations = gate.concatenate_annotations(
         gate.filter_annotations_by_type(
             annotation_iterable,
-            "event",
-            "attribution",
+            [
+                "event",
+                "attribution",
+            ],
             with_continuations=with_continuations,
         )
     )
-    events = gate.filter_annotations_by_type(
-        annotations,
-        "event",
-        with_continuations=with_continuations,
+    events = (
+        Event(x)
+        for x in gate.filter_annotations_by_type(
+            annotations,
+            ["event"],
+            with_continuations=with_continuations,
+        )
     )
-    attributions = gate.filter_annotations_by_type(
-        annotations,
-        "attribution",
-        with_continuations=with_continuations,
+    attributions = (
+        Attribution(x)
+        for x in gate.filter_annotations_by_type(
+            annotations,
+            ["attribution"],
+            with_continuations=with_continuations,
+        )
     )
     return get_event_attribution_units(
         events,
@@ -183,12 +186,12 @@ if __name__ == "__main__":
             for EAU in EAUs:
                 writer.writerow(
                     {
-                        "attr_id" : EAU.get_attribution()._id,
-                        "attr_start_node" : EAU.get_attribution()._start_node,
-                        "attr_end_node" : EAU.get_attribution()._end_node,
-                        "polarity" : EAU.get_polarity(),
-                        "internality" : EAU.get_internality(),
-                        "stability" : EAU.get_stability(),
-                        "globality" : EAU.get_globality(),
+                        "attr_id" : EAU.attribution.id,
+                        "attr_start_node" : EAU.attribution.start_node,
+                        "attr_end_node" : EAU.attribution.end_node,
+                        "polarity" : EAU.event.polarity,
+                        "internality" : EAU.attribution.dimensions["internality"],
+                        "stability" : EAU.attribution.dimensions["stability"],
+                        "globality" : EAU.attribution.dimensions["globality"],
                     }
                 )
