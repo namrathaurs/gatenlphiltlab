@@ -134,15 +134,19 @@ class Annotation:
         return "".join(
             annotation_file.nodes[node].tail
             for node in sorted(
-                self.get_concatenated_char_set().intersection(
+                self.get_char_set().intersection(
                     annotation_file.nodes.keys()
                 )
             )
         )
 
-    def get_concatenated_text(self, text_with_nodes, separator):
+    def get_concatenated_text(self,
+                              annotation_file,
+                              separator=None):
+        if not separator:
+            separator = " "
         return separator.join(
-            x.get_text(text_with_nodes) for x in self.iter_spans()
+            x.get_text(annotation_file) for x in self.iter_spans()
         )
 
     def get_char_set(self):
