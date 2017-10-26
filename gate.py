@@ -3,6 +3,7 @@
 from functools import reduce
 import itertools
 from lxml import etree
+import intervaltree
 
 class AnnotationFile:
     """Given a GATE XML annotation file, returns an AnnotationFile object.
@@ -14,6 +15,7 @@ class AnnotationFile:
         self._nodes = None
         self._text_with_nodes = None
         self._annotations = None
+        self._interval_tree = None
 
     @property
     def filename(self):
@@ -70,12 +72,50 @@ class AnnotationFile:
         else:
             return self._annotations
 
+    @property
+    def interval_tree(self):
+        if not self._interval_tree:
+            self._interval_tree = GateIntervalTree()
+            return self._interval_tree
+        else:
+            return self._interval_tree
+
     def iter_annotations(self):
         annotations = self.root.findall(
             ".//Annotation"
         )
         for x in annotations:
             yield Annotation(x)
+
+class GateIntervalTree:
+    def __init__(self):
+        self._tree = intervaltree.IntervalTree()
+
+    def add(self,
+            annotation):
+        self._tree.addi(
+            annotation.start_node,
+            annotation.end_node,
+            annotation,
+        )
+
+    def search(self,
+               annotation):
+        return list(
+            itertools.chain.from_iterable(
+                [
+                    [
+                        match.data
+                        for match in self._tree.search(
+                            annotation_span.start_node,
+                            annotation_span.end_node,
+                        )
+                    ]
+                    for annotation_span
+                    in annotation.iter_spans()
+                ]
+            )
+        )
 
 class Annotation:
     def __init__(self, annotation):
