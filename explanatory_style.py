@@ -3,19 +3,22 @@ import gate
 class Event(gate.Annotation):
     def __init__(self,
                  annotation):
-        super().__init__(annotation._annotation_element)
+        super().__init__(
+            annotation._annotation_element,
+            annotation._annotation_file,
+        )
         self._polarity = None
 
     @property
     def polarity(self):
         if not self._polarity:
             polarity = (
-                gate.get_feature_by_name("polarity", self)
+                self.features["polarity"]
                 .value
                 .lower()
             )
             if "neg" in polarity:
-                self._polarity = 0
+                self._polarity = -1
             elif "pos" in polarity:
                 self._polarity = 1
             return self._polarity
@@ -25,33 +28,36 @@ class Event(gate.Annotation):
 class Attribution(gate.Annotation):
     def __init__(self,
                  annotation):
-        super().__init__(annotation._annotation_element)
+        super().__init__(
+            annotation._annotation_element,
+            annotation._annotation_file,
+        )
         self._dimensions = None
 
     @property
     def dimensions(self):
         if not self._dimensions:
             dimensions = {
-                "pers": None,
-                "perm": None,
-                "perv": None,
+                "personal_v_external": None,
+                "permanent_v_temporary": None,
+                "pervasive_v_specific": None,
             }
             for key in dimensions.keys():
                 dimensions[key] = int(
-                    gate.get_feature_by_name(key, self)
+                    self.features[key]
                     .value
                     .split(" ")[0]
                 )
             self._dimensions = {
-                "internality" : dimensions["pers"],
-                "stability" : dimensions["perm"],
-                "globality" : dimensions["perv"],
+                "internality" : dimensions["personal_v_external"],
+                "stability" : dimensions["permanent_v_temporary"],
+                "globality" : dimensions["pervasive_v_specific"],
             }
             return self._dimensions
         else:
             return self._dimensions
 
-    def get_caused_event(self, events):
+    def _get_caused_event(self, events):
         return next(
             ( x for x in events if x.id == self._caused_event_id ),
             None
@@ -84,42 +90,25 @@ def get_event_attribution_units(events,
     """
     return [
         EventAttributionUnit(
-            attribution.get_caused_event(events),
+            attribution._get_caused_event(events),
             attribution
         )
         for attribution in attributions
     ]
 
-def get_event_attribution_units_from_annotations(annotation_iterable,
-                                                 with_continuations=False):
+def get_event_attribution_units_from_annotations(annotations):
     """Given an iterable of Annotation objects, return a list of
     EventAttributionUnit objects
     """
-    annotations = gate.concatenate_annotations(
-        gate.filter_annotations_by_type(
-            annotation_iterable,
-            [
-                "event",
-                "attribution",
-            ],
-            with_continuations=with_continuations,
-        )
-    )
-    events = (
-        Event(x)
-        for x in gate.filter_annotations_by_type(
-            annotations,
-            ["event"],
-            with_continuations=with_continuations,
-        )
-    )
+    events = [
+        Event(annotation)
+        for annotation in annotations
+        if annotation.type.lower() == "event"
+    ]
     attributions = (
-        Attribution(x)
-        for x in gate.filter_annotations_by_type(
-            annotations,
-            ["attribution"],
-            with_continuations=with_continuations,
-        )
+        Attribution(annotation)
+        for annotation in annotations
+        if annotation.type.lower() == "attribution"
     )
     return get_event_attribution_units(
         events,
