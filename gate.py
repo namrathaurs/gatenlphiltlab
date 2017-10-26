@@ -84,7 +84,7 @@ class AnnotationFile:
             ".//Annotation"
         )
         for x in annotations:
-            yield Annotation(x)
+            yield Annotation(x, self)
 
 class GateIntervalTree:
     def __init__(self):
@@ -111,18 +111,21 @@ class GateIntervalTree:
                         )
                     ]
                     for annotation_span
-                    in annotation.iter_spans()
+                    in annotation.spans
                 ]
             )
         )
 
 class Annotation:
-    def __init__(self, annotation):
-        self._annotation_element = annotation
-        self._type = annotation.get("Type")
-        self._id = annotation.get("Id")
-        self._start_node = int(annotation.get("StartNode"))
-        self._end_node = int(annotation.get("EndNode"))
+    def __init__(self,
+                 annotation_element,
+                 annotation_file):
+        self._annotation_element = annotation_element
+        self._annotation_file = annotation_file
+        self._type = annotation_element.get("Type")
+        self._id = annotation_element.get("Id")
+        self._start_node = int(annotation_element.get("StartNode"))
+        self._end_node = int(annotation_element.get("EndNode"))
         self._continuations = []
 
         annotation_set_name = self._annotation_element.getparent().get("Name")
@@ -137,6 +140,10 @@ class Annotation:
                 if feature.name.lower() == "caused_event":
                     self._caused_event_id = feature.value.split()[0]
                     break
+
+    @property
+    def annotation_file(self):
+        return self._annotation_file
 
     @property
     def type(self):
@@ -166,29 +173,33 @@ class Annotation:
     def continuations(self):
         return self._continuations
 
-    def iter_spans(self):
-        return itertools.chain( [self], ( x for x in self.continuations ) )
+    @property
+    def spans(self):
+        return list(
+            itertools.chain( [self], ( x for x in self.continuations ) )
+        )
 
-    def get_text(self, annotation_file):
+    @property
+    def text(self):
         return "".join(
-            annotation_file.nodes[node].tail
+            self.annotation_file.nodes[node].tail
             for node in sorted(
-                self.get_char_set().intersection(
-                    annotation_file.nodes.keys()
+                self.char_set.intersection(
+                    self.annotation_file.nodes.keys()
                 )
             )
         )
 
     def get_concatenated_text(self,
-                              annotation_file,
                               separator=None):
         if not separator:
             separator = " "
         return separator.join(
-            x.get_text(annotation_file) for x in self.iter_spans()
+            x.text for x in self.spans
         )
 
-    def get_char_set(self):
+    @property
+    def char_set(self):
         return frozenset(
             range(
                 self.start_node,
@@ -196,16 +207,17 @@ class Annotation:
             )
         )
 
-    def get_concatenated_char_set(self):
+    @property
+    def concatenated_char_set(self):
         if self.continuations:
             return reduce(
-                lambda x,y : frozenset( x | y.get_char_set() ),
-                self.iter_spans(),
-                next(self.iter_spans()).get_char_set()
+                lambda x,y : frozenset( x | y.char_set ),
+                self.spans[1:],
+                self.spans[0].char_set
             )
-        else: return self.get_char_set()
+        else: return self.char_set
 
-    def add_continuation(self, annotation):
+    def _add_continuation(self, annotation):
         self._continuations.append(annotation)
 
 class Feature:
@@ -301,7 +313,7 @@ def concatenate_annotations(annotation_iterable):
                     reverse=True,
                 )
             )
-            continued_annotation.add_continuation(annotation)
+            continued_annotation._add_continuation(annotation)
 
     return [
         annotation
@@ -326,10 +338,10 @@ def is_overlapping(annotations):
     return all(
         not (
             annotation
-            .get_concatenated_char_set()
+            .concatenated_char_set
             .isdisjoint(
                 annotations[i+1]
-                .get_concatenated_char_set()
+                .concatenated_char_set
             )
         )
         for i, annotation in enumerate( annotations[:-1] )
