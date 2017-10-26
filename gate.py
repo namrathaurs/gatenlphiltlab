@@ -5,9 +5,8 @@ import itertools
 from lxml import etree
 import intervaltree
 
+
 class AnnotationFile:
-    """Given a GATE XML annotation file, returns an AnnotationFile object.
-    """
     def __init__(self, filename):
         self._filename = filename
         self._tree = etree.parse(self.filename)
@@ -81,7 +80,7 @@ class AnnotationFile:
             return self._interval_tree
 
     def iter_annotations(self):
-        annotations = self.root.findall(
+        annotations = self.root.iterfind(
             ".//Annotation"
         )
         for x in annotations:
