@@ -66,7 +66,8 @@ class AnnotationFile:
     @property
     def annotations(self):
         if not self._annotations:
-            self._annotations = [ x for x in self.iter_annotations() ]
+            annotations = [ x for x in self.iter_annotations() ]
+            self._annotations = concatenate_annotations(annotations)
             return self._annotations
         else:
             return self._annotations
@@ -127,6 +128,7 @@ class Annotation:
         self._start_node = int(annotation_element.get("StartNode"))
         self._end_node = int(annotation_element.get("EndNode"))
         self._continuations = []
+        self._features = None
 
         annotation_set_name = self._annotation_element.getparent().get("Name")
         if annotation_set_name:
@@ -136,8 +138,8 @@ class Annotation:
 
         if self._type == "Attribution":
             self._caused_event_id = None
-            for feature in self.features:
-                if feature.name.lower() == "caused_event":
+            for name, feature in self.features.items():
+                if name.lower() == "caused_event":
                     self._caused_event_id = feature.value.split()[0]
                     break
 
@@ -163,7 +165,19 @@ class Annotation:
 
     @property
     def features(self):
-        return [ Feature(x) for x in self._annotation_element if x.tag == "Feature" ]
+        if self._features:
+            return self._features
+        else:
+            features = [
+                Feature(x)
+                for x in self._annotation_element
+                if x.tag == "Feature"
+            ]
+            self._features = {
+                feature.name.lower() : feature
+                for feature in features
+            }
+            return self._features
 
     @property
     def annotation_set_name(self):
@@ -219,6 +233,8 @@ class Annotation:
 
     def _add_continuation(self, annotation):
         self._continuations.append(annotation)
+
+    # TODO: add add_feature
 
 class Feature:
     def __init__(self, feature):
@@ -320,17 +336,6 @@ def concatenate_annotations(annotation_iterable):
         for annotation in annotations
         if not annotation.type.endswith("_continuation")
     ]
-
-def get_feature_by_name(name,
-                        annotation):
-    return next(
-        (
-            feature
-            for feature in annotation.features
-            if name.lower() in feature.name.lower()
-        ),
-        None
-    )
 
 def is_overlapping(annotations):
     if len(annotations) == 0:
