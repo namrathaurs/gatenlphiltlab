@@ -138,9 +138,9 @@ class Annotation:
 
         if self._type == "Attribution":
             self._caused_event_id = None
-            for name, feature in self.features.items():
+            for name, value in self.features.items():
                 if name.lower() == "caused_event":
-                    self._caused_event_id = feature.value.split()[0]
+                    self._caused_event_id = value.split()[0]
                     break
 
     @property
@@ -165,18 +165,18 @@ class Annotation:
 
     @property
     def features(self):
-        if self._features:
-            return self._features
-        else:
+        if not self._features:
             features = [
                 Feature(x)
                 for x in self._annotation_element
                 if x.tag == "Feature"
             ]
             self._features = {
-                feature.name.lower() : feature
+                feature.name.lower() : feature.value
                 for feature in features
             }
+            return self._features
+        else:
             return self._features
 
     @property
@@ -231,20 +231,62 @@ class Annotation:
             )
         else: return self.char_set
 
-    def _add_continuation(self, annotation):
+    def _add_continuation(self,
+                          annotation):
         self._continuations.append(annotation)
 
-    # TODO: add add_feature
+    def add_feature(self,
+                    name,
+                    value,
+                    overwrite=False):
+        if name in self.features:
+            already_present = True
+            if overwrite == False:
+                return
+        else:
+            already_present = False
+
+        def _add_element(feature_element, tag, string):
+            element = feature_element.makeelement(
+                tag,
+                attrib={
+                    "className" : "java.lang.String"
+                }
+            )
+            element.text = string
+            feature_element.append(element)
+
+        feature_element = (
+            self
+            ._annotation_element
+            .makeelement("Feature")
+        )
+        _add_element(feature_element, "Name", name)
+        _add_element(feature_element, "Value", value)
+        
+        # TODO: replace if needs overwriting
+        self._annotation_element.append(feature_element)
+
+        feature = Feature(feature_element)
+
+        self._features.update(
+            { feature.name : feature.value }
+        )
 
 class Feature:
-    def __init__(self, feature):
-        self._feature = feature
-        self._name = feature.find("./Name")
-        self._value = feature.find("./Value")
+    def __init__(self, feature_element):
+        self._feature_element = feature_element
+        self._name = None
+        self._value = None
 
     @property
     def name(self):
-        return self._name.text
+        if not self._name:
+            self._name = self._feature_element.find("./Name")
+            return self._name.text
+        else:
+            return self._name.text
+        # self._value = feature.find("./Value")
 
     @name.setter
     def name(self, name):
@@ -252,7 +294,11 @@ class Feature:
 
     @property
     def value(self):
-        return self._value.text
+        if not self._value:
+            self._value = self._feature_element.find("./Value")
+            return self._value.text
+        else:
+            return self._value.text
 
     @value.setter
     def value(self, value):
