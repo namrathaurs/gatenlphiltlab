@@ -263,7 +263,7 @@ class Annotation:
         )
         _add_element(feature_element, "Name", name)
         _add_element(feature_element, "Value", value)
-        
+
         # TODO: replace if needs overwriting
         self._annotation_element.append(feature_element)
 
