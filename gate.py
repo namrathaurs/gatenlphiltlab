@@ -87,6 +87,14 @@ class AnnotationFile:
         for x in annotations:
             yield Annotation(x, self)
 
+    def save_changes(self):
+        self.tree.write(
+            self.filename,
+            pretty_print=True,
+            xml_declaration=True,
+        )
+
+
 class GateIntervalTree:
     def __init__(self):
         self._tree = intervaltree.IntervalTree()
@@ -172,7 +180,7 @@ class Annotation:
                 if x.tag == "Feature"
             ]
             self._features = {
-                feature.name.lower() : feature.value
+                feature.name.lower() : feature
                 for feature in features
             }
             return self._features
@@ -270,7 +278,7 @@ class Annotation:
         feature = Feature(feature_element)
 
         self._features.update(
-            { feature.name : feature.value }
+            { feature.name : feature }
         )
 
 class Feature:
@@ -294,7 +302,7 @@ class Feature:
 
     @property
     def value(self):
-        if not self._value:
+        if self._value is None:
             self._value = self._feature_element.find("./Value")
             return self._value.text
         else:
@@ -303,6 +311,9 @@ class Feature:
     @value.setter
     def value(self, value):
         self._value.text = value
+
+    def tally(self):
+        self.value = str(int(self.value) + 1)
 
 class Schema:
     def __init__(self, filename):
