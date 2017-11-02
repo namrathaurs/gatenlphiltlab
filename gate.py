@@ -146,9 +146,9 @@ class Annotation:
 
         if self._type == "Attribution":
             self._caused_event_id = None
-            for name, value in self.features.items():
+            for name, feature in self.features.items():
                 if name.lower() == "caused_event":
-                    self._caused_event_id = value.split()[0]
+                    self._caused_event_id = feature.value.split()[0]
                     break
 
     @property
