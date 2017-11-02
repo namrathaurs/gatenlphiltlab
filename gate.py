@@ -136,7 +136,7 @@ class Annotation:
         self._start_node = int(annotation_element.get("StartNode"))
         self._end_node = int(annotation_element.get("EndNode"))
         self._continuations = []
-        self._features = None
+        self._features = {}
 
         annotation_set_name = self._annotation_element.getparent().get("Name")
         if annotation_set_name:
@@ -180,7 +180,7 @@ class Annotation:
                 if x.tag == "Feature"
             ]
             self._features = {
-                feature.name.lower() : feature
+                feature.name : feature
                 for feature in features
             }
             return self._features
@@ -243,6 +243,15 @@ class Annotation:
                           annotation):
         self._continuations.append(annotation)
 
+    def remove_feature(self,
+                       name):
+        if name in self.features:
+            feature_element = self.features[name]._feature_element
+            self._annotation_element.remove(feature_element)
+            del self.features[name]
+        else:
+            return
+
     def add_feature(self,
                     name,
                     value,
@@ -272,7 +281,9 @@ class Annotation:
         _add_element(feature_element, "Name", name)
         _add_element(feature_element, "Value", value)
 
-        # TODO: replace if needs overwriting
+        if already_present:
+            self.remove_feature(name)
+
         self._annotation_element.append(feature_element)
 
         feature = Feature(feature_element)
