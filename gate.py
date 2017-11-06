@@ -137,6 +137,8 @@ class Annotation:
         self._end_node = int(annotation_element.get("EndNode"))
         self._continuations = []
         self._features = {}
+        self.previous = None
+        self.next = None
 
         annotation_set_name = self._annotation_element.getparent().get("Name")
         if annotation_set_name:
@@ -342,6 +344,13 @@ class Schema:
             namespaces=self.namespace
         )
         return attributes
+
+def dlink(annotations):
+    for i, annotation in enumerate(annotations[:-1]):
+        annotation.previous = annotations[ i-1 ]
+        annotation.next = annotations[ i+1 ]
+    annotations[0].previous = None
+    annotations[-1].previous = annotations[-2]
 
 def find_from_index(index,
                     source_list,
