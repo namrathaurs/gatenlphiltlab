@@ -99,6 +99,10 @@ class GateIntervalTree:
     def __init__(self):
         self._tree = intervaltree.IntervalTree()
 
+    def __iter__(self):
+        for x in self._tree:
+            yield x.data
+
     def add(self,
             annotation):
         self._tree.addi(
@@ -346,11 +350,18 @@ class Schema:
         return attributes
 
 def dlink(annotations):
-    for i, annotation in enumerate(annotations[:-1]):
-        annotation.previous = annotations[ i-1 ]
-        annotation.next = annotations[ i+1 ]
-    annotations[0].previous = None
-    annotations[-1].previous = annotations[-2]
+    sorted_annotations = sorted(
+        sorted(
+            annotations,
+            key=lambda x: x.start_node,
+        ),
+        key=lambda x: x.end_node,
+    )
+    for i, annotation in enumerate(sorted_annotations[:-1]):
+        annotation.previous = sorted_annotations[ i-1 ]
+        annotation.next = sorted_annotations[ i+1 ]
+    sorted_annotations[0].previous = None
+    sorted_annotations[-1].previous = sorted_annotations[-2]
 
 def find_from_index(index,
                     source_list,
