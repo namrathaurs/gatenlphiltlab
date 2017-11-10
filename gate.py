@@ -87,9 +87,13 @@ class AnnotationFile:
         for x in annotations:
             yield Annotation(x, self)
 
-    def save_changes(self):
+    def save_changes(self,
+                     file_path=None):
+        if not file_path:
+            file_path = self.filename
+
         self.tree.write(
-            self.filename,
+            file_path,
             pretty_print=True,
             xml_declaration=True,
         )
