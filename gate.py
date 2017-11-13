@@ -16,6 +16,9 @@ class AnnotationFile:
         self._annotations = None
         self._interval_tree = None
 
+    def __repr__(self):
+        return "AnnotationFile('{}')".format(self.filename)
+
     @property
     def filename(self):
         return self._filename
@@ -161,6 +164,35 @@ class Annotation:
                 if name.lower() == "caused_event":
                     self._caused_event_id = feature.value.split()[0]
                     break
+
+    def __str__(self):
+        id_string = "id: {}".format(self.id)
+        type_string = "type: {}".format(self.type)
+        start_node_string = "start_node: {}".format(self.start_node)
+        end_node_string = "end_node: {}".format(self.end_node)
+        text_string = 'text: """{}"""'.format(self.text)
+        features_string_dict = {
+            k: v.value
+            for k, v in self.features.items()
+        }
+        features_string = 'features: {}'.format(features_string_dict)
+
+        return ", ".join(
+            [
+                id_string,
+                type_string,
+                start_node_string,
+                end_node_string,
+                text_string,
+                features_string,
+            ]
+        )
+
+    def __repr__(self):
+        return "Annotation({}, {})".format(
+            self._annotation_element,
+            self._annotation_file,
+        )
 
     @property
     def annotation_file(self):
@@ -316,6 +348,12 @@ class Feature:
         self._feature_element = feature_element
         self._name = None
         self._value = None
+
+    def __str__(self):
+        return "name: '{}', value: '{}'".format(self.name, self.value)
+
+    def __repr__(self):
+        return "Feature({})".format(self._feature_element)
 
     @property
     def name(self):
