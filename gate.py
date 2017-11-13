@@ -189,7 +189,8 @@ class Annotation:
         )
 
     def __repr__(self):
-        return "Annotation({}, {})".format(
+        return "{}({}, {})".format(
+            self.__class__.__name__,
             self._annotation_element,
             self._annotation_file,
         )
