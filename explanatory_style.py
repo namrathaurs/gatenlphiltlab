@@ -13,13 +13,13 @@ class Event(gate.Annotation):
     def polarity(self):
         if not self._polarity:
             polarity = (
-                self.features["polarity"]
+                self.features["Polarity"]
                 .value
                 .lower()
             )
-            if "neg" in polarity:
+            if "neg" in polarity.lower():
                 self._polarity = -1
-            elif "pos" in polarity:
+            elif "pos" in polarity.lower():
                 self._polarity = 1
             return self._polarity
         else:
@@ -38,9 +38,9 @@ class Attribution(gate.Annotation):
     def dimensions(self):
         if not self._dimensions:
             dimensions = {
-                "personal_v_external": None,
-                "permanent_v_temporary": None,
-                "pervasive_v_specific": None,
+                "Personal_v_External": None,
+                "Permanent_v_Temporary": None,
+                "Pervasive_v_Specific": None,
             }
             for key in dimensions.keys():
                 dimensions[key] = int(
@@ -49,9 +49,9 @@ class Attribution(gate.Annotation):
                     .split(" ")[0]
                 )
             self._dimensions = {
-                "internality" : dimensions["personal_v_external"],
-                "stability" : dimensions["permanent_v_temporary"],
-                "globality" : dimensions["pervasive_v_specific"],
+                "internality" : dimensions["Personal_v_External"],
+                "stability" : dimensions["Permanent_v_Temporary"],
+                "globality" : dimensions["Pervasive_v_Specific"],
             }
             return self._dimensions
         else:
