@@ -145,6 +145,7 @@ class Annotation:
         self._end_node = int(annotation_element.get("EndNode"))
         self._continuations = []
         self._features = {}
+        self._turn = None
         self.previous = None
         self.next = None
 
@@ -180,6 +181,14 @@ class Annotation:
     @property
     def end_node(self):
         return self._end_node
+
+    @property
+    def turn(self):
+        return self._turn
+
+    @turn.setter
+    def turn(self, turn):
+        self._turn = turn
 
     @property
     def features(self):
