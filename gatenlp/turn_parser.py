@@ -6,7 +6,6 @@ import re
 import gatenlp
 
 
-# not really necessary yet (or maybe ever)
 class Turn:
     def __init__(self,
                  sentences):
