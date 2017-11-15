@@ -3,3 +3,4 @@
 .*.swp
 test*
 tags
+*egg-info*

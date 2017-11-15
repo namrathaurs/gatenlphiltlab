@@ -13,7 +13,8 @@ class AnnotationFile:
         self._root = self.tree.getroot()
         self._nodes = None
         self._text_with_nodes = None
-        self._annotations = None
+        self._annotation_set_names = None
+        self._annotations = []
         self._interval_tree = None
 
     def __repr__(self):
@@ -101,6 +102,50 @@ class AnnotationFile:
             xml_declaration=True,
         )
 
+    def add_annotation(self,
+                       annotation_type=None,
+                       annotation_set=None,
+                       start=None,
+                       end=None,
+                       feature_dict=None):
+        annotation_set_name = annotation_set
+        if not annotation_set_name:
+            annotation_set = self.root.find("./AnnotationSet")
+        elif annotation_set_name in self.annotation_set_names:
+            annotation_set = self.root.find(
+                "./AnnotationSet[@Name='{}']".format(annotation_set_name)
+            )
+        else:
+            annotation_set = self.root.makeelement("AnnotationSet", attrib={"Name":annotation_set_name})
+            self.root.append(annotation_set)
+            self._annotation_set_names.append(annotation_set_name)
+
+        if annotation_set:
+            annotation_id = 1 + max(
+                int(annotation.get("Id"))
+                for annotation
+                in annotation_set.iterfind("Annotation")
+            )
+        else:
+            annotation_id = 1
+
+        annotation_element = annotation_set.makeelement(
+            "Annotation",
+            attrib={
+                "Type": annotation_type,
+                "Id": str(annotation_id),
+                "StartNode": str(start),
+                "EndNode": str(end)
+            }
+        )
+        annotation_set.append(annotation_element)
+
+        annotation = Annotation(annotation_element, self)
+        if feature_dict:
+            for name, value in feature_dict.items():
+                annotation.add_feature(name, value)
+
+        self._annotations.append(annotation)
 
 class GateIntervalTree:
     def __init__(self):
@@ -195,6 +240,18 @@ class Annotation:
             self._annotation_file,
         )
 
+    def __len__(self):
+        return self.end_node - self.start_node
+
+    def delete(self):
+        unlink(self)
+        # self._annotation_element.clear()
+        (
+            self._annotation_element
+            .getparent()
+            .remove(self._annotation_element)
+        )
+
     @property
     def annotation_file(self):
         return self._annotation_file
@@ -214,6 +271,16 @@ class Annotation:
     @property
     def end_node(self):
         return self._end_node
+
+    @start_node.setter
+    def start_node(self, start_node):
+        self._annotation_element.attrib["StartNode"] = str(start_node)
+        self._start_node = start_node
+
+    @end_node.setter
+    def end_node(self, end_node):
+        self._annotation_element.attrib["EndNode"] = str(end_node)
+        self._end_node = end_node
 
     @property
     def turn(self):
@@ -402,18 +469,23 @@ class Schema:
         return attributes
 
 def dlink(annotations):
-    sorted_annotations = sorted(
-        sorted(
-            annotations,
-            key=lambda x: x.start_node,
-        ),
-        key=lambda x: x.end_node,
-    )
-    for i, annotation in enumerate(sorted_annotations[:-1]):
-        annotation.previous = sorted_annotations[ i-1 ]
-        annotation.next = sorted_annotations[ i+1 ]
-    sorted_annotations[0].previous = None
-    sorted_annotations[-1].previous = sorted_annotations[-2]
+    for i, annotation in enumerate(annotations[:-1]):
+        annotation.previous = annotations[ i-1 ]
+        annotation.next = annotations[ i+1 ]
+    annotations[0].previous = None
+    annotations[-1].previous = annotations[-2]
+
+def unlink(annotation):
+    # if surrounded
+    if annotation.previous and annotation.next:
+        annotation.previous.next = annotation.next
+        annotation.next.previous = annotation.previous
+    # if right edge
+    elif annotation.previous:
+        annotation.previous.next = None
+    # if left edge
+    elif annotation.next:
+        annotation.next.previous = None
 
 def find_from_index(index,
                     source_list,
@@ -446,7 +518,6 @@ def concatenate_annotations(annotation_iterable):
     objects such that each Annotation's continuations list is populated
     appropriately, less all continuation annotations
     """
-
     annotations = sorted(
         sorted(
             annotation_iterable,
