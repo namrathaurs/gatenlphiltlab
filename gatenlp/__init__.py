@@ -13,7 +13,7 @@ class AnnotationFile:
         self._root = self.tree.getroot()
         self._nodes = None
         self._text_with_nodes = None
-        self._annotation_set_names = None
+        self._annotation_sets = []
         self._annotations = []
         self._interval_tree = None
 
@@ -57,39 +57,32 @@ class AnnotationFile:
 
     @property
     def annotation_set_names(self):
-        if not self._annotation_set_names:
-            self._annotation_set_names = [
-                annotation_set.get("Name")
-                for annotation_set
-                in self.root.findall(".//AnnotationSet")
-            ]
-            return self._annotation_set_names
-        else:
-            return self._annotation_set_names
+        return [
+            annotation_set.name
+            for annotation_set in self._annotation_sets
+        ]
 
     @property
     def annotations(self):
         if not self._annotations:
-            annotations = [ x for x in self.iter_annotations() ]
-            self._annotations = concatenate_annotations(annotations)
-            return self._annotations
-        else:
-            return self._annotations
+            self._annotations = [ x for x in self.iter_annotations() ]
+        return self._annotations
 
     @property
     def interval_tree(self):
         if not self._interval_tree:
             self._interval_tree = GateIntervalTree()
-            return self._interval_tree
-        else:
-            return self._interval_tree
+        return self._interval_tree
 
     def iter_annotations(self):
-        annotations = self.root.iterfind(
-            ".//Annotation"
+        annotations = itertools.chain.from_iterable(
+            annotation_set.annotations
+            if annotation_set.annotations
+            else annotation_set.iter_annotations()
+            for annotation_set in self.annotation_sets
         )
-        for x in annotations:
-            yield Annotation(x, self)
+        for annotation in annotations:
+            yield annotation
 
     def save_changes(self,
                      file_path=None):
@@ -102,61 +95,46 @@ class AnnotationFile:
             xml_declaration=True,
         )
 
-    def add_annotation(self,
-                       annotation_type=None,
-                       annotation_set=None,
-                       start=None,
-                       end=None,
-                       feature_dict=None):
-        annotation_set_name = annotation_set
-        if not annotation_set_name:
-            annotation_set = self.root.find("./AnnotationSet")
-        elif annotation_set_name in self.annotation_set_names:
-            annotation_set = self.root.find(
-                "./AnnotationSet[@Name='{}']".format(annotation_set_name)
-            )
+    @property
+    def annotation_sets(self):
+        if not self._annotation_sets:
+            annotation_set_elements = self.root.findall("./AnnotationSet")
+            self._annotation_sets = [
+                AnnotationSet(x, self)
+                for x in annotation_set_elements
+            ]
+        return self._annotation_sets
+
+    def create_annotation_set(self,
+                           name=None):
+        if name in self.annotation_set_names:
+            return
         else:
-            annotation_set = self.root.makeelement("AnnotationSet", attrib={"Name":annotation_set_name})
-            self.root.append(annotation_set)
-            self._annotation_set_names.append(annotation_set_name)
-
-        if annotation_set:
-            annotation_id = 1 + max(
-                int(annotation.get("Id"))
-                for annotation
-                in annotation_set.iterfind("Annotation")
+            annotation_set_element = self.root.makeelement(
+                "AnnotationSet",
+                attrib={
+                    "Name": name,
+                }
             )
-        else:
-            annotation_id = 1
+            annotation_set = AnnotationSet(annotation_set_element, self)
 
-        annotation_element = annotation_set.makeelement(
-            "Annotation",
-            attrib={
-                "Type": annotation_type,
-                "Id": str(annotation_id),
-                "StartNode": str(start),
-                "EndNode": str(end)
-            }
-        )
-        annotation_set.append(annotation_element)
+            self.root.append(annotation_set_element)
+            self.annotation_sets.append(annotation_set)
+        return annotation_set
 
-        annotation = Annotation(annotation_element, self)
-        if feature_dict:
-            for name, value in feature_dict.items():
-                annotation.add_feature(name, value)
-
-        self._annotations.append(annotation)
 
 class AnnotationSet:
     def __init__(self,
                  annotation_set_element,
                  annotation_file):
-        self._annotation_set_element = annotation_set_element
+        self._element = annotation_set_element
         self._annotation_file = annotation_file
-        self._name = self._annotation_set_element.get("Name")
+        self._name = self._element.get("Name")
+        if not self._name:
+            self._name = ""
         self._max_id = None
         self._annotations = []
-        self._annotation_types = []
+        self._annotation_types = set()
 
     @property
     def name(self):
@@ -164,18 +142,91 @@ class AnnotationSet:
 
     @name.setter
     def name(self, new_name):
-        self._annotation_set_element.attrib["Name"] = new_name
+        self._element.attrib["Name"] = new_name
         self._name = new_name
+
+    @property
+    def annotation_file(self):
+        return self._annotation_file
 
     @property
     def max_id(self):
         if not self._max_id:
             if self._annotations:
-                self._max_id = max(
-                    annotation.id
-                    for annotation in annotations
+                annotations = self.annotations
+            else:
+                annotations = self.iter_annotations()
+            try:
+                self._max_id = str(
+                    max(
+                        int(annotation.id)
+                        for annotation in annotations
+                    )
                 )
+            except ValueError:
+                self._max_id = None
         return self._max_id
+
+    @property
+    def annotations(self):
+        if not self._annotations:
+            annotations = [ x for x in self.iter_annotations() ]
+            self._annotations = concatenate_annotations(annotations)
+            return self._annotations
+        else:
+            return self._annotations
+
+    def iter_annotations(self):
+        annotations = self._element.iterfind(
+            "./Annotation"
+        )
+        for x in annotations:
+            yield Annotation(x, self)
+
+    @property
+    def annotation_types(self):
+        if not self._annotation_types:
+            self._annotation_types = set(
+                annotation.type
+                for annotation in self.iter_annotations()
+            )
+        return self._annotation_types
+
+    def create_annotation(self,
+                          annotation_type,
+                          start,
+                          end,
+                          feature_dict=None):
+        if self.max_id:
+            annotation_id = str(int(self.max_id) + 1)
+            self._max_id += 1
+        else:
+            annotation_id = str(1)
+            self._max_id = 1
+
+        annotation_element = self._element.makeelement(
+            "Annotation",
+            attrib={
+                "Type": annotation_type,
+                "Id": annotation_id,
+                "StartNode": str(start),
+                "EndNode": str(end),
+            }
+        )
+        annotation = Annotation(annotation_element, self)
+        if feature_dict:
+            for name, value in feature_dict.items():
+                annotation.add_feature(name, value)
+
+        self._element.append(annotation_element)
+        if self._annotations:
+            self._annotations.append(annotation)
+
+    def append(self, annotation):
+        self._element.append(annotation._element)
+        if self._annotations:
+            self._annotations.append(annotation)
+
 
 class GateIntervalTree:
     def __init__(self):
@@ -214,9 +265,9 @@ class GateIntervalTree:
 class Annotation:
     def __init__(self,
                  annotation_element,
-                 annotation_file):
-        self._annotation_element = annotation_element
-        self._annotation_file = annotation_file
+                 annotation_set):
+        self._element = annotation_element
+        self._annotation_set = annotation_set
         self._type = annotation_element.get("Type")
         self._id = annotation_element.get("Id")
         self._start_node = int(annotation_element.get("StartNode"))
@@ -226,12 +277,6 @@ class Annotation:
         self._turn = None
         self.previous = None
         self.next = None
-
-        annotation_set_name = self._annotation_element.getparent().get("Name")
-        if annotation_set_name:
-            self._annotation_set_name = annotation_set_name
-        else:
-            self._annotation_set_name = ""
 
         if self._type == "Attribution":
             self._caused_event_id = None
@@ -266,8 +311,8 @@ class Annotation:
     def __repr__(self):
         return "{}({}, {})".format(
             self.__class__.__name__,
-            self._annotation_element,
-            self._annotation_file,
+            self._element,
+            self._annotation_set,
         )
 
     def __len__(self):
@@ -275,16 +320,15 @@ class Annotation:
 
     def delete(self):
         unlink(self)
-        # self._annotation_element.clear()
-        (
-            self._annotation_element
-            .getparent()
-            .remove(self._annotation_element)
-        )
+        self.annotation_set._element.remove(self._element)
+
+    @property
+    def annotation_set(self):
+        return self._annotation_set
 
     @property
     def annotation_file(self):
-        return self._annotation_file
+        return self.annotation_set.annotation_file
 
     @property
     def type(self):
@@ -304,12 +348,12 @@ class Annotation:
 
     @start_node.setter
     def start_node(self, start_node):
-        self._annotation_element.attrib["StartNode"] = str(start_node)
+        self._element.attrib["StartNode"] = str(start_node)
         self._start_node = start_node
 
     @end_node.setter
     def end_node(self, end_node):
-        self._annotation_element.attrib["EndNode"] = str(end_node)
+        self._element.attrib["EndNode"] = str(end_node)
         self._end_node = end_node
 
     @property
@@ -325,7 +369,7 @@ class Annotation:
         if not self._features:
             features = [
                 Feature(x)
-                for x in self._annotation_element
+                for x in self._element
                 if x.tag == "Feature"
             ]
             self._features = {
@@ -335,10 +379,6 @@ class Annotation:
             return self._features
         else:
             return self._features
-
-    @property
-    def annotation_set_name(self):
-        return self._annotation_set_name
 
     @property
     def continuations(self):
@@ -396,7 +436,7 @@ class Annotation:
                        name):
         if name in self.features:
             feature_element = self.features[name]._feature_element
-            self._annotation_element.remove(feature_element)
+            self._element.remove(feature_element)
             del self.features[name]
         else:
             return
@@ -424,7 +464,7 @@ class Annotation:
 
         feature_element = (
             self
-            ._annotation_element
+            ._element
             .makeelement("Feature")
         )
         _add_element(feature_element, "Name", name)
@@ -433,7 +473,7 @@ class Annotation:
         if already_present:
             self.remove_feature(name)
 
-        self._annotation_element.append(feature_element)
+        self._element.append(feature_element)
 
         feature = Feature(feature_element)
 
@@ -551,7 +591,7 @@ def concatenate_annotations(annotation_iterable):
     annotations = sorted(
         sorted(
             annotation_iterable,
-            key=(lambda x: x.annotation_set_name)
+            key=(lambda x: x.annotation_set.name)
         ),
         key=(lambda x: x.end_node)
     )
