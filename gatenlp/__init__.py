@@ -147,6 +147,36 @@ class AnnotationFile:
 
         self._annotations.append(annotation)
 
+class AnnotationSet:
+    def __init__(self,
+                 annotation_set_element,
+                 annotation_file):
+        self._annotation_set_element = annotation_set_element
+        self._annotation_file = annotation_file
+        self._name = self._annotation_set_element.get("Name")
+        self._max_id = None
+        self._annotations = []
+        self._annotation_types = []
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, new_name):
+        self._annotation_set_element.attrib["Name"] = new_name
+        self._name = new_name
+
+    @property
+    def max_id(self):
+        if not self._max_id:
+            if self._annotations:
+                self._max_id = max(
+                    annotation.id
+                    for annotation in annotations
+                )
+        return self._max_id
+
 class GateIntervalTree:
     def __init__(self):
         self._tree = intervaltree.IntervalTree()
