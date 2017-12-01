@@ -59,21 +59,15 @@ class AnnotationFile:
         if not self.__nodes_list:
             self.__nodes_list = list(self.nodes.keys())
 
-
-        right_neighbor_index = bisect_left(self.__nodes_list, offset)
-        left_neighbor_index = right_neighbor_index - 1
-
-        right_neighbor_offset = self.__nodes_list[right_neighbor_index]
+        left_neighbor_index = bisect_left(self.__nodes_list, offset) - 1
         left_neighbor_offset = self.__nodes_list[left_neighbor_index]
-
-        right_neighbor_element = self.nodes[right_neighbor_offset]
         left_neighbor_element = self.nodes[left_neighbor_offset]
 
         new_node_tail = left_neighbor_element.tail[
-            (offset - right_neighbor_index):
+            :(offset - left_neighbor_offset)
         ]
         left_neighbor_element.tail = left_neighbor_element.tail[
-            :(right_neighbor_index - offset)
+            (offset - left_neighbor_offset):
         ]
 
         new_node_element = left_neighbor_element.makeelement(
