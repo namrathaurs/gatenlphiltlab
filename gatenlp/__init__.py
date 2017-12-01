@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 from functools import reduce
+from collections import OrderedDict
 import itertools
 from lxml import etree
+from bisect import bisect_left
 import intervaltree
+
+from . import diff
+from . import turn_parser
 
 
 class AnnotationFile:
@@ -12,8 +17,10 @@ class AnnotationFile:
         self._tree = etree.parse(self.filename)
         self._root = self.tree.getroot()
         self._nodes = None
+        self.__nodes_list = []
         self._text_with_nodes = None
         self._annotation_sets = []
+        self._annotation_sets_dict = {}
         self._annotations = []
         self._interval_tree = None
 
@@ -40,16 +47,49 @@ class AnnotationFile:
     def nodes(self):
         if not self._nodes:
             nodes = self.text_with_nodes.getchildren()
-            self._nodes =  {
-                int(node.get("id")) : node for node in nodes
-            }
+            _nodes_dict = { int(node.get("id")) : node for node in nodes }
+            self._nodes = OrderedDict(
+                sorted(_nodes_dict.items())
+            )
             return self._nodes
         else:
             return self._nodes
 
+    def insert_node(self, offset):
+        if not self.__nodes_list:
+            self.__nodes_list = list(self.nodes.keys())
+
+
+        right_neighbor_index = bisect_left(self.__nodes_list, offset)
+        left_neighbor_index = right_neighbor_index - 1
+
+        right_neighbor_offset = self.__nodes_list[right_neighbor_index]
+        left_neighbor_offset = self.__nodes_list[left_neighbor_index]
+
+        right_neighbor_element = self.nodes[right_neighbor_offset]
+        left_neighbor_element = self.nodes[left_neighbor_offset]
+
+        new_node_tail = left_neighbor_element.tail[
+            (offset - right_neighbor_index):
+        ]
+        left_neighbor_element.tail = left_neighbor_element.tail[
+            :(right_neighbor_index - offset)
+        ]
+
+        new_node_element = left_neighbor_element.makeelement(
+            "Node",
+            attrib={"id":str(offset)}
+        )
+        new_node_element.tail = new_node_tail
+
+        left_neighbor_element.addnext(new_node_element)
+
+        self.__nodes_list.insert(left_neighbor_index + 1, offset)
+        self.nodes.update({ offset : new_node_element })
+
     @property
     def text_with_nodes(self):
-        if not self._text_with_nodes:
+        if self._text_with_nodes is None:
             self._text_with_nodes = self.root.find(".//TextWithNodes")
             return self._text_with_nodes
         else:
@@ -105,8 +145,17 @@ class AnnotationFile:
             ]
         return self._annotation_sets
 
+    @property
+    def annotation_sets_dict(self):
+        if not self._annotation_sets_dict:
+            self._annotation_sets_dict = {
+                annotation_set.name : annotation_set
+                for annotation_set in self.annotation_sets
+            }
+        return self._annotation_sets_dict
+
     def create_annotation_set(self,
-                           name=None):
+                              name=None):
         if name in self.annotation_set_names:
             return
         else:
@@ -120,8 +169,10 @@ class AnnotationFile:
 
             self.root.append(annotation_set_element)
             self.annotation_sets.append(annotation_set)
+            self.annotation_sets_dict.update(
+                {annotation_set.name : annotation_set}
+            )
         return annotation_set
-
 
 class AnnotationSet:
     def __init__(self,
@@ -135,6 +186,16 @@ class AnnotationSet:
         self._max_id = None
         self._annotations = []
         self._annotation_types = set()
+
+    def __str__(self):
+        return ", ".join(
+            [
+                "name: '{}'".format(self._name),
+                "annotation_file: '{}'".format(self.annotation_file.filename),
+                "annotation_types : {}".format(self.annotation_types),
+                "number of annotations: {}".format(len(self.annotations)),
+            ]
+        )
 
     @property
     def name(self):
@@ -218,15 +279,22 @@ class AnnotationSet:
             for name, value in feature_dict.items():
                 annotation.add_feature(name, value)
 
+        ###
+        # for offset in [start, end]:
+        #     if offset not in self.annotation_file.nodes:
+        #         self.annotation_file.add_node(offset)
+        ###
+
         self._element.append(annotation_element)
         if self._annotations:
             self._annotations.append(annotation)
+
+        return annotation
 
     def append(self, annotation):
         self._element.append(annotation._element)
         if self._annotations:
             self._annotations.append(annotation)
-
 
 class GateIntervalTree:
     def __init__(self):
@@ -495,7 +563,7 @@ class Feature:
 
     @property
     def name(self):
-        if not self._name:
+        if self._name is None:
             self._name = self._feature_element.find("./Name")
             return self._name.text
         else:
