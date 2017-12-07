@@ -210,6 +210,9 @@ class AnnotationSet:
     def __iter__(self):
         return iter(self.annotations)
 
+    def __len__(self):
+        return len(self.annotations)
+
     @property
     def name(self):
         return self._name
