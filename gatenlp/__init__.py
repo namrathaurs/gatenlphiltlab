@@ -309,6 +309,12 @@ class AnnotationSet:
         if self._annotations:
             self._annotations.append(annotation)
 
+    def delete(self):
+        self.annotation_file.root.remove(self._element)
+        self.annotation_file.annotation_sets.remove(self)
+        del self.annotation_file.annotation_sets_dict[self.name]
+
+
 class GateIntervalTree:
     def __init__(self):
         self._tree = intervaltree.IntervalTree()
