@@ -43,31 +43,44 @@ class AnnotationFile:
     def text(self):
         return "".join( self.text_with_nodes.itertext() )
 
+    @text.setter
+    def text(self,
+             new_text):
+        self.text_with_nodes.clear()
+        new_zero_node = self.text_with_nodes.makeelement("Node")
+        new_zero_node.set("id", "0")
+        new_zero_node.tail = new_text
+        self.text_with_nodes.append(new_zero_node)
+        self.nodes.update({ 0 : new_zero_node })
+        self._nodes_list.append(0)
+
     @property
     def nodes(self):
         if not self._nodes:
             nodes = self.text_with_nodes.getchildren()
-            _nodes_dict = { int(node.get("id")) : node for node in nodes }
-            self._nodes = OrderedDict(
-                sorted(_nodes_dict.items())
-            )
+            self._nodes = { int(node.get("id")) : node for node in nodes }
             return self._nodes
         else:
             return self._nodes
 
-    def insert_node(self, offset):
+    @property
+    def _nodes_list(self):
         if not self.__nodes_list:
-            self.__nodes_list = list(self.nodes.keys())
+            self.__nodes_list = sorted(list(self.nodes.keys()))
+        return self.__nodes_list
 
-        left_neighbor_index = bisect_left(self.__nodes_list, offset) - 1
-        left_neighbor_offset = self.__nodes_list[left_neighbor_index]
+    def insert_node(self, offset):
+        left_neighbor_index = bisect_left(self._nodes_list, offset) - 1
+        left_neighbor_offset = self._nodes_list[left_neighbor_index]
         left_neighbor_element = self.nodes[left_neighbor_offset]
 
+        assert offset >= left_neighbor_offset
+
         new_node_tail = left_neighbor_element.tail[
-            :(offset - left_neighbor_offset)
+            (offset - left_neighbor_offset):
         ]
         left_neighbor_element.tail = left_neighbor_element.tail[
-            (offset - left_neighbor_offset):
+            :(offset - left_neighbor_offset)
         ]
 
         new_node_element = left_neighbor_element.makeelement(
@@ -76,9 +89,12 @@ class AnnotationFile:
         )
         new_node_element.tail = new_node_tail
 
-        left_neighbor_element.addnext(new_node_element)
+        self.text_with_nodes.insert(
+            self.text_with_nodes.index(left_neighbor_element) + 1,
+            new_node_element,
+        )
 
-        self.__nodes_list.insert(left_neighbor_index + 1, offset)
+        self._nodes_list.insert(left_neighbor_index + 1, offset)
         self.nodes.update({ offset : new_node_element })
 
     @property
