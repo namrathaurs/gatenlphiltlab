@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+import gatenlp
 import os
 import collections
 import re
-import gatenlp
 
 
 class Turn:
@@ -131,6 +131,8 @@ def tag_turns(sentences):
             else:
                 sentence.add_feature("Turn_head", "True", overwrite=True)
 
+def test():
+    print("all good")
 
 if __name__ == "__main__":
 
