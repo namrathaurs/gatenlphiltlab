@@ -216,7 +216,7 @@ class AnnotationSet:
 
     @name.setter
     def name(self, new_name):
-        self._element.attrib["Name"] = new_name
+        self._element.set("Name", new_name)
         self._name = new_name
 
     @property
@@ -429,12 +429,12 @@ class Annotation:
 
     @start_node.setter
     def start_node(self, start_node):
-        self._element.attrib["StartNode"] = str(start_node)
+        self._element.set("StartNode", str(start_node))
         self._start_node = start_node
 
     @end_node.setter
     def end_node(self, end_node):
-        self._element.attrib["EndNode"] = str(end_node)
+        self._element.set("EndNode", str(end_node))
         self._end_node = end_node
 
     @property
