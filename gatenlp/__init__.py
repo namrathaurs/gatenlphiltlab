@@ -207,6 +207,9 @@ class AnnotationSet:
             ]
         )
 
+    def __iter__(self):
+        return iter(self.annotations)
+
     @property
     def name(self):
         return self._name
