@@ -109,7 +109,7 @@ class AnnotationFile:
     def annotation_set_names(self):
         return [
             annotation_set.name
-            for annotation_set in self._annotation_sets
+            for annotation_set in self.annotation_sets
         ]
 
     @property
