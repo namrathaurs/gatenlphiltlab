@@ -165,23 +165,26 @@ class AnnotationFile:
         return self._annotation_sets_dict
 
     def create_annotation_set(self,
-                              name=None):
-        if name in self.annotation_set_names:
-            return
-        else:
-            annotation_set_element = self.root.makeelement(
-                "AnnotationSet",
-                attrib={
-                    "Name": name,
-                }
-            )
-            annotation_set = AnnotationSet(annotation_set_element, self)
+                              name=None,
+                              overwrite=False):
+        if overwrite != True:
+            if name in self.annotation_set_names:
+                raise ValueError(
+                    "Annotation set already exists! Try overwrite=True"
+                )
+        annotation_set_element = self.root.makeelement(
+            "AnnotationSet",
+            attrib={
+                "Name": name,
+            }
+        )
+        annotation_set = AnnotationSet(annotation_set_element, self)
 
-            self.root.append(annotation_set_element)
-            self.annotation_sets.append(annotation_set)
-            self.annotation_sets_dict.update(
-                {annotation_set.name : annotation_set}
-            )
+        self.root.append(annotation_set_element)
+        self.annotation_sets.append(annotation_set)
+        self.annotation_sets_dict.update(
+            {annotation_set.name : annotation_set}
+        )
         return annotation_set
 
 class AnnotationSet:
@@ -273,13 +276,26 @@ class AnnotationSet:
                           annotation_type,
                           start,
                           end,
-                          feature_dict=None):
+                          feature_dict=None,
+                          overwrite=False):
+        if overwrite != True:
+            if any(
+                (
+                    annotation.type == annotation_type
+                    and annotation.start_node == start
+                    and annotation.end_node == end
+                )
+                for annotation in self.annotations
+            ):
+                raise ValueError(
+                    "Annotation already exists! Try overwrite=True"
+                )
+
+
         if self.max_id:
             annotation_id = str(int(self.max_id) + 1)
-            self._max_id += 1
         else:
             annotation_id = str(1)
-            self._max_id = 1
 
         annotation_element = self._element.makeelement(
             "Annotation",
@@ -295,15 +311,14 @@ class AnnotationSet:
             for name, value in feature_dict.items():
                 annotation.add_feature(name, value)
 
-        ###
-        # for offset in [start, end]:
-        #     if offset not in self.annotation_file.nodes:
-        #         self.annotation_file.add_node(offset)
-        ###
+        for offset in [start, end]:
+            if offset not in self.annotation_file.nodes:
+                self.annotation_file.insert_node(offset)
 
         self._element.append(annotation_element)
-        if self._annotations:
-            self._annotations.append(annotation)
+        self._annotations.append(annotation)
+
+        self._max_id = int(annotation_id)
 
         return annotation
 
@@ -541,8 +556,10 @@ class Annotation:
                     overwrite=False):
         if name in self.features:
             already_present = True
-            if overwrite == False:
-                return
+            if overwrite != True:
+                raise ValueError(
+                    "Feature already exists! Try overwrite=True"
+                )
         else:
             already_present = False
 
