@@ -482,13 +482,17 @@ class Annotation:
 
     @property
     def text(self):
-        return "".join(
-            self.annotation_file.nodes[node].tail
-            for node in sorted(
-                self.char_set.intersection(
-                    self.annotation_file.nodes.keys()
-                )
+        nodes = sorted(
+            self.char_set.intersection(
+                self.annotation_file.nodes.keys()
             )
+        )
+        tails = [
+            self.annotation_file.nodes[node].tail
+            for node in nodes
+        ]
+        return "".join(
+            tail for tail in tails if tail
         )
 
     def get_concatenated_text(self,
