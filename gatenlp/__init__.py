@@ -171,8 +171,8 @@ class AnnotationFile:
                               overwrite=False):
         if overwrite != True:
             if name in self.annotation_set_names:
-                raise ValueError(
-                    "Annotation set already exists! Try overwrite=True"
+                print(
+                    "Annotation set already exists. overwrite=False"
                 )
         annotation_set_element = self.root.makeelement(
             "AnnotationSet",
