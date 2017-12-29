@@ -122,6 +122,8 @@ class AnnotationFile:
     def interval_tree(self):
         if not self._interval_tree:
             self._interval_tree = GateIntervalTree()
+            for annotation in self.annotations:
+                self._interval_tree.add(annotation)
         return self._interval_tree
 
     def iter_annotations(self):
