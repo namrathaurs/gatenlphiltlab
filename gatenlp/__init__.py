@@ -8,7 +8,7 @@ from bisect import bisect_left
 import intervaltree
 
 from . import diff
-from . import turn_parser
+from . import regex_patterns
 
 
 class AnnotationFile:
@@ -46,6 +46,14 @@ class AnnotationFile:
     @text.setter
     def text(self,
              new_text):
+        change_tree = diff.get_change_tree(
+            self.text,
+            new_text,
+        )
+        diff.align_annotations(
+            self.annotations,
+            change_tree,
+        )
         self.text_with_nodes.clear()
         new_zero_node = self.text_with_nodes.makeelement("Node")
         new_zero_node.set("id", "0")
@@ -53,6 +61,10 @@ class AnnotationFile:
         self.text_with_nodes.append(new_zero_node)
         self.nodes.update({ 0 : new_zero_node })
         self._nodes_list.append(0)
+        diff.assure_nodes(
+            self.annotations,
+            self,
+        )
 
     @property
     def nodes(self):
@@ -74,7 +86,10 @@ class AnnotationFile:
         left_neighbor_offset = self._nodes_list[left_neighbor_index]
         left_neighbor_element = self.nodes[left_neighbor_offset]
 
-        assert offset >= left_neighbor_offset
+        # assert offset >= left_neighbor_offset
+
+        # assert left_neighbor_element.tail
+        # assert type(left_neighbor_element.tail) == str
 
         new_node_tail = left_neighbor_element.tail[
             (offset - left_neighbor_offset):
@@ -745,3 +760,24 @@ def is_overlapping(annotations):
         )
         for i, annotation in enumerate( annotations[:-1] )
     )
+
+def normalize(text,
+              regex_restrictions=[],
+              verbose=False):
+    matches = set()
+    cleaned_text = text
+    if regex_restrictions:
+        target_regexes = [
+            regex
+            for regex in regex_patterns.regexes
+            if regex.name in regex_restrictions
+        ]
+    else:
+        target_regexes = regex_patterns.regexes
+    for regex in target_regexes:
+        cleaned_text = regex.expression.sub(regex.replacement, cleaned_text)
+        if verbose:
+            matches.add(regex.name)
+    if verbose:
+        print(matches)
+    return cleaned_text
