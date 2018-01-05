@@ -184,11 +184,12 @@ class AnnotationFile:
     def create_annotation_set(self,
                               name=None,
                               overwrite=False):
-        if overwrite != True:
+        if overwrite == False:
             if name in self.annotation_set_names:
-                print(
-                    "Annotation set already exists. overwrite=False"
-                )
+                return self.annotation_sets_dict[name]
+                # print(
+                #     "Annotation set already exists. overwrite=False"
+                # )
         annotation_set_element = self.root.makeelement(
             "AnnotationSet",
             attrib={
@@ -295,18 +296,25 @@ class AnnotationSet:
                           end,
                           feature_dict=None,
                           overwrite=False):
-        if overwrite != True:
-            if any(
+        if overwrite == False:
+            existing_annotation = next(
                 (
-                    annotation.type == annotation_type
-                    and annotation.start_node == start
-                    and annotation.end_node == end
+                    annotation
+                    for annotation in self.annotations
+                    if (
+                            annotation.type == annotation_type
+                            and annotation.start_node == start
+                            and annotation.end_node == end
+                    )
                 )
-                for annotation in self.annotations
-            ):
-                raise ValueError(
-                    "Annotation already exists! Try overwrite=True"
-                )
+                ,
+                None
+            )
+            if existing_annotation:
+                return existing_annotation
+                # raise ValueError(
+                #     "Annotation already exists! Try overwrite=True"
+                # )
 
 
         if self.max_id:
@@ -360,6 +368,8 @@ class GateIntervalTree:
 
     def add(self,
             annotation):
+        if annotation.start_node >= annotation.end_node:
+            return
         self._tree.addi(
             annotation.start_node,
             annotation.end_node,
@@ -572,11 +582,9 @@ class Annotation:
                     value,
                     overwrite=False):
         if name in self.features:
+            if overwrite == False:
+                return self.features[name]
             already_present = True
-            if overwrite != True:
-                raise ValueError(
-                    "Feature already exists! Try overwrite=True"
-                )
         else:
             already_present = False
 
