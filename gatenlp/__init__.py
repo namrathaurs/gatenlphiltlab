@@ -674,7 +674,16 @@ class Schema:
         )
         return attributes
 
-def dlink(annotations):
+def dlink(annotations,
+          sort=True):
+    if sort == True:
+        annotations = sorted(
+            sorted(
+                annotations,
+                key=lambda x: x.start_node,
+            ),
+            key=lambda x: x.end_node,
+        )
     for i, annotation in enumerate(annotations[:-1]):
         annotation.previous = annotations[ i-1 ]
         annotation.next = annotations[ i+1 ]
