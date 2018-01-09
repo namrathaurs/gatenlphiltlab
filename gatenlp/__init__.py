@@ -450,6 +450,8 @@ class Annotation:
     def delete(self):
         unlink(self)
         self.annotation_set._element.remove(self._element)
+        self.annotation_set.annotations.remove(self)
+        self.annotation_set.annotation_file.annotations.remove(self)
 
     @property
     def annotation_set(self):
