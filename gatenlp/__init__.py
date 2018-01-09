@@ -216,7 +216,6 @@ class AnnotationSet:
             self._name = ""
         self._max_id = None
         self._annotations = []
-        self._annotation_types = set()
 
     def __str__(self):
         return ", ".join(
@@ -283,12 +282,10 @@ class AnnotationSet:
 
     @property
     def annotation_types(self):
-        if not self._annotation_types:
-            self._annotation_types = set(
-                annotation.type
-                for annotation in self.iter_annotations()
-            )
-        return self._annotation_types
+        return set(
+            annotation.type
+            for annotation in self.iter_annotations()
+        )
 
     def create_annotation(self,
                           annotation_type,
