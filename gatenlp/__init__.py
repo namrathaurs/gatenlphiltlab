@@ -397,17 +397,17 @@ class Annotation:
                  annotation_set):
         self._element = annotation_element
         self._annotation_set = annotation_set
-        self._type = annotation_element.get("Type")
-        self._id = annotation_element.get("Id")
-        self._start_node = int(annotation_element.get("StartNode"))
-        self._end_node = int(annotation_element.get("EndNode"))
+        self._type = None
+        self._id = None
+        self._start_node = None
+        self._end_node = None
         self._continuations = []
         self._features = {}
         self._turn = None
         self.previous = None
         self.next = None
 
-        if self._type == "Attribution":
+        if self.type.lower() == "attribution":
             self._caused_event_id = None
             for name, feature in self.features.items():
                 if name.lower() == "caused_event":
@@ -463,18 +463,26 @@ class Annotation:
 
     @property
     def type(self):
+        if not self._type:
+            self._type = self._element.get("Type")
         return self._type
 
     @property
     def id(self):
+        if not self._id:
+            self._id = self._element.get("Id")
         return self._id
 
     @property
     def start_node(self):
+        if not self._start_node:
+            self._start_node = int(self._element.get("StartNode"))
         return self._start_node
 
     @property
     def end_node(self):
+        if not self._end_node:
+            self._end_node = int(self._element.get("EndNode"))
         return self._end_node
 
     @start_node.setter
