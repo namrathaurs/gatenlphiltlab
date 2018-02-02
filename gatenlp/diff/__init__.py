@@ -3,60 +3,135 @@
 import gatenlp
 from collections import namedtuple
 from collections import OrderedDict
-from bisect import bisect_right
+from itertools import product
+import bisect
 import difflib
 import intervaltree
 
 
-def get_change_tree(text1,
-                    text2):
+def _get_change_tree(text1,
+                     text2):
     change_tree = intervaltree.IntervalTree()
-    seq = difflib.SequenceMatcher(None, text1, text2)
+    # seq = difflib.SequenceMatcher(None, text1, text2, autojunk=False)
+    seq = difflib.SequenceMatcher(None, text1, text2,)
     matching_blocks = seq.get_matching_blocks()
     for block in matching_blocks:
         difference = block.b - block.a
         if block.size != 0:
             change_tree.addi(
                 block.a,
-                block.a + block.size,
+                block.a + block.size + 1,
                 difference,
             )
-
     return change_tree
+
+class ChangeTree():
+    def __init__(self,
+                 text1,
+                 text2):
+        self._change_tree = _get_change_tree(text1, text2)
+        self._interval_tree_start_points = sorted(
+            [
+                interval.begin
+                for interval in self._change_tree
+            ]
+        )
+        self._interval_tree_end_points = sorted(
+            [
+                interval.end - 1
+                for interval in self._change_tree
+            ]
+        )
+
+    def get_lt_interval(self,
+                        node):
+        nearest_lt_node = self._interval_tree_end_points[
+            bisect.bisect_left(self._interval_tree_end_points, node) - 1
+        ]
+        nearest_lt_interval = sorted(
+            self._change_tree.search(nearest_lt_node)
+        )[0]
+        return nearest_lt_interval
+
+    def get_gt_interval(self,
+                        node):
+        nearest_gt_node = self._interval_tree_start_points[
+            bisect.bisect_right(self._interval_tree_start_points, node)
+        ]
+        nearest_gt_interval = sorted(
+            self._change_tree.search(nearest_gt_node)
+        )[0]
+        return nearest_gt_interval
+
+    def get_changed_annotation_nodes(self,
+                                     annotation):
+        possible_start_points = []
+        possible_end_points = []
+
+        for node in (annotation.start_node, annotation.end_node):
+            try:
+                interval = sorted(
+                    self._change_tree.search(node)
+                )[0]
+                if node == annotation.start_node:
+                    possible_start_points.append(
+                        annotation.start_node
+                        + interval.data
+                    )
+                elif node == annotation.end_node:
+                    possible_end_points.append(
+                        annotation.end_node
+                        + interval.data
+                    )
+            except IndexError:
+                nearest_lt_interval = self.get_lt_interval(node)
+                nearest_gt_interval = self.get_gt_interval(node)
+                if node == annotation.start_node:
+                    possible_start_points.append(
+                        annotation.start_node
+                        + nearest_lt_interval.data
+                    )
+                    possible_start_points.append(
+                        annotation.start_node
+                        + nearest_gt_interval.data
+                    )
+                elif node == annotation.end_node:
+                    possible_end_points.append(
+                        annotation.end_node
+                        + nearest_lt_interval.data
+                    )
+                    possible_end_points.append(
+                        annotation.end_node
+                        + nearest_gt_interval.data
+                    )
+
+        combinations = set(product(possible_start_points, possible_end_points))
+        valid_combinations = [
+            combination
+            for combination in combinations
+            if combination[0] < combination[1]
+        ]
+        closest_valid_combination = min(
+            valid_combinations,
+            key=lambda x: abs(abs(x[1] - x[0]) - abs(annotation.end_node - annotation.start_node))
+        )
+        # TODO:
+        # do a second (and perhaps third) diff resolution using progressively shorter spans of text
+        # would result in "((test"[2:] == "test" instead of "((test" != "test"
+        new_start_node = closest_valid_combination[0]
+        new_end_node = closest_valid_combination[1]
+
+        return (new_start_node, new_end_node)
+
+def align_annotation(annotation,
+                     change_tree):
+        annotation.start_node, annotation.end_node = change_tree.get_changed_annotation_nodes(annotation)
 
 def align_annotations(annotations,
                       change_tree):
-    interval_end_points = sorted(
-        [
-            interval.end
-            for interval in change_tree
-        ]
-    )
     for annotation in annotations:
-        start_node = annotation.start_node
-        end_node = annotation.end_node
-        changes = []
-        for node in (start_node, end_node):
-            try:
-                interval = sorted(
-                    change_tree.search(node)
-                )[0]
-            except IndexError:
-                nearest_node = interval_end_points[
-                    bisect_right(interval_end_points, node) - 1
-                ]
-                nearest_le_interval = sorted(
-                    change_tree.search(
-                        nearest_node - 1
-                    )
-                )[0]
-                interval = nearest_le_interval
-            change = interval.data
-            changes.append(change)
-
-        annotation.start_node = annotation.start_node + changes[0]
-        annotation.end_node = annotation.end_node + changes[1]
-
+        # annotation.start_node, annotation.end_node = change_tree.get_changed_annotation_nodes(annotation)
+        align_annotation(annotation, change_tree)
 
 def assure_nodes(annotations,
                  annotation_file):
