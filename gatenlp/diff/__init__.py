@@ -3,17 +3,18 @@
 import gatenlp
 from collections import namedtuple
 from collections import OrderedDict
-from itertools import product
+import itertools
 import bisect
 import difflib
 import intervaltree
+import Levenshtein
 
 
 def _get_change_tree(text1,
                      text2):
     change_tree = intervaltree.IntervalTree()
-    # seq = difflib.SequenceMatcher(None, text1, text2, autojunk=False)
-    seq = difflib.SequenceMatcher(None, text1, text2,)
+    seq = difflib.SequenceMatcher(None, text1, text2, autojunk=False)
+    # seq = difflib.SequenceMatcher(None, text1, text2,)
     matching_blocks = seq.get_matching_blocks()
     for block in matching_blocks:
         difference = block.b - block.a
@@ -29,6 +30,8 @@ class ChangeTree():
     def __init__(self,
                  text1,
                  text2):
+        self._text1 = text1
+        self._text2 = text2
         self._change_tree = _get_change_tree(text1, text2)
         self._interval_tree_start_points = sorted(
             [
@@ -105,32 +108,74 @@ class ChangeTree():
                         + nearest_gt_interval.data
                     )
 
-        combinations = set(product(possible_start_points, possible_end_points))
+        combinations = set(
+            itertools.combinations(
+                possible_start_points+possible_end_points, 2
+            )
+        )
         valid_combinations = [
             combination
             for combination in combinations
             if combination[0] < combination[1]
         ]
-        closest_valid_combination = min(
+
+        longest_valid_combination = max(
             valid_combinations,
-            key=lambda x: abs(abs(x[1] - x[0]) - abs(annotation.end_node - annotation.start_node))
+            key=lambda x: abs(x[1] - x[0])
         )
-        # TODO:
-        # do a second (and perhaps third) diff resolution using progressively shorter spans of text
-        # would result in "((test"[2:] == "test" instead of "((test" != "test"
-        new_start_node = closest_valid_combination[0]
-        new_end_node = closest_valid_combination[1]
+
+        intended_text = self._text1[
+            annotation.start_node
+            :annotation.end_node
+        ]
+        candidate_text = self._text2[
+            longest_valid_combination[0]
+            :longest_valid_combination[1]
+        ]
+        if len(intended_text) == len(candidate_text):
+            new_start_node = longest_valid_combination[0]
+            new_end_node = longest_valid_combination[1]
+        else: 
+            inner_tree = ChangeTree(candidate_text, intended_text)
+            closest_pair = max(
+                itertools.combinations(
+                    inner_tree._interval_tree_start_points
+                    + inner_tree._interval_tree_end_points,
+                    2
+                ),
+                key=lambda x: Levenshtein.ratio(
+                    self._text2[
+                        longest_valid_combination[0] + x[0]
+                        :longest_valid_combination[0] + x[1]
+                    ],
+                    intended_text
+                ),
+            )
+
+            new_start_node = longest_valid_combination[0] + closest_pair[0]
+            new_end_node = longest_valid_combination[0] + closest_pair[1]
+
+        #TODO: fix id 1507 (etc.) and that one time where "have" wasn't annotated accurately
+        new_text = self._text2[new_start_node:new_end_node]
+
+        if new_text != intended_text:
+            print(
+                Levenshtein.ratio(new_text, intended_text),
+                new_text,
+                intended_text,
+            )
 
         return (new_start_node, new_end_node)
 
 def align_annotation(annotation,
                      change_tree):
-        annotation.start_node, annotation.end_node = change_tree.get_changed_annotation_nodes(annotation)
+    annotation.start_node, annotation.end_node = (
+        change_tree.get_changed_annotation_nodes(annotation)
+    )
 
 def align_annotations(annotations,
                       change_tree):
     for annotation in annotations:
-        # annotation.start_node, annotation.end_node = change_tree.get_changed_annotation_nodes(annotation)
         align_annotation(annotation, change_tree)
 
 def assure_nodes(annotations,
