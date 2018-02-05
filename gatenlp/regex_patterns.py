@@ -14,8 +14,6 @@ Regex = namedtuple(
 )
 
 regexes = (
-
-
     Regex(
         name="left_single_quote",
         expression=re.compile(".*\.\w\w+.*?"),
@@ -51,15 +49,6 @@ regexes = (
         expression=re.compile(".*\.\w\w+.*?"),
         replacement="",
     ),
-
-
-
-
-
-
-
-
-
     Regex(
         name="file_names",
         expression=re.compile(".*\.\w\w+.*?"),
