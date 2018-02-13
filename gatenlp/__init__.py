@@ -631,13 +631,28 @@ class Annotation:
 
     def get_intersecting_of_type(self,
                                  annotation_type,
-                                 annotation_tree=None):
+                                 annotation_tree=None,
+                                 case_sensitive=True):
+
+        def is_string_equivalent(a,
+                                 b,
+                                 case_sensitive=True):
+            if case_sensitive:
+                return a == b
+            else:
+                return a.lower() == b.lower()
+
         if not annotation_tree:
             annotation_tree = self.annotation_file.interval_tree
+
         return [
             intersecting_annotation
             for intersecting_annotation in annotation_tree.search(self)
-            if intersecting_annotation.type == annotation_type
+            if is_string_equivalent(
+                intersecting_annotation.type,
+                annotation_type,
+                case_sensitive=case_sensitive,
+            )
         ]
 
 class Feature:
