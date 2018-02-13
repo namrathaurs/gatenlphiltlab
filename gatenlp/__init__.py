@@ -629,6 +629,17 @@ class Annotation:
             { feature.name : feature }
         )
 
+    def get_intersecting_of_type(self,
+                                 annotation_type,
+                                 annotation_tree=None):
+        if not annotation_tree:
+            annotation_tree = self.annotation_file.interval_tree
+        return [
+            intersecting_annotation
+            for intersecting_annotation in annotation_tree.search(self)
+            if intersecting_annotation.type == annotation_type
+        ]
+
 class Feature:
     def __init__(self, feature_element):
         self._feature_element = feature_element
