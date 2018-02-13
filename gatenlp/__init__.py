@@ -205,6 +205,13 @@ class AnnotationFile:
         )
         return annotation_set
 
+    def add_annotation(self,
+                       annotation):
+        for offset in [annotation.start_node, annotation.end_node]:
+            if offset not in self.nodes:
+                self.insert_node(offset)
+        self.interval_tree.add(annotation)
+
 class AnnotationSet:
     def __init__(self,
                  annotation_set_element,
@@ -333,9 +340,7 @@ class AnnotationSet:
             for name, value in feature_dict.items():
                 annotation.add_feature(name, value)
 
-        for offset in [start, end]:
-            if offset not in self.annotation_file.nodes:
-                self.annotation_file.insert_node(offset)
+        self.annotation_file.add_annotation(annotation)
 
         self._element.append(annotation_element)
         self._annotations.append(annotation)
