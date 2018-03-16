@@ -12,6 +12,12 @@ from . import regex_patterns
 
 
 class AnnotationFile:
+    """
+    An abstraction of a GATE annotation XML file.
+
+    :parameter filename: the path to a GATE XML annotation file 
+    :type filename: string
+    """
     def __init__(self, filename):
         self._filename = filename
         self._tree = etree.parse(self.filename)
@@ -29,23 +35,41 @@ class AnnotationFile:
 
     @property
     def filename(self):
+        """
+        :type: string
+        """
         return self._filename
 
     @property
     def tree(self):
+        """
+        :type: lxml Element
+        """
         return self._tree
 
     @property
     def root(self):
+        """
+        :type: lxml Element
+        """
         return self._root
 
     @property
     def text(self):
+        """
+        Returns the plain text used for annotation within the document.
+
+        :type: string
+        """
         return "".join( self.text_with_nodes.itertext() )
 
     @text.setter
     def text(self,
              new_text):
+        """
+        :param new_text: the text to replace the current text
+        :type new_text: string
+        """
         change_tree = diff.get_change_tree(
             self.text,
             new_text,
@@ -68,6 +92,13 @@ class AnnotationFile:
 
     @property
     def nodes(self):
+        """
+        A dictionary representing the TextWithNodes portion of the
+        annotation document. Each key is an int representing the node number,
+        with its value representing the lxml object for that node.
+
+        :type: dict({ int : lxml Element })
+        """
         if not self._nodes:
             nodes = self.text_with_nodes.getchildren()
             self._nodes = { int(node.get("id")) : node for node in nodes }
@@ -82,14 +113,15 @@ class AnnotationFile:
         return self.__nodes_list
 
     def insert_node(self, offset):
+        """
+        Inserts a node at *offset* (i.e. a character offset within the text) within the TextWithNodes element of the XML.
+
+        :param offset: the offset at which a node is to be inserted
+        :type offset: int
+        """
         left_neighbor_index = bisect_left(self._nodes_list, offset) - 1
         left_neighbor_offset = self._nodes_list[left_neighbor_index]
         left_neighbor_element = self.nodes[left_neighbor_offset]
-
-        # assert offset >= left_neighbor_offset
-
-        # assert left_neighbor_element.tail
-        # assert type(left_neighbor_element.tail) == str
 
         new_node_tail = left_neighbor_element.tail[
             (offset - left_neighbor_offset):
@@ -114,6 +146,11 @@ class AnnotationFile:
 
     @property
     def text_with_nodes(self):
+        """
+        The TextWithNodes section of the XML. (link to more information)
+
+        :type: lxml Element
+        """
         if self._text_with_nodes is None:
             self._text_with_nodes = self.root.find(".//TextWithNodes")
             return self._text_with_nodes
@@ -122,6 +159,9 @@ class AnnotationFile:
 
     @property
     def annotation_set_names(self):
+        """
+        :type: list(string)
+        """
         return [
             annotation_set.name
             for annotation_set in self.annotation_sets
@@ -129,12 +169,20 @@ class AnnotationFile:
 
     @property
     def annotations(self):
+        """
+        :type: list(gatenlp.Annotation)
+        """
         if not self._annotations:
             self._annotations = [ x for x in self.iter_annotations() ]
         return self._annotations
 
     @property
     def interval_tree(self):
+        """
+        An interval tree that facilitates searching the document's annotations by character offsets.
+
+        :type: gatenlp.GateIntervalTree
+        """
         if not self._interval_tree:
             self._interval_tree = GateIntervalTree()
             for annotation in self.annotations:
@@ -142,6 +190,11 @@ class AnnotationFile:
         return self._interval_tree
 
     def iter_annotations(self):
+        """
+        iterates through all annotations in the document
+
+        :type: iterator
+        """
         annotations = itertools.chain.from_iterable(
             annotation_set.annotations
             if annotation_set.annotations
@@ -153,6 +206,12 @@ class AnnotationFile:
 
     def save_changes(self,
                      file_path=None):
+        """
+        Saves any changes to the XML file, or otherwise to *file_path* if specified.
+
+        :param file_path: (optional). The file path to write to.
+        :type file_path: string
+        """
         if not file_path:
             file_path = self.filename
 
@@ -164,6 +223,9 @@ class AnnotationFile:
 
     @property
     def annotation_sets(self):
+        """
+        :type: list(gatenlp.AnnotationSet)
+        """
         if not self._annotation_sets:
             annotation_set_elements = self.root.findall("./AnnotationSet")
             self._annotation_sets = [
@@ -174,6 +236,11 @@ class AnnotationFile:
 
     @property
     def annotation_sets_dict(self):
+        """
+        A dictionary with keys being annotation set names, and their values being gatenlp.AnnotationSets.
+
+        :type: dict({ string : gatenlp.AnnotationSet })
+        """
         if not self._annotation_sets_dict:
             self._annotation_sets_dict = {
                 annotation_set.name : annotation_set
@@ -184,6 +251,15 @@ class AnnotationFile:
     def create_annotation_set(self,
                               name=None,
                               overwrite=False):
+        """
+        Creates a gatenlp.AnnotationSet in the XML document.
+
+        :param name: The name of the annotation set
+        :type name: string
+
+        :param overwrite: Whether an existing annotation set by *name*, if it exists, should be overwritten.
+        :type overwrite: bool
+        """
         if overwrite == False:
             if name in self.annotation_set_names:
                 return self.annotation_sets_dict[name]
@@ -207,6 +283,9 @@ class AnnotationFile:
 
     def add_annotation(self,
                        annotation):
+        """
+        Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly -- instead, use gatenlp.AnnotationFile.create_annotation_set and gatenlp.AnnotationSet.create_annotation.
+        """
         for offset in [annotation.start_node, annotation.end_node]:
             if offset not in self.nodes:
                 self.insert_node(offset)
@@ -453,6 +532,9 @@ class Annotation:
         return self.end_node - self.start_node
 
     def delete(self):
+        """
+        Deletes this annotation and removes all associated references within its parent objects (i.e. its AnnotationSet and AnnotationFile)
+        """
         unlink(self)
         self.annotation_set._element.remove(self._element)
         self.annotation_set.annotations.remove(self)
@@ -460,32 +542,62 @@ class Annotation:
 
     @property
     def annotation_set(self):
+        """
+        The annotation set to which this annotation belongs.
+        
+        :type: gatenlp.AnnotationSet
+        """
         return self._annotation_set
 
     @property
     def annotation_file(self):
+        """
+        The annotation file to which this annotation belongs.
+
+        :type: gatenlp.AnnotationFile
+        """
         return self.annotation_set.annotation_file
 
     @property
     def type(self):
+        """
+        The annotation type. This is an arbitrary string used to label annotations, e.g. "Person", or "Location".
+
+        :type: string
+        """
         if not self._type:
             self._type = self._element.get("Type")
         return self._type
 
     @property
     def id(self):
+        """
+        The annotation ID number.
+
+        :type: string
+        """
         if not self._id:
             self._id = self._element.get("Id")
         return self._id
 
     @property
     def start_node(self):
+        """
+        The start node of this annotation, i.e. the offset denoting the beginning of the annotation's text span within the annotation file's text.
+
+        :type: int
+        """
         if not self._start_node:
             self._start_node = int(self._element.get("StartNode"))
         return self._start_node
 
     @property
     def end_node(self):
+        """
+        The end node of this annotation, i.e. the offset denoting the end of the annotation's text span within the annotation file's text.
+
+        :type: int
+        """
         if not self._end_node:
             self._end_node = int(self._element.get("EndNode"))
         return self._end_node
@@ -502,6 +614,11 @@ class Annotation:
 
     @property
     def turn(self):
+        """
+        The linguistic turn with which this annotation is associated.
+
+        :type: hiltnlp.Turn
+        """
         return self._turn
 
     @turn.setter
@@ -510,6 +627,11 @@ class Annotation:
 
     @property
     def features(self):
+        """
+        The features associated with this annotation. Essentially sub-annotations in the form of pairs of strings as labels and strings as annotations.
+
+        :type: dict({ string : gatenlp.Feature })
+        """
         if not self._features:
             features = [
                 Feature(x)

@@ -1,0 +1,623 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Auto Generated Docs, yo &#8212; gatenlp  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to gatenlp’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to gatenlp’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">gatenlp  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gatenlp">
+<span id="auto-generated-docs-yo"></span><h1>Auto Generated Docs, yo<a class="headerlink" href="#module-gatenlp" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="gatenlp.Annotation">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Annotation</code><span class="sig-paren">(</span><em>annotation_element</em>, <em>annotation_set</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="gatenlp.Annotation.add_feature">
+<code class="descname">add_feature</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.add_feature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.annotation_file">
+<code class="descname">annotation_file</code><a class="headerlink" href="#gatenlp.Annotation.annotation_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>The annotation file to which this annotation belongs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.AnnotationFile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.annotation_set">
+<code class="descname">annotation_set</code><a class="headerlink" href="#gatenlp.Annotation.annotation_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>The annotation set to which this annotation belongs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.AnnotationSet</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.char_set">
+<code class="descname">char_set</code><a class="headerlink" href="#gatenlp.Annotation.char_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.concatenated_char_set">
+<code class="descname">concatenated_char_set</code><a class="headerlink" href="#gatenlp.Annotation.concatenated_char_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.continuations">
+<code class="descname">continuations</code><a class="headerlink" href="#gatenlp.Annotation.continuations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes this annotation and removes all associated references within its parent objects (i.e. its AnnotationSet and AnnotationFile)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.end_node">
+<code class="descname">end_node</code><a class="headerlink" href="#gatenlp.Annotation.end_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>The end node of this annotation, i.e. the offset denoting the end of the annotation’s text span within the annotation file’s text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.features">
+<code class="descname">features</code><a class="headerlink" href="#gatenlp.Annotation.features" title="Permalink to this definition">¶</a></dt>
+<dd><p>The features associated with this annotation. Essentially sub-annotations in the form of pairs of strings as labels and strings as annotations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : gatenlp.Feature })</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.get_concatenated_text">
+<code class="descname">get_concatenated_text</code><span class="sig-paren">(</span><em>separator=None</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.get_concatenated_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.get_intersecting_of_type">
+<code class="descname">get_intersecting_of_type</code><span class="sig-paren">(</span><em>annotation_type</em>, <em>annotation_tree=None</em>, <em>case_sensitive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.get_intersecting_of_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.id">
+<code class="descname">id</code><a class="headerlink" href="#gatenlp.Annotation.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The annotation ID number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.remove_feature">
+<code class="descname">remove_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.remove_feature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.spans">
+<code class="descname">spans</code><a class="headerlink" href="#gatenlp.Annotation.spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.start_node">
+<code class="descname">start_node</code><a class="headerlink" href="#gatenlp.Annotation.start_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>The start node of this annotation, i.e. the offset denoting the beginning of the annotation’s text span within the annotation file’s text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.text">
+<code class="descname">text</code><a class="headerlink" href="#gatenlp.Annotation.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.turn">
+<code class="descname">turn</code><a class="headerlink" href="#gatenlp.Annotation.turn" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linguistic turn with which this annotation is associated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">hiltnlp.Turn</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.type">
+<code class="descname">type</code><a class="headerlink" href="#gatenlp.Annotation.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The annotation type. This is an arbitrary string used to label annotations, e.g. “Person”, or “Location”.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.AnnotationFile">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">AnnotationFile</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstraction of a GATE annotation XML file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>string</em>) – the path to a GATE XML annotation file</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gatenlp.AnnotationFile.add_annotation">
+<code class="descname">add_annotation</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.add_annotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly – instead, use gatenlp.AnnotationFile.create_annotation_set and gatenlp.AnnotationSet.create_annotation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.annotation_set_names">
+<code class="descname">annotation_set_names</code><a class="headerlink" href="#gatenlp.AnnotationFile.annotation_set_names" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(string)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.annotation_sets">
+<code class="descname">annotation_sets</code><a class="headerlink" href="#gatenlp.AnnotationFile.annotation_sets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(gatenlp.AnnotationSet)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.annotation_sets_dict">
+<code class="descname">annotation_sets_dict</code><a class="headerlink" href="#gatenlp.AnnotationFile.annotation_sets_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary with keys being annotation set names, and their values being gatenlp.AnnotationSets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : gatenlp.AnnotationSet })</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.annotations">
+<code class="descname">annotations</code><a class="headerlink" href="#gatenlp.AnnotationFile.annotations" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(gatenlp.Annotation)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationFile.create_annotation_set">
+<code class="descname">create_annotation_set</code><span class="sig-paren">(</span><em>name=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.create_annotation_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a gatenlp.AnnotationSet in the XML document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>string</em>) – The name of the annotation set</li>
+<li><strong>overwrite</strong> (<em>bool</em>) – Whether an existing annotation set by <em>name</em>, if it exists, should be overwritten.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.filename">
+<code class="descname">filename</code><a class="headerlink" href="#gatenlp.AnnotationFile.filename" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationFile.insert_node">
+<code class="descname">insert_node</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.insert_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts a node at <em>offset</em> (i.e. a character offset within the text) within the TextWithNodes element of the XML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>offset</strong> (<em>int</em>) – the offset at which a node is to be inserted</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.interval_tree">
+<code class="descname">interval_tree</code><a class="headerlink" href="#gatenlp.AnnotationFile.interval_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interval tree that facilitates searching the document’s annotations by character offsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.GateIntervalTree</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationFile.iter_annotations">
+<code class="descname">iter_annotations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.iter_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>iterates through all annotations in the document</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.nodes">
+<code class="descname">nodes</code><a class="headerlink" href="#gatenlp.AnnotationFile.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary representing the TextWithNodes portion of the
+annotation document. Each key is an int representing the node number,
+with its value representing the lxml object for that node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ int : lxml Element })</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.root">
+<code class="descname">root</code><a class="headerlink" href="#gatenlp.AnnotationFile.root" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationFile.save_changes">
+<code class="descname">save_changes</code><span class="sig-paren">(</span><em>file_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.save_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves any changes to the XML file, or otherwise to <em>file_path</em> if specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> (<em>string</em>) – (optional). The file path to write to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.text">
+<code class="descname">text</code><a class="headerlink" href="#gatenlp.AnnotationFile.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the plain text used for annotation within the document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.text_with_nodes">
+<code class="descname">text_with_nodes</code><a class="headerlink" href="#gatenlp.AnnotationFile.text_with_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The TextWithNodes section of the XML. (link to more information)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationFile.tree">
+<code class="descname">tree</code><a class="headerlink" href="#gatenlp.AnnotationFile.tree" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.AnnotationSet">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">AnnotationSet</code><span class="sig-paren">(</span><em>annotation_set_element</em>, <em>annotation_file</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="gatenlp.AnnotationSet.annotation_file">
+<code class="descname">annotation_file</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotation_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationSet.annotation_types">
+<code class="descname">annotation_types</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotation_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationSet.annotations">
+<code class="descname">annotations</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.append" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.create_annotation">
+<code class="descname">create_annotation</code><span class="sig-paren">(</span><em>annotation_type</em>, <em>start</em>, <em>end</em>, <em>feature_dict=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.create_annotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.iter_annotations">
+<code class="descname">iter_annotations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.iter_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationSet.max_id">
+<code class="descname">max_id</code><a class="headerlink" href="#gatenlp.AnnotationSet.max_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.AnnotationSet.name">
+<code class="descname">name</code><a class="headerlink" href="#gatenlp.AnnotationSet.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.Feature">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Feature</code><span class="sig-paren">(</span><em>feature_element</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Feature" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="gatenlp.Feature.name">
+<code class="descname">name</code><a class="headerlink" href="#gatenlp.Feature.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Feature.tally">
+<code class="descname">tally</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Feature.tally" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Feature.value">
+<code class="descname">value</code><a class="headerlink" href="#gatenlp.Feature.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.GateIntervalTree">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">GateIntervalTree</code><a class="headerlink" href="#gatenlp.GateIntervalTree" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="gatenlp.GateIntervalTree.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.GateIntervalTree.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.GateIntervalTree.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.GateIntervalTree.search" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.Schema">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Schema</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Schema" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="gatenlp.Schema.get_attributes">
+<code class="descname">get_attributes</code><span class="sig-paren">(</span><em>annotation_type</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Schema.get_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.concatenate_annotations">
+<code class="descclassname">gatenlp.</code><code class="descname">concatenate_annotations</code><span class="sig-paren">(</span><em>annotation_iterable</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.concatenate_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an iterable of Annotation objects, returns a list of Annotations
+objects such that each Annotation’s continuations list is populated
+appropriately, less all continuation annotations</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.dlink">
+<code class="descclassname">gatenlp.</code><code class="descname">dlink</code><span class="sig-paren">(</span><em>annotations</em>, <em>sort=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.dlink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.find_from_index">
+<code class="descclassname">gatenlp.</code><code class="descname">find_from_index</code><span class="sig-paren">(</span><em>index</em>, <em>source_list</em>, <em>match_function</em>, <em>reverse=False</em>, <em>greedy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.find_from_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.is_overlapping">
+<code class="descclassname">gatenlp.</code><code class="descname">is_overlapping</code><span class="sig-paren">(</span><em>annotations</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.is_overlapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.normalize">
+<code class="descclassname">gatenlp.</code><code class="descname">normalize</code><span class="sig-paren">(</span><em>text</em>, <em>regex_restrictions=[]</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.unlink">
+<code class="descclassname">gatenlp.</code><code class="descname">unlink</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.unlink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to gatenlp’s documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/code.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to gatenlp’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">gatenlp  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Nicholas Barber.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+    </div>
+  </body>
+</html>
