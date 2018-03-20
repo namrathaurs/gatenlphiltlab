@@ -43,14 +43,14 @@ class AnnotationFile:
     @property
     def tree(self):
         """
-        :type: lxml Element
+        :type: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
         """
         return self._tree
 
     @property
     def root(self):
         """
-        :type: lxml Element
+        :type: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
         """
         return self._root
 
@@ -97,7 +97,7 @@ class AnnotationFile:
         annotation document. Each key is an int representing the node number,
         with its value representing the lxml object for that node.
 
-        :type: dict({ int : lxml Element })
+        :type: dict({ int : `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_ })
         """
         if not self._nodes:
             nodes = self.text_with_nodes.getchildren()
@@ -149,7 +149,7 @@ class AnnotationFile:
         """
         The TextWithNodes section of the XML. (link to more information)
 
-        :type: lxml Element
+        :type: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
         """
         if self._text_with_nodes is None:
             self._text_with_nodes = self.root.find(".//TextWithNodes")
@@ -170,7 +170,7 @@ class AnnotationFile:
     @property
     def annotations(self):
         """
-        :type: list(gatenlp.Annotation)
+        :type: list(:class:`~gatenlp.Annotation`)
         """
         if not self._annotations:
             self._annotations = [ x for x in self.iter_annotations() ]
@@ -179,9 +179,9 @@ class AnnotationFile:
     @property
     def interval_tree(self):
         """
-        An interval tree that facilitates searching the document's annotations by character offsets.
+        See :class:`~gatenlp.GateIntervalTree`.
 
-        :type: gatenlp.GateIntervalTree
+        :type: :class:`~gatenlp.GateIntervalTree`
         """
         if not self._interval_tree:
             self._interval_tree = GateIntervalTree()
@@ -224,7 +224,7 @@ class AnnotationFile:
     @property
     def annotation_sets(self):
         """
-        :type: list(gatenlp.AnnotationSet)
+        :type: list(:class:`~gatenlp.AnnotationSet`)
         """
         if not self._annotation_sets:
             annotation_set_elements = self.root.findall("./AnnotationSet")
@@ -237,9 +237,9 @@ class AnnotationFile:
     @property
     def annotation_sets_dict(self):
         """
-        A dictionary with keys being annotation set names, and their values being gatenlp.AnnotationSets.
+        A dictionary with keys being annotation set names, and their values being of class :class:`~gatenlp.AnnotationSet`.
 
-        :type: dict({ string : gatenlp.AnnotationSet })
+        :type: dict({ string : :class:`~gatenlp.AnnotationSet` })
         """
         if not self._annotation_sets_dict:
             self._annotation_sets_dict = {
@@ -252,12 +252,12 @@ class AnnotationFile:
                               name=None,
                               overwrite=False):
         """
-        Creates a gatenlp.AnnotationSet in the XML document.
+        Creates an :class:`~gatenlp.AnnotationSet` in the XML document.
 
         :param name: The name of the annotation set
         :type name: string
 
-        :param overwrite: Whether an existing annotation set by *name*, if it exists, should be overwritten.
+        :param overwrite: Overwrite any existing annotation set that has *name*.
         :type overwrite: bool
         """
         if overwrite == False:
@@ -284,7 +284,7 @@ class AnnotationFile:
     def add_annotation(self,
                        annotation):
         """
-        Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly -- instead, use gatenlp.AnnotationFile.create_annotation_set and gatenlp.AnnotationSet.create_annotation.
+        Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly -- instead, use :meth:`~gatenlp.AnnotationFile.create_annotation_set` and :meth:`gatenlp.AnnotationSet.create_annotation`.
         """
         for offset in [annotation.start_node, annotation.end_node]:
             if offset not in self.nodes:
@@ -292,6 +292,15 @@ class AnnotationFile:
         self.interval_tree.add(annotation)
 
 class AnnotationSet:
+    """
+    An abstraction of a GATE annotation set.
+
+    :parameter annotation_set_element: The lxml element associated with this annotation set. 
+    :type annotation_set_element: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
+
+    :parameter annotation_file: The annotation file to which this annotation set belongs.
+    :type annotation_file: :class:`~gatenlp.AnnotationFile`
+    """
     def __init__(self,
                  annotation_set_element,
                  annotation_file):
@@ -321,6 +330,11 @@ class AnnotationSet:
 
     @property
     def name(self):
+        """
+        The name of this annotation set
+
+        :type: string
+        """
         return self._name
 
     @name.setter
@@ -330,10 +344,20 @@ class AnnotationSet:
 
     @property
     def annotation_file(self):
+        """
+        The annotation file to which this annotation set belongs.
+
+        :type: :class:`~gatenlp.AnnotationSet`
+        """
         return self._annotation_file
 
     @property
     def max_id(self):
+        """
+        The greatest :attr:`~gatenlp.Annotation.id` used by any annotation within this annotation set.
+
+        :type: string
+        """
         if not self._max_id:
             if self._annotations:
                 annotations = self.annotations
@@ -352,6 +376,11 @@ class AnnotationSet:
 
     @property
     def annotations(self):
+        """
+        All of the annotations belonging to this annotation set.
+
+        :type: list(:class:`~gatenlp.Annotation`)
+        """
         if not self._annotations:
             annotations = [ x for x in self.iter_annotations() ]
             self._annotations = concatenate_annotations(annotations)
@@ -360,6 +389,11 @@ class AnnotationSet:
             return self._annotations
 
     def iter_annotations(self):
+        """
+        Iterate through all annotations within this annotation set in document order.
+
+        :type: iterator
+        """
         annotations = self._element.iterfind(
             "./Annotation"
         )
@@ -368,6 +402,11 @@ class AnnotationSet:
 
     @property
     def annotation_types(self):
+        """
+        All annotation types that appear within this annotation set.
+
+        :type: list(string)
+        """
         return set(
             annotation.type
             for annotation in self.iter_annotations()
@@ -379,6 +418,24 @@ class AnnotationSet:
                           end,
                           feature_dict=None,
                           overwrite=False):
+        """
+        Create an annotation in this annotation set of type *annotation_type*, with start offset *start*, and end offset *end*.
+
+        :param annotation_type: The type of annotation to be created.
+        :type annotation_type: string
+
+        :param start: The offset denoting the beginning of the string within the annotation file's text.
+        :type start: int
+
+        :param end: The offset denoting the ending of the string within the annotation file's text.
+        :type end: int
+
+        :param feature_dict: (optional). Features to include in this annotation. 
+        :type feature_dict: dict({ string : string })
+
+        :param overwrite: Overwrite any existing annotation of matching *annotation_type*, *start*, and *end*.
+        :type overwrite: bool
+        """
         if overwrite == False:
             existing_annotation = next(
                 (
@@ -429,17 +486,29 @@ class AnnotationSet:
         return annotation
 
     def append(self, annotation):
+        """
+        Add an annotation to the end of this annotation set.
+
+        :param annotation: The annotation to append.
+        :type annotation: :class:`~gatenlp.Annotation`
+        """
         self._element.append(annotation._element)
         if self._annotations:
             self._annotations.append(annotation)
 
     def delete(self):
+        """
+        Delete this annotation set by removing any references to it within its :class:`~gatenlp.Annotation` and its associated XML.
+        """
         self.annotation_file.root.remove(self._element)
         self.annotation_file.annotation_sets.remove(self)
         del self.annotation_file.annotation_sets_dict[self.name]
 
 
 class GateIntervalTree:
+    """
+    An `interval tree <https://en.wikipedia.org/wiki/Interval_tree>`_ that facilitates fast searching for overlaps in a group of annotations using their character offsets.
+    """
     def __init__(self):
         self._tree = intervaltree.IntervalTree()
 
@@ -449,6 +518,12 @@ class GateIntervalTree:
 
     def add(self,
             annotation):
+        """
+        Add *annotation* to the tree.
+
+        :param annotation: The annotation to add.
+        :type annotation: :class:`~gatenlp.Annotation`
+        """
         if annotation.start_node >= annotation.end_node:
             return
         self._tree.addi(
@@ -459,6 +534,10 @@ class GateIntervalTree:
 
     def search(self,
                annotation):
+        """
+        :returns: All annotations in the tree whose text overlaps the given annotation.
+        :rtype: list(:class:`~gatenlp.Annotation`)
+        """
         return list(
             itertools.chain.from_iterable(
                 [
@@ -476,6 +555,15 @@ class GateIntervalTree:
         )
 
 class Annotation:
+    """
+    An abstraction of a GATE annotation.
+
+    :parameter annotation_element: The lxml element associated with this annotation. 
+    :type annotation_element: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
+
+    :parameter annotation_set: The annotation set to which this annotation belongs.
+    :type annotation_set: :class:`~gatenlp.AnnotationSet`
+    """
     def __init__(self,
                  annotation_element,
                  annotation_set):
@@ -545,7 +633,7 @@ class Annotation:
         """
         The annotation set to which this annotation belongs.
         
-        :type: gatenlp.AnnotationSet
+        :type: :class:`~gatenlp.AnnotationSet`
         """
         return self._annotation_set
 
@@ -554,7 +642,7 @@ class Annotation:
         """
         The annotation file to which this annotation belongs.
 
-        :type: gatenlp.AnnotationFile
+        :type: :class:`~gatenlp.AnnotationFile`
         """
         return self.annotation_set.annotation_file
 
@@ -572,7 +660,7 @@ class Annotation:
     @property
     def id(self):
         """
-        The annotation ID number.
+        The annotation's unique ID number.
 
         :type: string
         """
@@ -630,7 +718,7 @@ class Annotation:
         """
         The features associated with this annotation. Essentially sub-annotations in the form of pairs of strings as labels and strings as annotations.
 
-        :type: dict({ string : gatenlp.Feature })
+        :type: dict({ string : :class:`~gatenlp.Feature` })
         """
         if not self._features:
             features = [
@@ -648,16 +736,31 @@ class Annotation:
 
     @property
     def continuations(self):
+        """
+        Any continuations to this annotation. See :meth:`gatenlp.concatenate_annotations()` for more information about automatically parsing continuations to annotations.
+
+        :type: list(:class:`~gatenlp.Annotation`)
+        """
         return self._continuations
 
     @property
     def spans(self):
+        """
+        A list of all annotations involved in this annotation and any continuations.
+
+        :type: list(:class:`~gatenlp.Annotation`)
+        """
         return list(
             itertools.chain( [self], ( x for x in self.continuations ) )
         )
 
     @property
     def text(self):
+        """
+        The text within the annotation document to which the annotation refers.
+
+        :type: string
+        """
         nodes = sorted(
             self.char_set.intersection(
                 self.annotation_file.nodes.keys()
@@ -672,15 +775,24 @@ class Annotation:
         )
 
     def get_concatenated_text(self,
-                              separator=None):
-        if not separator:
-            separator = " "
+                              separator=" "):
+        """
+        :param separator: the string used to join each text span.
+        :type separator: string
+        :returns: All of the text associated with this annotation and its continuations, with each annotation string joined by *separator*.
+        :rtype: string
+        """
         return separator.join(
             x.text for x in self.spans
         )
 
     @property
     def char_set(self):
+        """
+        A frozen set of all character offsets associated with this annotation.
+
+        :type: frozenset
+        """
         return frozenset(
             range(
                 self.start_node,
@@ -690,6 +802,11 @@ class Annotation:
 
     @property
     def concatenated_char_set(self):
+        """
+        A frozen set of all character offsets associated with this annotation and any continuations.
+
+        :type: frozenset
+        """
         if self.continuations:
             return reduce(
                 lambda x,y : frozenset( x | y.char_set ),
@@ -704,6 +821,12 @@ class Annotation:
 
     def remove_feature(self,
                        name):
+        """
+        Removes a feature from this annotation, specified by *name*.
+
+        :param name: the name of the feature to be removed
+        :type name: string
+        """
         if name in self.features:
             feature_element = self.features[name]._feature_element
             self._element.remove(feature_element)
@@ -715,6 +838,18 @@ class Annotation:
                     name,
                     value,
                     overwrite=False):
+        """
+        Add a feature by the name of *name* with value *value*.
+
+        :param name: The name to be used for the feature.
+        :type name: string
+
+        :param value: The value of the feature.
+        :type value: string
+
+        :param overwrite: Overwrite any existing feature with name *name*.
+        :type overwrite: bool
+        """
         if name in self.features:
             if overwrite == False:
                 return self.features[name]
@@ -755,7 +890,19 @@ class Annotation:
                                  annotation_type,
                                  annotation_tree=None,
                                  case_sensitive=True):
+        """
+        :returns: All annotations of type *annotation_type* whose text spans (including continuations) overlap with the text span of this annotation (or its continuations).
+        :rtype: list(:class:`~gatenlp.Annotation`)
 
+        :param annotation_type: The type of annotation to restrict the search to.
+        :type annotation_type: string
+
+        :param annotation_tree: The annotation tree to use for the search. Default is the tree associated with this annotation's AnnotationFile.
+        :type annotation_tree: (optional) :class:`~gatenlp.GateIntervalTree`
+
+        :param case_sensitive: Factor case into determining overlapping annotation's types.
+        :type case_sensitive: (optional) bool
+        """
         def is_string_equivalent(a,
                                  b,
                                  case_sensitive=True):
@@ -778,6 +925,12 @@ class Annotation:
         ]
 
 class Feature:
+    """
+    An abstraction of a feature as part of a GATE annotation.
+
+    :parameter feature_element: The lxml element associated with this feature. 
+    :type feature_element: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
+    """
     def __init__(self, feature_element):
         self._feature_element = feature_element
         self._name = None
@@ -791,6 +944,11 @@ class Feature:
 
     @property
     def name(self):
+        """
+        The name of this feature.
+
+        :type: string
+        """
         if self._name is None:
             self._name = self._feature_element.find("./Name")
             return self._name.text
@@ -804,6 +962,11 @@ class Feature:
 
     @property
     def value(self):
+        """
+        The value of this feature.
+
+        :type: string
+        """
         if self._value is None:
             self._value = self._feature_element.find("./Value")
             return self._value.text
@@ -815,9 +978,18 @@ class Feature:
         self._value.text = value
 
     def tally(self):
+        """
+        (Assuming the value is meant to be a count) Increase this feature's value by 1.
+        """
         self.value = str(int(self.value) + 1)
 
 class Schema:
+    """
+    An abstraction of a schema file used for creating GATE annotations.
+
+    :param filename: The path to the schema to parse.
+    :type filename: string
+    """
     def __init__(self, filename):
         self.filename = filename
         self.tree = etree.parse(self.filename)
@@ -827,6 +999,10 @@ class Schema:
         }
 
     def get_attributes(self, annotation_type):
+        """
+        :returns: All of the possible attributes (i.e. feature names) for the given *annotation_type*.
+        :rtype: list(string)
+        """
         attributes = self.root.findall(
             ".//schema:element[@name='{}']"
             "//schema:attribute".format(annotation_type),
@@ -836,6 +1012,15 @@ class Schema:
 
 def dlink(annotations,
           sort=True):
+    """
+    Approximates a `doubly-linked list <https://en.wikipedia.org/wiki/Doubly_linked_list>`_ for *annotations* by creating :attr:`Annotation.previous` and :attr:`Annotation.next` attributes for each annotation. Especially useful for navigating sentences.
+
+    :param annotations: The annotations to link.
+    :type annotations: iterable(:class:`~gatenlp.Annotation`)
+
+    :param sort: Sort the annotations by their offsets before linking.
+    :type sort: bool
+    """
     if sort == True:
         annotations = sorted(
             sorted(
@@ -851,6 +1036,12 @@ def dlink(annotations,
     annotations[-1].previous = annotations[-2]
 
 def unlink(annotation):
+    """
+    Unlinks *annotation* from its neighbors in a doubly-linked list.
+
+    :param annotation: The annotation to unlink.
+    :type annotation: :class:`~gatenlp.Annotation`
+    """
     # if surrounded
     if annotation.previous and annotation.next:
         annotation.previous.next = annotation.next

@@ -43,10 +43,37 @@
 <dl class="class">
 <dt id="gatenlp.Annotation">
 <em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Annotation</code><span class="sig-paren">(</span><em>annotation_element</em>, <em>annotation_set</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>An abstraction of a GATE annotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>annotation_element</strong> (<a class="reference external" href="http://lxml.de/api/lxml.etree._Element-class.html">lxml.etree._Element</a>) – The lxml element associated with this annotation.</li>
+<li><strong>annotation_set</strong> (<a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a>) – The annotation set to which this annotation belongs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
 <dt id="gatenlp.Annotation.add_feature">
 <code class="descname">add_feature</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.add_feature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add a feature by the name of <em>name</em> with value <em>value</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>string</em>) – The name to be used for the feature.</li>
+<li><strong>value</strong> (<em>string</em>) – The value of the feature.</li>
+<li><strong>overwrite</strong> (<em>bool</em>) – Overwrite any existing feature with name <em>name</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.annotation_file">
@@ -56,7 +83,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.AnnotationFile</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#gatenlp.AnnotationFile" title="gatenlp.AnnotationFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationFile</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -70,7 +97,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.AnnotationSet</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -79,17 +106,44 @@
 <dl class="attribute">
 <dt id="gatenlp.Annotation.char_set">
 <code class="descname">char_set</code><a class="headerlink" href="#gatenlp.Annotation.char_set" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A frozen set of all character offsets associated with this annotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">frozenset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.concatenated_char_set">
 <code class="descname">concatenated_char_set</code><a class="headerlink" href="#gatenlp.Annotation.concatenated_char_set" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A frozen set of all character offsets associated with this annotation and any continuations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">frozenset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.continuations">
 <code class="descname">continuations</code><a class="headerlink" href="#gatenlp.Annotation.continuations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Any continuations to this annotation. See <a class="reference internal" href="#gatenlp.concatenate_annotations" title="gatenlp.concatenate_annotations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gatenlp.concatenate_annotations()</span></code></a> for more information about automatically parsing continuations to annotations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.Annotation.delete">
@@ -119,7 +173,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : gatenlp.Feature })</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : <a class="reference internal" href="#gatenlp.Feature" title="gatenlp.Feature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feature</span></code></a> })</td>
 </tr>
 </tbody>
 </table>
@@ -127,18 +181,49 @@
 
 <dl class="method">
 <dt id="gatenlp.Annotation.get_concatenated_text">
-<code class="descname">get_concatenated_text</code><span class="sig-paren">(</span><em>separator=None</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.get_concatenated_text" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">get_concatenated_text</code><span class="sig-paren">(</span><em>separator=' '</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.get_concatenated_text" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>separator</strong> (<em>string</em>) – the string used to join each text span.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">All of the text associated with this annotation and its continuations, with each annotation string joined by <em>separator</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.Annotation.get_intersecting_of_type">
 <code class="descname">get_intersecting_of_type</code><span class="sig-paren">(</span><em>annotation_type</em>, <em>annotation_tree=None</em>, <em>case_sensitive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.get_intersecting_of_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">All annotations of type <em>annotation_type</em> whose text spans (including continuations) overlap with the text span of this annotation (or its continuations).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>annotation_type</strong> (<em>string</em>) – The type of annotation to restrict the search to.</li>
+<li><strong>annotation_tree</strong> ((optional) <a class="reference internal" href="#gatenlp.GateIntervalTree" title="gatenlp.GateIntervalTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">GateIntervalTree</span></code></a>) – The annotation tree to use for the search. Default is the tree associated with this annotation’s AnnotationFile.</li>
+<li><strong>case_sensitive</strong> (<em>(</em><em>optional</em><em>) </em><em>bool</em>) – Factor case into determining overlapping annotation’s types.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.id">
 <code class="descname">id</code><a class="headerlink" href="#gatenlp.Annotation.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>The annotation ID number.</p>
+<dd><p>The annotation’s unique ID number.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -152,12 +237,30 @@
 <dl class="method">
 <dt id="gatenlp.Annotation.remove_feature">
 <code class="descname">remove_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Annotation.remove_feature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Removes a feature from this annotation, specified by <em>name</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) – the name of the feature to be removed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.spans">
 <code class="descname">spans</code><a class="headerlink" href="#gatenlp.Annotation.spans" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A list of all annotations involved in this annotation and any continuations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.start_node">
@@ -176,7 +279,16 @@
 <dl class="attribute">
 <dt id="gatenlp.Annotation.text">
 <code class="descname">text</code><a class="headerlink" href="#gatenlp.Annotation.text" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The text within the annotation document to which the annotation refers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.turn">
@@ -223,7 +335,7 @@
 <dl class="method">
 <dt id="gatenlp.AnnotationFile.add_annotation">
 <code class="descname">add_annotation</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.add_annotation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly – instead, use gatenlp.AnnotationFile.create_annotation_set and gatenlp.AnnotationSet.create_annotation.</p>
+<dd><p>Adds an annotation to interval tree and updates the TextWithNodes XML to include any missing node references. Generally, this should not need to be called explicitly – instead, use <a class="reference internal" href="#gatenlp.AnnotationFile.create_annotation_set" title="gatenlp.AnnotationFile.create_annotation_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_annotation_set()</span></code></a> and <a class="reference internal" href="#gatenlp.AnnotationSet.create_annotation" title="gatenlp.AnnotationSet.create_annotation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gatenlp.AnnotationSet.create_annotation()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -246,7 +358,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(gatenlp.AnnotationSet)</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a>)</td>
 </tr>
 </tbody>
 </table>
@@ -255,12 +367,12 @@
 <dl class="attribute">
 <dt id="gatenlp.AnnotationFile.annotation_sets_dict">
 <code class="descname">annotation_sets_dict</code><a class="headerlink" href="#gatenlp.AnnotationFile.annotation_sets_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A dictionary with keys being annotation set names, and their values being gatenlp.AnnotationSets.</p>
+<dd><p>A dictionary with keys being annotation set names, and their values being of class <a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : gatenlp.AnnotationSet })</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ string : <a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a> })</td>
 </tr>
 </tbody>
 </table>
@@ -273,7 +385,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(gatenlp.Annotation)</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</td>
 </tr>
 </tbody>
 </table>
@@ -282,14 +394,14 @@
 <dl class="method">
 <dt id="gatenlp.AnnotationFile.create_annotation_set">
 <code class="descname">create_annotation_set</code><span class="sig-paren">(</span><em>name=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationFile.create_annotation_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a gatenlp.AnnotationSet in the XML document.</p>
+<dd><p>Creates an <a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a> in the XML document.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>name</strong> (<em>string</em>) – The name of the annotation set</li>
-<li><strong>overwrite</strong> (<em>bool</em>) – Whether an existing annotation set by <em>name</em>, if it exists, should be overwritten.</li>
+<li><strong>overwrite</strong> (<em>bool</em>) – Overwrite any existing annotation set that has <em>name</em>.</li>
 </ul>
 </td>
 </tr>
@@ -327,12 +439,12 @@
 <dl class="attribute">
 <dt id="gatenlp.AnnotationFile.interval_tree">
 <code class="descname">interval_tree</code><a class="headerlink" href="#gatenlp.AnnotationFile.interval_tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>An interval tree that facilitates searching the document’s annotations by character offsets.</p>
+<dd><p>See <a class="reference internal" href="#gatenlp.GateIntervalTree" title="gatenlp.GateIntervalTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">GateIntervalTree</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gatenlp.GateIntervalTree</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#gatenlp.GateIntervalTree" title="gatenlp.GateIntervalTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">GateIntervalTree</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -362,7 +474,7 @@ with its value representing the lxml object for that node.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ int : lxml Element })</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict({ int : <a class="reference external" href="http://lxml.de/api/lxml.etree._Element-class.html">lxml.etree._Element</a> })</td>
 </tr>
 </tbody>
 </table>
@@ -375,7 +487,7 @@ with its value representing the lxml object for that node.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="http://lxml.de/api/lxml.etree._Element-class.html">lxml.etree._Element</a></td>
 </tr>
 </tbody>
 </table>
@@ -417,7 +529,7 @@ with its value representing the lxml object for that node.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="http://lxml.de/api/lxml.etree._Element-class.html">lxml.etree._Element</a></td>
 </tr>
 </tbody>
 </table>
@@ -430,7 +542,7 @@ with its value representing the lxml object for that node.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">lxml Element</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="http://lxml.de/api/lxml.etree._Element-class.html">lxml.etree._Element</a></td>
 </tr>
 </tbody>
 </table>
@@ -441,95 +553,255 @@ with its value representing the lxml object for that node.</p>
 <dl class="class">
 <dt id="gatenlp.AnnotationSet">
 <em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">AnnotationSet</code><span class="sig-paren">(</span><em>annotation_set_element</em>, <em>annotation_file</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>An abstraction of a GATE annotation set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>annotation_set_element</strong> – The lxml element associated with this annotation set.</li>
+<li><strong>annotation_file</strong> (<a class="reference internal" href="#gatenlp.AnnotationFile" title="gatenlp.AnnotationFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationFile</span></code></a>) – The annotation file to which this annotation set belongs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
 <dt id="gatenlp.AnnotationSet.annotation_file">
 <code class="descname">annotation_file</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotation_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The annotation file to which this annotation set belongs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#gatenlp.AnnotationSet" title="gatenlp.AnnotationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationSet</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.AnnotationSet.annotation_types">
 <code class="descname">annotation_types</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotation_types" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>All annotation types that appear within this annotation set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(string)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.AnnotationSet.annotations">
 <code class="descname">annotations</code><a class="headerlink" href="#gatenlp.AnnotationSet.annotations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>All of the annotations belonging to this annotation set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.append">
 <code class="descname">append</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.append" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add an annotation to the end of this annotation set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>annotation</strong> (<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>) – The annotation to append.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.create_annotation">
 <code class="descname">create_annotation</code><span class="sig-paren">(</span><em>annotation_type</em>, <em>start</em>, <em>end</em>, <em>feature_dict=None</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.create_annotation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create an annotation in this annotation set of type <em>annotation_type</em>, with start offset <em>start</em>, and end offset <em>end</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>annotation_type</strong> (<em>string</em>) – The type of annotation to be created.</li>
+<li><strong>start</strong> (<em>int</em>) – The offset denoting the beginning of the string within the annotation file’s text.</li>
+<li><strong>end</strong> (<em>int</em>) – The offset denoting the ending of the string within the annotation file’s text.</li>
+<li><strong>feature_dict</strong> (<em>dict</em><em>(</em><em>{ string : string }</em><em>)</em>) – (optional). Features to include in this annotation.</li>
+<li><strong>overwrite</strong> (<em>bool</em>) – Overwrite any existing annotation of matching <em>annotation_type</em>, <em>start</em>, and <em>end</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.delete">
 <code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.delete" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Delete this annotation set by removing any references to it within its <a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a> and its associated XML.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.iter_annotations">
 <code class="descname">iter_annotations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.AnnotationSet.iter_annotations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Iterate through all annotations within this annotation set in document order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.AnnotationSet.max_id">
 <code class="descname">max_id</code><a class="headerlink" href="#gatenlp.AnnotationSet.max_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The greatest <a class="reference internal" href="#gatenlp.Annotation.id" title="gatenlp.Annotation.id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">id</span></code></a> used by any annotation within this annotation set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.AnnotationSet.name">
 <code class="descname">name</code><a class="headerlink" href="#gatenlp.AnnotationSet.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The name of this annotation set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="gatenlp.Feature">
 <em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Feature</code><span class="sig-paren">(</span><em>feature_element</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Feature" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>An abstraction of a feature as part of a GATE annotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>feature_element</strong> – The lxml element associated with this feature.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
 <dt id="gatenlp.Feature.name">
 <code class="descname">name</code><a class="headerlink" href="#gatenlp.Feature.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The name of this feature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.Feature.tally">
 <code class="descname">tally</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Feature.tally" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>(Assuming the value is meant to be a count) Increase this feature’s value by 1.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.Feature.value">
 <code class="descname">value</code><a class="headerlink" href="#gatenlp.Feature.value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The value of this feature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="gatenlp.GateIntervalTree">
 <em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">GateIntervalTree</code><a class="headerlink" href="#gatenlp.GateIntervalTree" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>An <a class="reference external" href="https://en.wikipedia.org/wiki/Interval_tree">interval tree</a> that facilitates fast searching for overlaps in a group of annotations using their character offsets.</p>
+<dl class="method">
 <dt id="gatenlp.GateIntervalTree.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.GateIntervalTree.add" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add <em>annotation</em> to the tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>annotation</strong> (<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>) – The annotation to add.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.GateIntervalTree.search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.GateIntervalTree.search" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">All annotations in the tree whose text overlaps the given annotation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="gatenlp.Schema">
 <em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Schema</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Schema" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>An abstraction of a schema file used for creating GATE annotations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>string</em>) – The path to the schema to parse.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
 <dt id="gatenlp.Schema.get_attributes">
 <code class="descname">get_attributes</code><span class="sig-paren">(</span><em>annotation_type</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.Schema.get_attributes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">All of the possible attributes (i.e. feature names) for the given <em>annotation_type</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(string)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -544,7 +816,20 @@ appropriately, less all continuation annotations</p>
 <dl class="function">
 <dt id="gatenlp.dlink">
 <code class="descclassname">gatenlp.</code><code class="descname">dlink</code><span class="sig-paren">(</span><em>annotations</em>, <em>sort=True</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.dlink" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Approximates a <a class="reference external" href="https://en.wikipedia.org/wiki/Doubly_linked_list">doubly-linked list</a> for <em>annotations</em> by creating <code class="xref py py-attr docutils literal notranslate"><span class="pre">Annotation.previous</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">Annotation.next</span></code> attributes for each annotation. Especially useful for navigating sentences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>annotations</strong> (iterable(<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>)) – The annotations to link.</li>
+<li><strong>sort</strong> (<em>bool</em>) – Sort the annotations by their offsets before linking.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="gatenlp.find_from_index">
@@ -564,7 +849,16 @@ appropriately, less all continuation annotations</p>
 <dl class="function">
 <dt id="gatenlp.unlink">
 <code class="descclassname">gatenlp.</code><code class="descname">unlink</code><span class="sig-paren">(</span><em>annotation</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.unlink" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Unlinks <em>annotation</em> from its neighbors in a doubly-linked list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>annotation</strong> (<a class="reference internal" href="#gatenlp.Annotation" title="gatenlp.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>) – The annotation to unlink.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </div>
 
