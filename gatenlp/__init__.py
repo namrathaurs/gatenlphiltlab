@@ -147,7 +147,7 @@ class AnnotationFile:
     @property
     def text_with_nodes(self):
         """
-        The TextWithNodes section of the XML. (link to more information)
+        The TextWithNodes section of the XML.
 
         :type: `lxml.etree._Element <http://lxml.de/api/lxml.etree._Element-class.html>`_
         """
@@ -1058,6 +1058,25 @@ def find_from_index(index,
                     match_function,
                     reverse=False,
                     greedy=True):
+    """
+    Given list *source_list*, return all elements which returns *True* when
+    passed to *match_function*, starting from *index*.
+
+    :param index: The index to start searching from in the *source_list*.
+    :type index: int
+
+    :param source_list: The list to search.
+    :type source_list: list
+
+    :param match_function: The boolean function to pass each element through.
+    :type match_function: function
+
+    :param reverse: Reverses the search order.
+    :type reverse: bool
+
+    :param greedy: Returns all elements (from *index* to the end of the *source_list*) which return *True* when passed to *match_function*, otherwise returns only the first.
+    :type greedy: bool
+    """
     if reverse:
         try:
             list_from_index = source_list[index-1::-1]
