@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='gatenlp',
-    version='3.1',
+    version='3.1.1',
     description='Interface for parsing and manipulating GATE annotation documents',
     url='http://github.com/nickwbarber/gatenlp',
     author='Nick Barber',
