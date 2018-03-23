@@ -13,8 +13,9 @@ import Levenshtein
 def _get_change_tree(text1,
                      text2):
     change_tree = intervaltree.IntervalTree()
+    # setting autojunk to True will greatly shorten processing time
+    # at the expense of accuracy.
     seq = difflib.SequenceMatcher(None, text1, text2, autojunk=False)
-    # seq = difflib.SequenceMatcher(None, text1, text2,)
     matching_blocks = seq.get_matching_blocks()
     for block in matching_blocks:
         difference = block.b - block.a
@@ -27,6 +28,19 @@ def _get_change_tree(text1,
     return change_tree
 
 class ChangeTree():
+    """
+    An `interval tree <https://en.wikipedia.org/wiki/Interval_tree>`_ which
+    stores the differences between *text1* and *text2*, optimizing for
+    difference lookups for annotation offset reference corrections. All
+    operations assume the changes inform how to get to *text2* from *text1*.
+
+    Each interval in the tree corresponds to a text offset interval in *text1*,
+    the data of which is an integer representing the change necessary to apply
+    to any offsets in that interval in order to accurately refer to the same
+    text within *text2*.
+
+    Based on `intervaltree <https://pypi.python.org/pypi/intervaltree>`_.
+    """
     def __init__(self,
                  text1,
                  text2):
@@ -48,6 +62,11 @@ class ChangeTree():
 
     def get_lt_interval(self,
                         node):
+        """
+        Given *node*, return the nearest interval which contains nodes less than *node*.
+
+        :rtype: `intervaltree.Interval <https://github.com/chaimleib/intervaltree/blob/master/intervaltree/interval.py>`_
+        """
         nearest_lt_node = self._interval_tree_end_points[
             bisect.bisect_left(self._interval_tree_end_points, node) - 1
         ]
@@ -58,6 +77,11 @@ class ChangeTree():
 
     def get_gt_interval(self,
                         node):
+        """
+        Given *node*, return the nearest interval which contains nodes greater than *node*.
+
+        :rtype: `intervaltree.Interval <https://github.com/chaimleib/intervaltree/blob/master/intervaltree/interval.py>`_
+        """
         nearest_gt_node = self._interval_tree_start_points[
             bisect.bisect_right(self._interval_tree_start_points, node)
         ]
@@ -68,6 +92,19 @@ class ChangeTree():
 
     def get_changed_annotation_nodes(self,
                                      annotation):
+        """
+        Given an *annotation* with offsets referring to *text1*, return a new
+        start node and end node that corresponds with the text in *text2*. If
+        the text is not completely comparable, an estimation of the nearest
+        text will be made using an algorithm incorporating `Levenshtein
+        distances <https://en.wikipedia.org/wiki/Levenshtein_distance>`_.
+
+        :param annotation: The annotation.
+        :type annotation: :class:`gatenlp.Annotation`
+
+        :returns: (start_node, end_node)
+        :rtype: tuple(int, int)
+        """
         possible_start_points = []
         possible_end_points = []
 
@@ -169,17 +206,47 @@ class ChangeTree():
 
 def align_annotation(annotation,
                      change_tree):
+    """
+    Given an *annotation* and a *change_tree*, assuming that *annotation*
+    corresponds to the same text as in *text1* of the *change_tree*, set
+    *annotation*'s start and end nodes appropriately to refer to
+    *change_tree*'s *text2*.
+
+    :param annotation: The annotation to correct.
+    :type annotation: :class:`gatenlp.Annotation`
+
+    :param change_tree: The change tree to use for change lookups.
+    :type change_tree: :class:`~gatenlp.diff.ChangeTree`
+    """
     annotation.start_node, annotation.end_node = (
         change_tree.get_changed_annotation_nodes(annotation)
     )
 
 def align_annotations(annotations,
                       change_tree):
+    """
+    :func:`align <gate.align_annotation>` each annotation in *annotations* according to *change_tree*.
+
+    :param annotations: The annotations to correct.
+    :type annotations: iterable of :class:`gatenlp.Annotation`
+
+    :param change_tree: The change tree to use for change lookups.
+    :type change_tree: :class:`~gatenlp.diff.ChangeTree`
+    """
     for annotation in annotations:
         align_annotation(annotation, change_tree)
 
 def assure_nodes(annotations,
                  annotation_file):
+    """
+    If any node references within *annotations* are not yet present within *annotation_file*, create them.
+
+    :param annotations: The annotations.
+    :type annotations: iterable of :class:`gatenlp.Annotation`
+
+    :param annotation_file: The annotation file.
+    :type annotation_file: :class:`gatenlp.AnnotationFile`
+    """
     for annotation in annotations:
         start_node = annotation.start_node
         end_node = annotation.end_node
@@ -195,6 +262,15 @@ def assure_nodes(annotations,
 
 def import_annotations(annotations,
                        annotation_file):
+    """
+    Create annotations for all *annotations* which don't exist in *annotation_file*.
+
+    :param annotations: The annotations to import.
+    :type annotations: iterable of :class:`gatenlp.Annotation`
+
+    :param annotation_file: The annotation file.
+    :type annotation_file: :class:`gatenlp.AnnotationFile`
+    """
     destination_annotations = set(annotation_file.annotations)
     for annotation in annotations:
         annotation_set_name = annotation.annotation_set.name

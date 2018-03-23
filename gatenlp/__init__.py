@@ -66,16 +66,16 @@ class AnnotationFile:
         Returns the plain text used for annotation within the document.
 
         :type: string
+
+        :setter: The text of the document can be replaced using this setter. Any existing annotations will be attempted to be corrected using :mod:`gatenlp.diff`.
+        :setter param new_text: the text to replace the current text
+        :setter type new_text: string
         """
         return "".join( self.text_with_nodes.itertext() )
 
     @text.setter
     def text(self,
              new_text):
-        """
-        :param new_text: the text to replace the current text
-        :type new_text: string
-        """
         change_tree = diff.get_change_tree(
             self.text,
             new_text,
@@ -391,7 +391,9 @@ class AnnotationSet:
     @property
     def annotations(self):
         """
-        All of the annotations belonging to this annotation set.
+        All of the annotations belonging to this annotation set. By default,
+        returns only head annotations; continuation annotations will be stored
+        appropriately as continuations to the head annotation. For more information see :func:`~gatenlp.concatenate_annotations`
 
         :type: list(:class:`~gatenlp.Annotation`)
         """
@@ -1133,9 +1135,15 @@ def find_from_index(index,
                 raise StopIteration()
 
 def concatenate_annotations(annotation_iterable):
-    """Given an iterable of Annotation objects, returns a list of Annotations
+    """
+    Given an iterable of annotations, return a list of Annotation
     objects such that each Annotation's continuations list is populated
-    appropriately, less all continuation annotations
+    appropriately, less all continuation annotations.
+
+    :param annotation_iterable: The iterable of annotations.
+    :type annotation_iterable: iterable of :class:`~gatenlp.Annotation`
+
+    :rtype: list(:class:`~gatenlp.Annotation`)
     """
     annotations = sorted(
         sorted(
@@ -1168,6 +1176,12 @@ def concatenate_annotations(annotation_iterable):
     ]
 
 def is_overlapping(annotations):
+    """
+    Returns *True* if all *annotations* overlap.
+
+    :param annotations: The annotations.
+    :type annotations: list(:class:`~gatenlp.Annotation`)
+    """
     if len(annotations) == 0:
         raise Exception("Can't compare to nothing!")
     return all(
@@ -1185,6 +1199,22 @@ def is_overlapping(annotations):
 def normalize(text,
               regex_restrictions=[],
               verbose=False):
+    """
+    Returns *text*, less all non-linguistic text (e.g. overlap brackets,
+    speaker notation, etc.). Defaults to the regular expressions in
+    :data:`gatenlp.regex_patterns.regexes`, but a specific selection of
+    patterns and replacements can be made by listing the names of the desired
+    regexes as *regex_restrictions*.
+
+    :param text: The text to normalize.
+    :type text: string
+
+    :param regex_restrictions: (optional). The names of the regexes to use.
+    :type regex_restrictions: list(string)
+
+    :param verbose: Print the regex matches to the console.
+    :type verbose: bool
+    """
     matches = set()
     cleaned_text = text
     if regex_restrictions:
