@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 setup(
@@ -9,7 +9,7 @@ setup(
     author='Nick Barber',
     author_email='nickwbarber@gmail.com',
     license='MIT',
-    packages=['gatenlp'],
+    packages=find_packages(),
     install_requires=[
         'lxml',
         'intervaltree'
