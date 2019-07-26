@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='gatenlp',
-    version='3.2.5',
+    name='gatenlphiltlab',
+    version='4.0.0',
     description='Interface for parsing and manipulating GATE annotation documents',
-    url='http://github.com/nickwbarber/gatenlp',
+    url='http://github.com/nickwbarber/gatenlphiltlab',
     author='Nick Barber',
     author_email='nickwbarber@gmail.com',
     license='Apache License, Version 2.0',

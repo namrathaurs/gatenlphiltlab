@@ -1,0 +1,5 @@
+Interlocutor_1: Hello! How have you been?
+
+Interlocutor_2: I've been great! How about you?
+
+Interlocutor_1: Oh, same old, same old.

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GateDocument version="3">
+<!-- The document's features-->
+
+<GateDocumentFeatures>
+<Feature>
+  <Name className="java.lang.String">gate.SourceURL</Name>
+  <Value className="java.lang.String">file:/home/nick/projects/gatenlp/sample/text1.txt</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">MimeType</Name>
+  <Value className="java.lang.String">text/plain</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">docNewLineType</Name>
+  <Value className="java.lang.String">LF</Value>
+</Feature>
+</GateDocumentFeatures>
+<!-- The document content area with serialized nodes -->
+
+<TextWithNodes><Node id="0"/>Interlocutor_1<Node id="14"/>: <Node id="16"/>Hello<Node id="21"/>!<Node id="22"/> <Node id="23"/>How have you been<Node id="40"/>?<Node id="41"/>
+
+<Node id="43"/>Interlocutor_2<Node id="57"/>: <Node id="59"/>I've been great<Node id="74"/>!<Node id="75"/> <Node id="76"/>How about you<Node id="89"/>?<Node id="90"/>
+
+<Node id="92"/>Interlocutor_1<Node id="106"/>: <Node id="108"/>Oh, same old, same old<Node id="130"/>.<Node id="131"/>
+<Node id="132"/></TextWithNodes>
+<!-- The default annotation set -->
+
+<AnnotationSet>
+</AnnotationSet>
+
+<!-- Named annotation set -->
+
+<AnnotationSet Name="Original markups">
+<Annotation Id="0" Type="paragraph" StartNode="0" EndNode="41">
+</Annotation>
+<Annotation Id="1" Type="paragraph" StartNode="43" EndNode="90">
+</Annotation>
+<Annotation Id="2" Type="paragraph" StartNode="92" EndNode="132">
+</Annotation>
+</AnnotationSet>
+
+<!-- Named annotation set -->
+
+<AnnotationSet Name="annotation_set_1">
+<Annotation Id="3" Type="greeting" StartNode="16" EndNode="21">
+</Annotation>
+<Annotation Id="4" Type="question" StartNode="23" EndNode="40">
+</Annotation>
+<Annotation Id="5" Type="question" StartNode="76" EndNode="89">
+</Annotation>
+<Annotation Id="6" Type="answer" StartNode="59" EndNode="74">
+</Annotation>
+<Annotation Id="7" Type="answer" StartNode="108" EndNode="130">
+</Annotation>
+<Annotation Id="8" Type="speaker_label" StartNode="0" EndNode="14">
+</Annotation>
+<Annotation Id="9" Type="speaker_label" StartNode="43" EndNode="57">
+</Annotation>
+<Annotation Id="10" Type="speaker_label" StartNode="92" EndNode="106">
+</Annotation>
+<Annotation Id="11" Type="punctuation" StartNode="21" EndNode="22">
+</Annotation>
+<Annotation Id="12" Type="punctuation" StartNode="40" EndNode="41">
+</Annotation>
+<Annotation Id="13" Type="punctuation" StartNode="74" EndNode="75">
+</Annotation>
+<Annotation Id="14" Type="punctuation" StartNode="89" EndNode="90">
+</Annotation>
+<Annotation Id="15" Type="punctuation" StartNode="130" EndNode="131">
+</Annotation>
+</AnnotationSet>
+
+</GateDocument>

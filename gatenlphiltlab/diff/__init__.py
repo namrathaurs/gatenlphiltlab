@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import gatenlp
+import gatenlphiltlab
 from collections import namedtuple
 from collections import OrderedDict
 import itertools
@@ -100,7 +100,7 @@ class ChangeTree():
         distances <https://en.wikipedia.org/wiki/Levenshtein_distance>`_.
 
         :param annotation: The annotation.
-        :type annotation: :class:`gatenlp.Annotation`
+        :type annotation: :class:`gatenlphiltlab.Annotation`
 
         :returns: (start_node, end_node)
         :rtype: tuple(int, int)
@@ -213,10 +213,10 @@ def align_annotation(annotation,
     *change_tree*'s *text2*.
 
     :param annotation: The annotation to correct.
-    :type annotation: :class:`gatenlp.Annotation`
+    :type annotation: :class:`gatenlphiltlab.Annotation`
 
     :param change_tree: The change tree to use for change lookups.
-    :type change_tree: :class:`~gatenlp.diff.ChangeTree`
+    :type change_tree: :class:`~gatenlphiltlab.diff.ChangeTree`
     """
     annotation.start_node, annotation.end_node = (
         change_tree.get_changed_annotation_nodes(annotation)
@@ -228,10 +228,10 @@ def align_annotations(annotations,
     :func:`align <gate.align_annotation>` each annotation in *annotations* according to *change_tree*.
 
     :param annotations: The annotations to correct.
-    :type annotations: iterable of :class:`gatenlp.Annotation`
+    :type annotations: iterable of :class:`gatenlphiltlab.Annotation`
 
     :param change_tree: The change tree to use for change lookups.
-    :type change_tree: :class:`~gatenlp.diff.ChangeTree`
+    :type change_tree: :class:`~gatenlphiltlab.diff.ChangeTree`
     """
     for annotation in annotations:
         align_annotation(annotation, change_tree)
@@ -242,10 +242,10 @@ def assure_nodes(annotations,
     If any node references within *annotations* are not yet present within *annotation_file*, create them.
 
     :param annotations: The annotations.
-    :type annotations: iterable of :class:`gatenlp.Annotation`
+    :type annotations: iterable of :class:`gatenlphiltlab.Annotation`
 
     :param annotation_file: The annotation file.
-    :type annotation_file: :class:`gatenlp.AnnotationFile`
+    :type annotation_file: :class:`gatenlphiltlab.AnnotationFile`
     """
     for annotation in annotations:
         start_node = annotation.start_node
@@ -266,10 +266,10 @@ def import_annotations(annotations,
     Create annotations for all *annotations* which don't exist in *annotation_file*.
 
     :param annotations: The annotations to import.
-    :type annotations: iterable of :class:`gatenlp.Annotation`
+    :type annotations: iterable of :class:`gatenlphiltlab.Annotation`
 
     :param annotation_file: The annotation file.
-    :type annotation_file: :class:`gatenlp.AnnotationFile`
+    :type annotation_file: :class:`gatenlphiltlab.AnnotationFile`
     """
     destination_annotations = set(annotation_file.annotations)
     for annotation in annotations:

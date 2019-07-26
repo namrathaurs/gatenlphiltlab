@@ -13,7 +13,7 @@ Regex = namedtuple(
     ]
 )
 
-#: The default regex replacements used by :func:`gatenlp.normalize`
+#: The default regex replacements used by :func:`gatenlphiltlab.normalize`
 regexes = (
     Regex(
         name="left_single_quote",
