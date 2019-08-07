@@ -10,7 +10,7 @@ import intervaltree
 import Levenshtein
 
 
-def _get_change_tree(text1,
+def get_change_tree(text1,
                      text2):
     change_tree = intervaltree.IntervalTree()
     # setting autojunk to True will greatly shorten processing time
@@ -46,7 +46,7 @@ class ChangeTree():
                  text2):
         self._text1 = text1
         self._text2 = text2
-        self._change_tree = _get_change_tree(text1, text2)
+        self._change_tree = get_change_tree(text1, text2)
         self._interval_tree_start_points = sorted(
             [
                 interval.begin
@@ -71,7 +71,7 @@ class ChangeTree():
             bisect.bisect_left(self._interval_tree_end_points, node) - 1
         ]
         nearest_lt_interval = sorted(
-            self._change_tree.search(nearest_lt_node)
+            self._change_tree[nearest_lt_node]
         )[0]
         return nearest_lt_interval
 
@@ -86,7 +86,7 @@ class ChangeTree():
             bisect.bisect_right(self._interval_tree_start_points, node)
         ]
         nearest_gt_interval = sorted(
-            self._change_tree.search(nearest_gt_node)
+            self._change_tree[nearest_gt_node]
         )[0]
         return nearest_gt_interval
 
@@ -111,7 +111,7 @@ class ChangeTree():
         for node in (annotation.start_node, annotation.end_node):
             try:
                 interval = sorted(
-                    self._change_tree.search(node)
+                    self._change_tree[node]
                 )[0]
                 if node == annotation.start_node:
                     possible_start_points.append(

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gatenlphiltlab',
-    version='4.0.0',
+    version='4.0.4',
     description='Interface for parsing and manipulating GATE annotation documents',
     url='http://github.com/nickwbarber/gatenlphiltlab',
     author='Nick Barber',
@@ -11,9 +11,9 @@ setup(
     license='Apache License, Version 2.0',
     packages=find_packages(),
     install_requires=[
-        'lxml==4.1.1',
-        'intervaltree==2.1.0',
-        'python-Levenshtein==0.12.0'
+        'lxml>=4.1.1',
+        'intervaltree>=2.1.0',
+        'python-Levenshtein>=0.12.0'
     ],
     python_requires='>=3',
     zip_safe=False,
