@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gatenlphiltlab',
-    version='4.0.4',
+    version='4.0.5',
     description='Interface for parsing and manipulating GATE annotation documents',
     url='http://github.com/nickwbarber/gatenlphiltlab',
     author='Nick Barber',
