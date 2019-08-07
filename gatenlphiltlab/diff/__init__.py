@@ -192,7 +192,6 @@ class ChangeTree():
             new_start_node = longest_valid_combination[0] + closest_pair[0]
             new_end_node = longest_valid_combination[0] + closest_pair[1]
 
-        #TODO: fix id 1507 (etc.) and that one time where "have" wasn't annotated accurately
         new_text = self._text2[new_start_node:new_end_node]
 
         if new_text != intended_text:
